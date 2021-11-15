@@ -32,7 +32,7 @@ class Problem(db.Model):
     questioner = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
     # limit,testcase_count
     is_hidden = db.Column(db.Integer, nullable=False, default=0)
-    upload_date = db.Column(db.DateTime, nullable=False, default=datatime.utcnow)
+    upload_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     problem_to_user = db.relationship("User_problem", backref="problem")
     #problem_topics = db.relationship("Topic", secondary=relations, backref="Problem")
@@ -74,7 +74,7 @@ class Submission(db.Model):
     #exam_id = db.Column(db.Integer, nullable=False)
     #homework_id = db.Columm(db.Integer, nullable=False)
 
-    upload_date = db.Column(db.DateTime, nullable=False, default=datatime.utcnow)
+    upload_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     code_content = db.Column(db.String(524288), nullable=False)
 
     def __repr__(self):
