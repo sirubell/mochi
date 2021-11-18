@@ -33,6 +33,43 @@ def check_TLE_MLE(file_place,Memory_limit) :
 		else :
 			return "TLE"
 
+def check_time(file_place) :
+	f = open(file_place,"r")
+	text = f.readlines()
+	res = []
+	for i in range(len(text)) :
+		res.append(text[i])
+	return int((res[1][-5:-2]))
+
+def check_memory(file_place) :
+	f = open(file_place,"r")
+	text = f.readlines()
+	return int(text[0])
+
+def compare_func(user_file,answer_file) :
+	f1 = open(user_file,"r")
+	f2 = open(answer_file,"r")
+
+	data1 = f1.read()
+	data2 = f2.read()
+	words1 = data1.split()
+	words2 = data2.split()
+	if words1 != words2 :
+		return "WA"
+
+	i = 0
+	for line1 in f1:
+		i+=1
+		for line2 in f2:
+			if line1!=line2:
+				f1.close()
+				f2.close()
+				return "WA"
+			break
+
+	f1.close()
+	f2.close()
+	return "AC"
 
 def running_func(running_case):
 	Mode = int(running_case["Mode"])
@@ -50,14 +87,17 @@ def running_func(running_case):
 		Runtime_Error_status = check_Runtime_Error("/home/piggy/Final/Dispatch/finish/%s/%s.err"%(Source_id,Test_case_name))			
 		if Runtime_Error_status != "OK" :
 			return {"Source_id":Source_id,"Time":"1","Memory":"100","Status":Runtime_Error_status}
-		# Time = check_time("/home/piggy/Final/Dispatch/finish/%s/%s.time")
-		# Memory = check_memory("/home/piggy/Final/Dispatch/finish/%s/%s.memory")
 		TLE_MLE_status = check_TLE_MLE("/home/piggy/Final/Dispatch/finish/%s/%s.memory"%(Source_id,Test_case_name),Memory_limit)
 		if TLE_MLE_status != "OK" :
 			return {"Source_id":Source_id,"Time":"1","Memory":"100","Status":TLE_MLE_status}
-		# Compare_result = ""
-		# Compare_result = compare_func("/home/piggy/Final/Dispatch/finish/%s/%s.out","/home/piggy/Final/Dispatch/Answer/%s/%s")
 
+		Time = check_time("/home/piggy/Final/Dispatch/finish/%s/%s.time"%(Source_id,Test_case_name))
+		Memory = check_memory("/home/piggy/Final/Dispatch/finish/%s/%s.memory"%(Source_id,Test_case_name))
+
+		Compare_result = ""
+		Compare_result = compare_func("/home/piggy/Final/Dispatch/finish/%s/%s.out"%(Source_id,Test_case_name),"/home/piggy/Final/Dispatch/Answer/%s/%s.ans"%(Source_id,Test_case_name))
+
+		return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":Compare_result}
 
 
 
@@ -154,6 +194,8 @@ if __name__ == "__main__" :
 
 	print(result["Return_Set"])
 
+	for key,value in result["Return_Set"].items() :
+		subprocess.run(["rm -r /home/piggy/Final/Dispatch/finish/%s"%(key)],shell=True)
 
 
 
