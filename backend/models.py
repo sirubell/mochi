@@ -27,24 +27,16 @@ class User(db.Model):
         return f"User('{self.user_name}', '{self.email}')"
 #✔
 
-class User_problem(db.Model):
-    __tablename__ = "user_problem"
-    user_problem_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id))
-    problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id))
-    status = db.Column(db.Integer, nullable=False, default=0)
-#✔
-
 class Problem(db.Model):
     __tablename__ = "problem"
     problem_id = db.Column(db.Integer, primary_key=True)
     problem_name = db.Column(db.String(128), unique=True, nullable=False)
-    questioner_id = db.Colmn(Db.Integer, db.ForeignKey(UUser,user_id), nullable=False)
+    questioner_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
     difficulty = db.Column(db.Integer, nullable=False)
     content = db.Column(db.String(524288), nullable=False)
     time_limit = db.Column(db.Integer, nullable = True)
     memory_limit = db.Column(db.Integer, nullable = True)
-    testcase_count = db.Column(db.Ineger, nullalbe = Flase)
+    testcase_count = db.Column(db.Integer, nullable = False)
     sample_input = db.Column(db.String(1024), nullable=False)
     is_hidden = db.Column(db.Integer, nullable=False, default=0)
     upload_date = db.Column(db.DateTime, nullable=False)
@@ -56,6 +48,14 @@ class Problem(db.Model):
         return f"Problem('{self.problem_id}', '{self.problem_name}', '{self.problem_content}', '{self.difficulty}')"
 #!
 
+class User_problem(db.Model):
+    __tablename__ = "user_problem"
+    user_problem_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id))
+    problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id))
+    status = db.Column(db.Integer, nullable=False, default=0)
+
+#✔
 
 relations = db.Table(
     'relations',
@@ -89,7 +89,7 @@ class Submission(db.Model):
     time_used = db.Column(db.String(20), nullable=False)      
     Memory_used = db.Column(db.String(20), nullable=False)     
     exam_id = db.Column(db.Integer)
-    homework_id = db.Columm(db.Integer)
+    homework_id = db.Column(db.Integer)
     upload_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     code_content = db.Column(db.String(524288), nullable=False)
 
