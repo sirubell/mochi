@@ -11,13 +11,13 @@ class User(db.Model):
     register_date = db.Column(db.DateTime, nullable=False)
     #時間由API傳入時給予，非採用資料庫Default
     #python 做法
-        #import datetime
+        #若引用import datetime
         #utc = datetime.datetime.now()
         #time_range = datetime.timedelta(hours = 8)
         #utc8 = utc + time_range
         #upload_date = datetime.datetime.now()+datetime.timedelta(hours = 8)
         
-        #若未引用import datetime
+        #若引用from datetime import datetime
         #utc = datetime.now()
         #time_range = timedelta(hours = 8)
         #utc8 = utc + time_range
