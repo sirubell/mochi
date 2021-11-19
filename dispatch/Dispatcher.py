@@ -39,37 +39,38 @@ def check_time(file_place) :
 	res = []
 	for i in range(len(text)) :
 		res.append(text[i])
-	return int((res[1][-5:-2]))
+	return int((res[1][-5:-2]))+int((res[1][-7:-6]))*1000
 
 def check_memory(file_place) :
 	f = open(file_place,"r")
 	text = f.readlines()
 	return int(text[0])
 
+def check_spec_memory(file_place) :
+	f = open(file_place,"r")
+	text = f.readlines()
+	return int(text[1])
+
+
 def compare_func(user_file,answer_file) :
 	f1 = open(user_file,"r")
 	f2 = open(answer_file,"r")
 
-	data1 = f1.read()
-	data2 = f2.read()
-	words1 = data1.split()
-	words2 = data2.split()
-	if words1 != words2 :
-		return "WA"
+	try : 
+		data1 = f1.read()
+		data2 = f2.read()
 
-	i = 0
-	for line1 in f1:
-		i+=1
-		for line2 in f2:
-			if line1!=line2:
-				f1.close()
-				f2.close()
-				return "WA"
-			break
+		words1 = data1.split()
+		words2 = data2.split()
+		f1.close()
+		f2.close()
+		if words1 != words2 :
+			return "WA"
+		return "AC"
 
-	f1.close()
-	f2.close()
-	return "AC"
+	except UnicodeError :
+		return "OE"
+
 
 def running_func(running_case):
 	Mode = int(running_case["Mode"])
@@ -81,23 +82,30 @@ def running_func(running_case):
 	if Mode == 1 :
 		Problem_id = running_case["Problem_id"]
 		Test_case_answer_name = running_case["Test_case_answer_name"]
-		if Language == "c++" :
-			subprocess.run(["docker run --ulimit cpu=%s -m %sm -i --rm -v /home/piggy/Final/Dispatch:/home/piggy/Final/Dispatch runner bash -c \" { time /usr/bin/time -f \"%%M\" -o /home/piggy/Final/Dispatch/finish/%s/%s.memory exe/%s </home/piggy/Final/Dispatch/test_case/%s/%s 1>/home/piggy/Final/Dispatch/finish/%s/%s.out 2>/home/piggy/Final/Dispatch/finish/%s/%s.err ; } 2>/home/piggy/Final/Dispatch/finish/%s/%s.time \" "%(Time_limit,Memory_limit,Source_id,Test_case_name,Source_id,Problem_id,Test_case_name,Source_id,Test_case_name,Source_id,Test_case_name,Source_id,Test_case_name)],shell=True)
+		if Language == "c++" or Language == "c" :
+			subprocess.run(["docker run --ulimit cpu=%s --memory %sm -i --rm -v /home/piggy/Final/Dispatch:/home/piggy/Final/Dispatch runner bash -c \" { time /usr/bin/time -f \"%%M\" -o /home/piggy/Final/Dispatch/finish/%s/%s.memory exe/%s </home/piggy/Final/Dispatch/test_case/%s/%s.in 1>/home/piggy/Final/Dispatch/finish/%s/%s.out 2>/home/piggy/Final/Dispatch/finish/%s/%s.err ; } 2>/home/piggy/Final/Dispatch/finish/%s/%s.time \" "%(Time_limit,Memory_limit,Source_id,Test_case_name,Source_id,Problem_id,Test_case_name,Source_id,Test_case_name,Source_id,Test_case_name,Source_id,Test_case_name)],shell=True)
+
 
 		Runtime_Error_status = check_Runtime_Error("/home/piggy/Final/Dispatch/finish/%s/%s.err"%(Source_id,Test_case_name))			
 		if Runtime_Error_status != "OK" :
-			return {"Source_id":Source_id,"Time":"1","Memory":"100","Status":Runtime_Error_status}
+			return {"Source_id":Source_id,"Time":-1,"Memory":-1,"Status":Runtime_Error_status,"All_compare_out":{Test_case_name:"RE"}}
 		TLE_MLE_status = check_TLE_MLE("/home/piggy/Final/Dispatch/finish/%s/%s.memory"%(Source_id,Test_case_name),Memory_limit)
 		if TLE_MLE_status != "OK" :
-			return {"Source_id":Source_id,"Time":"1","Memory":"100","Status":TLE_MLE_status}
+			spec_time = check_time("/home/piggy/Final/Dispatch/finish/%s/%s.time"%(Source_id,Test_case_name))
+			spec_memory = check_spec_memory("/home/piggy/Final/Dispatch/finish/%s/%s.memory"%(Source_id,Test_case_name))
+			return {"Source_id":Source_id,"Time":spec_time,"Memory":spec_memory,"Status":TLE_MLE_status,"All_compare_out":{Test_case_name:TLE_MLE_status}}
 
 		Time = check_time("/home/piggy/Final/Dispatch/finish/%s/%s.time"%(Source_id,Test_case_name))
 		Memory = check_memory("/home/piggy/Final/Dispatch/finish/%s/%s.memory"%(Source_id,Test_case_name))
 
-		Compare_result = ""
-		Compare_result = compare_func("/home/piggy/Final/Dispatch/finish/%s/%s.out"%(Source_id,Test_case_name),"/home/piggy/Final/Dispatch/Answer/%s/%s.ans"%(Source_id,Test_case_name))
+		if Memory > (Memory_limit*1024) : 
+			TLE_MLE_status = "MLE"
+			return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":TLE_MLE_status,"All_compare_out":{Test_case_name:TLE_MLE_status}}
 
-		return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":Compare_result}
+		Compare_result = ""
+		Compare_result = compare_func("/home/piggy/Final/Dispatch/finish/%s/%s.out"%(Source_id,Test_case_name),"/home/piggy/Final/Dispatch/Answer/%s/%s.ans"%(Problem_id,Test_case_name))
+
+		return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":Compare_result,"All_compare_out":{Test_case_name:Compare_result}}
 
 
 
@@ -140,7 +148,7 @@ if __name__ == "__main__" :
 		Compile_error_out=""
 		Status , Compile_error_out = checking_compile_result(Source_id)
 
-		result["Return_Set"].update({Source_id:{"Mode":Mode,"Status":Status,"Compile_error_out":Compile_error_out,"Time":"-1","Memory":"-1","All_stander_out":[],"All_compare_out":[]}})
+		result["Return_Set"].update({Source_id:{"Mode":Mode,"Status":Status,"Compile_error_out":Compile_error_out,"Time":"-1","Memory":"-1","All_stander_out":{},"All_compare_out":{}}})
 
 		if Status == "CE" :
 			continue
@@ -188,15 +196,14 @@ if __name__ == "__main__" :
 				current = int(value)
 				result["Return_Set"][Source_id][key] = max(preverious,current)
 			elif key == "All_stander_out" :
-				result["Return_Set"][Source_id][key].append(value)
+				result["Return_Set"][Source_id][key].update(value)
 			elif key == "All_compare_out" :
-				result["Return_Set"][Source_id][key].append(value)
+				result["Return_Set"][Source_id][key].update(value)
 
 	print(result["Return_Set"])
 
 	for key,value in result["Return_Set"].items() :
 		subprocess.run(["rm -r /home/piggy/Final/Dispatch/finish/%s"%(key)],shell=True)
-
 
 
 
