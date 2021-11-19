@@ -7,7 +7,7 @@ relations = db.Table(
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.topic_id')),
     db.Column('problem_id', db.Integer, db.ForeignKey('problem.problem_id'))  
 )
-#X
+#✔
 
 class User(db.Model):
     __tablename__ = "user"
