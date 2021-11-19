@@ -72,6 +72,15 @@ def compare_func(user_file,answer_file) :
 		return "OE"
 
 
+def get_stander_out(file_place) :
+	try :
+		with open(file_place) as f :
+			content = f.read().replace("\n"," ")
+			return content
+	except UnicodeError :
+		return "OE"
+
+
 def running_func(running_case):
 	Mode = int(running_case["Mode"])
 	Source_id = running_case["Source_id"]
@@ -106,6 +115,65 @@ def running_func(running_case):
 		Compare_result = compare_func("/home/piggy/Final/Dispatch/finish/%s/%s.out"%(Source_id,Test_case_name),"/home/piggy/Final/Dispatch/Answer/%s/%s.ans"%(Problem_id,Test_case_name))
 
 		return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":Compare_result,"All_compare_out":{Test_case_name:Compare_result}}
+
+	if Mode == 2 :
+		Problem_id = running_case["Problem_id"]
+		Correct_source_code = running_case["Correct_source_code"]
+		if Language == "c++" or Language == "c" :
+			subprocess.run(["docker run --ulimit cpu=%s --memory %sm -i --rm -v /home/piggy/Final/Dispatch:/home/piggy/Final/Dispatch runner bash -c \" { time /usr/bin/time -f \"%%M\" -o /home/piggy/Final/Dispatch/finish/%s/%s.memory exe/%s </home/piggy/Final/Dispatch/test_case/%s/%s.in 1>/home/piggy/Final/Dispatch/finish/%s/%s.out 2>/home/piggy/Final/Dispatch/finish/%s/%s.err ; } 2>/home/piggy/Final/Dispatch/finish/%s/%s.time \" "%(Time_limit,Memory_limit,Source_id,Test_case_name,Source_id,Source_id,Test_case_name,Source_id,Test_case_name,Source_id,Test_case_name,Source_id,Test_case_name)],shell=True)
+
+		Runtime_Error_status = check_Runtime_Error("/home/piggy/Final/Dispatch/finish/%s/%s.err"%(Source_id,Test_case_name))			
+		if Runtime_Error_status != "OK" :
+			return {"Source_id":Source_id,"Time":-1,"Memory":-1,"Status":Runtime_Error_status,"All_compare_out":{Test_case_name:"RE"},"All_stander_out":{Test_case_name:""}}
+
+		Stander_out = get_stander_out("/home/piggy/Final/Dispatch/finish/%s/%s.out"%(Source_id,Test_case_name))
+
+		if Stander_out == "OE" :
+			return {"Source_id":Source_id,"Time":-1,"Memory":-1,"Status":Stander_out,"All_compare_out":{Test_case_name:"OE"},"All_stander_out":{Test_case_name:""}}
+
+		TLE_MLE_status = check_TLE_MLE("/home/piggy/Final/Dispatch/finish/%s/%s.memory"%(Source_id,Test_case_name),Memory_limit)
+		if TLE_MLE_status != "OK" :
+			spec_time = check_time("/home/piggy/Final/Dispatch/finish/%s/%s.time"%(Source_id,Test_case_name))
+			spec_memory = check_spec_memory("/home/piggy/Final/Dispatch/finish/%s/%s.memory"%(Source_id,Test_case_name))
+			return {"Source_id":Source_id,"Time":spec_time,"Memory":spec_memory,"Status":TLE_MLE_status,"All_compare_out":{Test_case_name:TLE_MLE_status},"All_stander_out":{Test_case_name:Stander_out}}
+
+		Time = check_time("/home/piggy/Final/Dispatch/finish/%s/%s.time"%(Source_id,Test_case_name))
+		Memory = check_memory("/home/piggy/Final/Dispatch/finish/%s/%s.memory"%(Source_id,Test_case_name))
+
+		if Memory > (Memory_limit*1024) : 
+			TLE_MLE_status = "MLE"
+			return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":TLE_MLE_status,"All_compare_out":{Test_case_name:TLE_MLE_status},"All_stander_out":{Test_case_name:Stander_out}}	
+
+		# answer language ???
+		subprocess.run(["docker run --ulimit cpu=%s --memory %sm -i --rm -v /home/piggy/Final/Dispatch:/home/piggy/Final/Dispatch runner bash -c \" { time /usr/bin/time -f \"%%M\" -o /home/piggy/Final/Dispatch/finish/%s/%s.ansmemory Answer_implementation/%s </home/piggy/Final/Dispatch/test_case/%s/%s.in 1>/home/piggy/Final/Dispatch/finish/%s/%s.ansout 2>/home/piggy/Final/Dispatch/finish/%s/%s.anserr ; } 2>/home/piggy/Final/Dispatch/finish/%s/%s.anstime \" "%(Time_limit,Memory_limit,Source_id,Test_case_name,Problem_id,Source_id,Test_case_name,Source_id,Test_case_name,Source_id,Test_case_name,Source_id,Test_case_name)],shell=True)
+		# subprocess.run(["docker run -i --rm -v /home/piggy/Final/Dispatch:/home/piggy/Final/Dispatch runner /home/piggy/Final/Dispatch/Answer_implementation/%s </home/piggy/Final/Dispatch/finish/%s/%s.in 1>/home/piggy/Final/Dispatch/finish/%s/%s.ans 2>/home/piggy/Final/Dispatch/finish/%s/%s.anserr"%(Problem_id,Source_id,Test_case_name,Source_id,Test_case_name)],shell=True)
+
+		Runtime_Error_status_answer = check_Runtime_Error("/home/piggy/Final/Dispatch/finish/%s/%s.anserr"%(Source_id,Test_case_name))			
+		if Runtime_Error_status_answer != "OK" :
+			return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":"Input Error","All_compare_out":{Test_case_name:"Input Error"},"All_stander_out":{Test_case_name:Stander_out}}
+
+		Stander_out_answer = get_stander_out("/home/piggy/Final/Dispatch/finish/%s/%s.ansout"%(Source_id,Test_case_name))
+
+		if Stander_out_answer == "OE" :
+			return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":"Input Error","All_compare_out":{Test_case_name:"Input Error"},"All_stander_out":{Test_case_name:Stander_out}}
+
+		TLE_MLE_status_answer = check_TLE_MLE("/home/piggy/Final/Dispatch/finish/%s/%s.ansmemory"%(Source_id,Test_case_name),Memory_limit)
+		if TLE_MLE_status_answer != "OK" :
+			spec_time_answer = check_time("/home/piggy/Final/Dispatch/finish/%s/%s.anstime"%(Source_id,Test_case_name))
+			spec_memory_answer = check_spec_memory("/home/piggy/Final/Dispatch/finish/%s/%s.ansmemory"%(Source_id,Test_case_name))
+			return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":"Input Error","All_compare_out":{Test_case_name:"Input Error"},"All_stander_out":{Test_case_name:Stander_out}}
+
+		Time_answer = check_time("/home/piggy/Final/Dispatch/finish/%s/%s.anstime"%(Source_id,Test_case_name))
+		Memory_answer = check_memory("/home/piggy/Final/Dispatch/finish/%s/%s.ansmemory"%(Source_id,Test_case_name))
+
+		if Memory_answer > (Memory_limit*1024) : 
+			return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":"Input Error","All_compare_out":{Test_case_name:"Input Error"},"All_stander_out":{Test_case_name:Stander_out}}	
+
+
+		Compare_result = ""
+		Compare_result = compare_func("/home/piggy/Final/Dispatch/finish/%s/%s.out"%(Source_id,Test_case_name),"/home/piggy/Final/Dispatch/finish/%s/%s.ansout"%(Source_id,Test_case_name))
+
+		return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":Compare_result,"All_compare_out":{Test_case_name:Compare_result},"All_stander_out":{Test_case_name:Stander_out}}
 
 
 
@@ -150,11 +218,12 @@ if __name__ == "__main__" :
 
 		result["Return_Set"].update({Source_id:{"Mode":Mode,"Status":Status,"Compile_error_out":Compile_error_out,"Time":"-1","Memory":"-1","All_stander_out":{},"All_compare_out":{}}})
 
+		subprocess.run(["mkdir /home/piggy/Final/Dispatch/finish/%s"%(Source_id)],shell=True)
+
 		if Status == "CE" :
 			continue
 
 		if Mode == 1 :
-			subprocess.run(["mkdir /home/piggy/Final/Dispatch/finish/%s"%(Source_id)],shell=True)
 			for j in range (0,Test_case_count):
 				Test_case_name=req_json["Submission_Set"][i]["All_test_case_general_submission"][j]["Test_case_name"]
 				Test_case_answer_name=req_json["Submission_Set"][i]["All_test_case_general_submission"][j]["Test_case_answer_name"]
@@ -162,12 +231,12 @@ if __name__ == "__main__" :
 
 		if Mode == 2 :
 			Correct_source_code = req_json["Submission_Set"][i]["Correct_source_code"]
-			Test_case_name = req_json["Submission_Set"][i]["All_test_case_general_submission"][0]["Test_case_name"]
+			Test_case_name = req_json["Submission_Set"][i]["Self_test_case"][0]["Test_case_name"]
 			running_case.append({"Mode":Mode,"Problem_id":Problem_id,"Source_id":Source_id,"Time_limit":Time_limit,"Memory_limit":Memory_limit,"Language":Language,"Correct_source_code":Correct_source_code,"Test_case_name":Test_case_name})
 		
 		if Mode == 3 :
 			for j in range (0,Test_case_count):
-				Test_case_name=req_json["Submission_Set"][i]["All_test_case_general_submission"][j]["Test_case_name"]
+				Test_case_name=req_json["Submission_Set"][i]["Self_test_case"][j]["Test_case_name"]
 				running_case.append({"Mode":Mode,"Source_id":Source_id,"Time_limit":Time_limit,"Memory_limit":Memory_limit,"Language":Language,"Test_case_name":Test_case_name})
 
 
