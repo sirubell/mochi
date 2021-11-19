@@ -1,6 +1,6 @@
 from app import db
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+import datetime
 
 class User(db.Model):
     __tablename__ = "user"
@@ -11,12 +11,13 @@ class User(db.Model):
     register_date = db.Column(db.DateTime, nullable=False)
     #時間由API傳入時給予，非採用資料庫Default
     #python 做法
-        #若引用from datetime import datetime
+        #import datetime
         #utc = datetime.datetime.now()
         #time_range = datetime.timedelta(hours = 8)
         #utc8 = utc + time_range
+        #upload_date = datetime.datetime.now()+datetime.timedelta(hours = 8)
         
-        #若未引用from datetime import datetime
+        #若未引用import datetime
         #utc = datetime.now()
         #time_range = timedelta(hours = 8)
         #utc8 = utc + time_range
@@ -30,14 +31,14 @@ class User(db.Model):
 class Problem(db.Model):
     __tablename__ = "problem"
     problem_id = db.Column(db.Integer, primary_key=True)
-    problem_name = db.Column(db.String(128), unique=True, nullable=False)
+    name = db.Column(db.String(128), unique=True, nullable=False)
     questioner_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
     difficulty = db.Column(db.Integer, nullable=False)
     content = db.Column(db.String(524288), nullable=False)
     time_limit = db.Column(db.Integer, nullable = True)
     memory_limit = db.Column(db.Integer, nullable = True)
     testcase_count = db.Column(db.Integer, nullable = False)
-    sample_input = db.Column(db.String(1024), nullable=False)
+    sample_input = db.Column(db.String(1024), nullable = False)
     is_hidden = db.Column(db.Integer, nullable=False, default=0)
     upload_date = db.Column(db.DateTime, nullable=False)
     #upload_date做法同上
