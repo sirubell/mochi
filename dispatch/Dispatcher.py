@@ -175,9 +175,41 @@ def running_func(running_case):
 
 		return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":Compare_result,"All_compare_out":{Test_case_name:Compare_result},"All_stander_out":{Test_case_name:Stander_out}}
 
+	if Mode == 3 :
+
+		if Language == "c++" or Language == "c" :
+			subprocess.run(["docker run --ulimit cpu=%s --memory %sm -i --rm -v /home/piggy/Final/Dispatch:/home/piggy/Final/Dispatch runner bash -c \" { time /usr/bin/time -f \"%%M\" -o /home/piggy/Final/Dispatch/finish/%s/%s.memory exe/%s </home/piggy/Final/Dispatch/test_case/%s/%s.in 1>/home/piggy/Final/Dispatch/finish/%s/%s.out 2>/home/piggy/Final/Dispatch/finish/%s/%s.err ; } 2>/home/piggy/Final/Dispatch/finish/%s/%s.time \" "%(Time_limit,Memory_limit,Source_id,Test_case_name,Source_id,Source_id,Test_case_name,Source_id,Test_case_name,Source_id,Test_case_name,Source_id,Test_case_name)],shell=True)
+
+		Runtime_Error_status = check_Runtime_Error("/home/piggy/Final/Dispatch/finish/%s/%s.err"%(Source_id,Test_case_name))			
+		if Runtime_Error_status != "OK" :
+			return {"Source_id":Source_id,"Time":-1,"Memory":-1,"Status":Runtime_Error_status,"All_compare_out":{Test_case_name:"RE"},"All_stander_out":{Test_case_name:""}}
+
+		Stander_out = get_stander_out("/home/piggy/Final/Dispatch/finish/%s/%s.out"%(Source_id,Test_case_name))
+
+		if Stander_out == "OE" :
+			return {"Source_id":Source_id,"Time":-1,"Memory":-1,"Status":Stander_out,"All_compare_out":{Test_case_name:"OE"},"All_stander_out":{Test_case_name:""}}
+
+		TLE_MLE_status = check_TLE_MLE("/home/piggy/Final/Dispatch/finish/%s/%s.memory"%(Source_id,Test_case_name),Memory_limit)
+		if TLE_MLE_status != "OK" :
+			spec_time = check_time("/home/piggy/Final/Dispatch/finish/%s/%s.time"%(Source_id,Test_case_name))
+			spec_memory = check_spec_memory("/home/piggy/Final/Dispatch/finish/%s/%s.memory"%(Source_id,Test_case_name))
+			return {"Source_id":Source_id,"Time":spec_time,"Memory":spec_memory,"Status":TLE_MLE_status,"All_compare_out":{Test_case_name:TLE_MLE_status},"All_stander_out":{Test_case_name:Stander_out}}
+
+		Time = check_time("/home/piggy/Final/Dispatch/finish/%s/%s.time"%(Source_id,Test_case_name))
+		Memory = check_memory("/home/piggy/Final/Dispatch/finish/%s/%s.memory"%(Source_id,Test_case_name))
+
+		if Memory > (Memory_limit*1024) : 
+			TLE_MLE_status = "MLE"
+			return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":TLE_MLE_status,"All_compare_out":{Test_case_name:TLE_MLE_status},"All_stander_out":{Test_case_name:Stander_out}}	
+
+		return {"Source_id":Source_id,"Time":Time,"Memory":Memory,"Status":"AC","All_compare_out":{Test_case_name:"AC"},"All_stander_out":{Test_case_name:Stander_out}}	
 
 
-	return {"Source_id":Source_id,"Time":"1","Memory":"100","Status":"AC"}
+
+
+
+
+	# return {"Source_id":Source_id,"Time":"1","Memory":"100","Status":"AC"}
 
 if __name__ == "__main__" :
 	requirement = requests.get("http://127.0.0.1:8000")
