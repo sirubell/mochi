@@ -15,7 +15,20 @@ class User(db.Model):
     user_name = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    register_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    register_date = db.Column(db.DateTime, nullable=False)
+    #時間由API傳入時給予，非採用資料庫Default
+    #python 做法
+        #若引用from datetime import datetime
+        
+        utc = datetime.datetime.now()
+        time_range = datetime.timedelta(hours = 8)
+        utc8 = utc + time_range
+        
+        #若未引用from datetime import datetime
+        utc = datetime.now()
+        time_range = timedelta(hours = 8)
+        utc8 = utc + time_range
+        
     authority = db.Column(db.Integer, default=0)
     user_to_problem = db.relationship("User_problem", backref="user")
 
