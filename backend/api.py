@@ -10,18 +10,23 @@ problem_post_args.add_argument("time_limit",type=int,required=True,help='time_li
 problem_post_args.add_argument("memory_limit",type=int,required=True,help='memory_limit is required!')
 problem_post_args.add_argument("is_hidden",type=int,required=True,help='is_hidden is required!')
 
+problem_get_args = reqparse.RequestParser()
+problem_get_args.add_argument("page",type=int,required=True,help='page is required!')
+
+
+
 class problem(Resource):
-    def get(self):
-        return {"string":"Hello_world"}
+    def get(self,page,name,difficulty,topic):
+        return {"string":"Hello_world","name":name,"page":page,"difficulty":difficulty,"topic":topic}
 
     def post(self):
         problem = problem_post_args.parse_args()
         from models import Problem
-        new_problem = Problem(problem_name=problem.name,problem_content=problem.content,difficulty=problem.difficulty,questioner=problem.questioner_id,is_hidden=problem.is_hidden)
+        new_problem = Problem(questioner_id=problem.questioner,problem_name=problem.name,difficulty=problem.difficulty,topic=problem.topic,problem_content=problem.content,time_limit=problem.time_limit,memory_limit=problem.memory_limit,is_hidden=problem.is_hidden)
         from app import db
         db.session.add(new_problem)
         db.session.commit()
-        return problem
+        return 200
 
 
 
