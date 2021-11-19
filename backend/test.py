@@ -1,16 +1,6 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-app = Flask(__name__)
-db = SQLAlchemy(app)
-app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///test.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-class user(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True)
-    user_name = db.Column(db.String(20), unique=True, nullable=False)
-    def __repr__(self):
-        return f"user_id={self.user_id},user_name={self.user_name}"
-
+from app import db
+from models import User, Problem, Topic, User_problem, Submission, Queue
+# from fuction import add_submission, delete_submission, refresh_submission_status, add_queue, delete_queue_and_get_data, add_problem_topic, delete_problem_topic, new_user, delete_user_problem, new_problem, delete_problem, show_user_problem, show_problem_submission, show_user_submission, show_problem_set
+db.drop_all()
 db.create_all()
-
+db.session.commit()
