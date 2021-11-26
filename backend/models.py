@@ -170,15 +170,15 @@ class Exam(db.Model):
     #大小
 class Exam_problem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    exam_id = db.Column(db.Integer, Foreignkey(Exam.exam_id), nullable=False)
-    problem_id = db.Column(db.Integer, Foreignkey(Problem.problem_id), nullable=False)
+    exam_id = db.Column(db.Integer, db.Foreignkey(Exam.exam_id), nullable=False)
+    problem_id = db.Column(db.Integer, db.Foreignkey(Problem.problem_id), nullable=False)
     sequence = db.Column(db.Integer)
     #id同?
 class Dashboard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    exam_id = db.Column(db.Integer, Foreignkey(Exam.exam_id), nullable=False)
-    problem_id = db.Column(db.Integer, Foreignkey(Problem.problem_id), nullable=False)
-    user_id = db.Column(db.Integer, Foreignkey(User.user_id), nullable=False)
+    exam_id = db.Column(db.Integer, db.Foreignkey(Exam.exam_id), nullable=False)
+    problem_id = db.Column(db.Integer, db.Foreignkey(Problem.problem_id), nullable=False)
+    user_id = db.Column(db.Integer, db.Foreignkey(User.user_id), nullable=False)
     try_count = db.Column(db.Integer, nullable=False)
     current_status = db.Column(db.Integer, nullable=False, default=0)
     penalty_time = db.Column(db.Integer, nullable=False, default=0)
