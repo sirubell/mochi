@@ -148,7 +148,57 @@ class Class_User(db.Model):
     
 class Homework(db.Model):
     homework_id = db.Column(db.Integer, primary_key=True)
+    class_id = db.Column(db.Integer, db.Foreignkey(Class.class_id), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    uploadtime = db.Column(db.Datetime, nullable=False)
+    deadline = db.Column(db.Date.time, nullable=False)
+    
+class Homework_problem(db.Model):
+    id = db.Column(db.Integer, primaty_key=True)
+    homework_id = db.Column(db.Integer, db.Foreignkey(Homework.homework_id), nullable=False)
+    problem_id = db.Column(db.Integer, db.Foreignkey(Problem.problem_id), nullable=False)
+    user_id = db.Column(db.Integer, db.Foreignkey(User.user_id), nullable=False)
+    hand_in_status = db.Column(db.Integer, nullable=False, default=0)
+    
+class Exam(db.Model):
+    exam_id = db.Column(db.Integer, primary_key=True)
+    class_id = db.Column(db.Integer, Foreignkry(Class.class_id), nullalbe=False)
+    #hackmd 內寫p.k.是否有誤
+    name = db.Column(db.String(100), nullable=False)
+    start_time = db.Column(db.Datetime, nullable=False)
+    end_time = db.Column(db.Datetime, nullable=False)
+    exam_detail = db.Column(db.String(), )
+    #大小
+class Exam_problem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    exam_id = db.Column(db.Integer, Foreignkey(Exam.exam_id), nullable=False)
+    problem_id = db.Column(db.Integer, Foreignkey(Problem.problem_id), nullable=False)
+    sequence = db.Column(db.Integer)
+    #id同?
+class Dashboard(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    exam_id = db.Column(db.Integer, Foreignkey(Exam.exam_id), nullable=False)
+    problem_id = db.Column(db.Integer, Foreignkey(Problem.problem_id), nullable=False)
+    user_id = db.Column(db.Integer, Foreignkey(User.user_id), nullable=False)
+    try_count = db.Column(db.Integer, nullable=False)
+    current_status = db.Column(db.Integer, nullable=False, default=0)
+    penalty_time = db.Column(db.Integer, nullable=False, default=0)
+    solved_count = db.Column(db.Integer, nullable=False, default=0)
+    total_time = db.Column(db.Integer, nullable=False, default=0)
+    
+    
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 
 
