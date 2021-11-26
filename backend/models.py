@@ -113,9 +113,8 @@ class Queue(db.Model):
     languege = db.Column(db.String(20), nullable=False)
     upload_date = db.Column(db.DateTime, nullable=False)
     #同registwer_date做法
-    
-    #status = db.Column(db.Integer, nullable=False)
-    #code_content = db.Column(db.String(524288), nullable=False)
+    status = db.Column(db.Integer, nullable=False)
+    code_content = db.Column(db.String(524288), nullable=False)
     
     
     def __repr__(self):
@@ -162,7 +161,7 @@ class Homework_problem(db.Model):
     
 class Exam(db.Model):
     exam_id = db.Column(db.Integer, primary_key=True)
-    class_id = db.Column(db.Integer, Foreignkry(Class.class_id), nullalbe=False)
+    class_id = db.Column(db.Integer, Foreignkry(Class.class_id), nullable=False)
     #hackmd 內寫p.k.是否有誤
     name = db.Column(db.String(100), nullable=False)
     start_time = db.Column(db.Datetime, nullable=False)
@@ -186,23 +185,4 @@ class Dashboard(db.Model):
     solved_count = db.Column(db.Integer, nullable=False, default=0)
     total_time = db.Column(db.Integer, nullable=False, default=0)
     
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-
-
-
-
-
-
+       
