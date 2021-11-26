@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 
 relations = db.Table(
-    'relations',
+    'relations between problem and topic',
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.topic_id')),
     db.Column('problem_id', db.Integer, db.ForeignKey('problem.problem_id'))  
 )
@@ -43,8 +43,8 @@ class Problem(db.Model):
     questioner_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
     difficulty = db.Column(db.Integer, nullable=False)
     content = db.Column(db.String(524288), nullable=False)
-    time_limit = db.Column(db.Integer, nullable = True)
-    memory_limit = db.Column(db.Integer, nullable = True)
+    time_limit = db.Column(db.Integer, nullable = False)
+    memory_limit = db.Column(db.Integer, nullable = False)
     testcase_count = db.Column(db.Integer, nullable = False)
     sample_input = db.Column(db.String(1024), nullable = False)
     is_hidden = db.Column(db.Integer, nullable=False, default=0)
@@ -121,4 +121,38 @@ class Queue(db.Model):
     def __repr__(self):
         return f"Queue('{self.submission_id}', '{self.user_id}', '{self.problem_id}', '{self.status}', '{self.code_content}','{self.languege}')"
 #✔
+
+
+class Class(db.Model):
+    __tablename__ = "class"
+    class_id = db.Column(db.Integer, primary_key=True)
+    class_name = db.Column(db.String(100), nullable=False)
+    semester = db.Column(db.String(30), nullable=False)
+    is_public = db.Column(db.Interger, default=0, nullable=False)
+    invite_code = db.Column(db.Interger, nullable=False)
+    #可用以下方是產生邀請碼
+    # import random, string
+    # s = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(10))
+    # print s
+    teacher_id = db.Column(db.Integer, nullable=False)
+    #此行看需不需要
+    
+    
+class Class_User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    class_id = db.Column(db.Integer, db.Foreignkey(Class.class_id), nullable=False)
+    student_id = db.Column(db.Integer, nullable=False)
+    #這邊的student_id是否有與id重複之嫌
+    user_id = db.Column(db.Integer, db.Foreignkey(User.user_id), nullable=False)
+    authority = db.Column(db.Integer, nullable=Flase, default=0)
+    
+class Homework(db.Model):
+    homework_id = db.Column(db.Integer, primary_key=True)
+
+
+
+
+
+
+
 
