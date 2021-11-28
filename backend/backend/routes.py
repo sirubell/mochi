@@ -47,5 +47,35 @@ class problem(Resource):
         db.session.commit()
         return 200
 
+login_post_args = reqparse.RequestParser()
+login_post_args.add_argument("email", type=str, required=True, help='Email is necessary!')
+login_post_args.add_argument("password", type=str, required=True, help='Password is necessary!')
 
+class login(Resource):
+    def post(self):
+        from backend.models import User
+        from backend import db
+        from backend import bcrypt
+        login = login_post_args.parse_args()
+        user = User.query.filter_by(login.email).first()
+        if user and bcrypt.check_password_hash(user.password, login.password):
+            return 200, {"success to login"}
+
+
+signup_post_args = reqparse.RequestParser()
+signup_post_args.add_argument("name", type=str, required=True, help='Username is necessary!')
+signup_post_args.add_argument("email", type=str, required=True, help='Email is necessary!')
+signup_post_args.add_argument("password", type=str, required=True, help='Password is necessary!')
+
+class signup(Resource):
+    def post(self):
+        from backend.models import User
+        from backend import bcrypt
+        user = signup_post_args.parse_args()
+        hashed_password = bcrypt.generate_password_hash(user.password).decode('utf-8')
+        new_user = User(user_name=user.name, email=user.email, password=hashed_password, register_date=datetime.datetime.now()+datetime.timedelta(hours=8))
+        from backend import db
+        db.session.add(new_user)
+        db.session.commit()
+        return 200, {"Success to sign up"} 
 
