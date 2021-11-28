@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { firebaseAuth } from "@/config/firebaseConfig.js";
+import { firebaseAuth } from "@firebase/auth";
 
 export default {
   data() {
