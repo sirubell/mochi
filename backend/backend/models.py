@@ -1,4 +1,4 @@
-from app import db
+from backend import db
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 
@@ -95,7 +95,7 @@ class Submission(db.Model):
     exam_id = db.Column(db.Integer)
     homework_id = db.Column(db.Integer)
     upload_date = db.Column(db.DateTime, nullable=False)
-    #同registwer_date做法
+    #同register_date做法
     code_content = db.Column(db.String(524288), nullable=False)
 
     def __repr__(self):
@@ -112,7 +112,7 @@ class Queue(db.Model):
     homework_id = db.Column(db.Integer)  
     languege = db.Column(db.String(20), nullable=False)
     upload_date = db.Column(db.DateTime, nullable=False)
-    #同registwer_date做法
+    #同register_date做法
     status = db.Column(db.Integer, nullable=False)
     code_content = db.Column(db.String(524288), nullable=False)
     
