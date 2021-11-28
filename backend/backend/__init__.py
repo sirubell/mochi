@@ -13,3 +13,9 @@ app.config.from_object(Config)
 
 from backend.routes import problem, problem_post_args
 api.add_resource(problem, "/problem")
+
+from backend.routes import login, login_post_args
+api.add_resource(login, "/login")
+
+from backend.routes import signup, signup_post_args
+api.add_resource(signup, "/signup")
