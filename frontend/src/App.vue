@@ -1,50 +1,98 @@
 <template>
-  <nav class = "navbar navbar-expand-lg navbar-light fixed-top bd-light">
-    <div class = "container-fluid">
-      <a class = "navbar-brand" href = "/home"> Home </a>
-      <div class = "collapse navbar-collapse" id = "navbarSupportedContent">
-      <ul class = "navbar-nav me-auto mb-2 mb-lg-0">
-        <li class = "nav-item">
-          <router-link class = "nav-link" to = "/problem"> Problem </router-link>
-        </li>
-        <li class = "nav-item">
-          <router-link class = "nav-link" to = "/course"> Course </router-link>
-        </li>
-        <li class = "nav-item">
-          <router-link class = "nav-link" to = "/class"> Class </router-link>
-        </li>
-      </ul>
-      <div class="flex-row-reverse">
-        <li class = "d-flex nav-item">
-          <router-link class = "nav-link" to = "/login"> Log in </router-link>
-          <router-link class = "nav-link" to = "/signup"> Sign up </router-link>
-        </li>
+  <div id="app">
+    <Nav />
+    <div class="auth-wrapper">
+        <!-- <div class="auth-inner">
 
+        </div> -->
       </div>
-    </div>
-    </div>
-  </nav>
-  <div class = "container">
-    <router-view />
-  </div>  
+  </div>
 </template>
 
 <script>
-export default {
-  name: "App",
-  components: {},
-};
+  import Nav from './components/Nav.vue'
+  // import Login from './components/auth/Login.vue'
+  export default {
+    name: "App",
+    components: {
+      Nav,
+      // Login
+    }
+  };
 </script>
 
 <style>
-#app {
-  font-family : Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing : antialiased;
-  -moz-osx-font-smoothing : grayscale;
-  text-align : center;
-  color : #2c3e50;
-  /* margin-top : 60px; */
-}
+  @import url('https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600,700,800');
+  
+  body {
+    background: rgb(194, 212, 176) !important;
+    min-height: 100vh;
+    display: flex;
+    font-weight: 400;
+    font-family: 'Fira Sans', sans-serif;
+  }
 
+  h1, h2, h3, h4, h5, h6, label, span {
+    font-weight: 500;
+    font-family: 'Fira Sans', sans-serif;
+  }
 
+  body, html, #app, #root, .auth-wrapper {
+    width: 100%;
+    height: 100%;
+  }
+
+  #app {
+    text-align: center;
+  }
+
+  .navbar-light {
+    background-color: #ffffff;
+    box-shadow: 0px 14px 80px rgba(34, 35, 58, 0.2);
+  }
+
+  .auth-wrapper {
+    width: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .auth-inner {
+    width: 450px;
+    margin: auto;
+    background: #ffffff;
+    box-shadow: 0px 14px 80px rgba(34, 35, 58, 0.2);
+    padding: 40px 35px 45px 55px;
+    transition: all .3s;
+  }
+
+  .auth-wrapper form-control:focus {
+    border-color: rgb(182, 231, 231);
+    box-shadow: none;
+  }
+
+  .auth-wrapper h3 {
+    text-align: center;
+    margin: 0;
+    line-height: 1;
+    padding-bottom: 20px;
+  }
+
+  .custom-control-label {
+    font-weight: 400;
+  }
+
+  .forgot-password,
+  .forgot-password a {
+    text-align: right;
+    font-size: 13px;
+    padding-top: 10px;
+    color: cadetblue;
+    margin: 0;
+  }
+
+  .forgot-password a {
+    color: crimson;
+  }
 </style>

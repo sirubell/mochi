@@ -4,8 +4,11 @@ import Home from './components/Home.vue'
 import Problem from './components/Problem.vue'
 import Course from './components/Course.vue'
 import Class from './components/Class.vue'
-import Login from './components/Login.vue'
-import Signup from './components/Signup.vue'
+import Logout from "./components/auth/Logout.vue";
+import Login from "./components/auth/Login.vue";
+import Register from "./components/auth/Register.vue";
+import Forgotpassword from './components/auth/forgotpassword.vue';
+import AdminPanel from './components/auth/admin.vue';
 
 export default createRouter({
   history : createWebHistory(),
@@ -31,14 +34,24 @@ export default createRouter({
       component: Class
     },
     {
-      path: '/login',
-      name: 'login',
-      component: Login
+      path: "/logout",
+      component: Logout,
     },
     {
-      path: '/signup',
-      name: 'signup',
-      component: Signup
+      path: "/forgot-password",
+      component: Forgotpassword,
     },
+    {
+      path: "/login",
+      component: Login,
+    },
+    {
+      path: "/register",
+      component: Register,
+    },
+    {
+      path: "/admin",
+      component: AdminPanel,
+    }
   ]
 })
