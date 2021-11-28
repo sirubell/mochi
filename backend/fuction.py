@@ -1,5 +1,5 @@
-from app import User, Problem, Topic, User_problem, Submission, Queue
 from app import db
+from models import User, Problem, Topic, User_problem, Submission, Queue
 import json
 
 
