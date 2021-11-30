@@ -11,5 +11,22 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 app.config.from_object(Config)
 
-from backend.routes import problem, problem_post_args
+@app.route('/')
+def home():
+    return "hello world"
+
+
+from backend.routes import problem
 api.add_resource(problem, "/problem")
+
+from backend.routes import login
+api.add_resource(login, "/login")
+
+from backend.routes import signup
+api.add_resource(signup, "/signup")
+
+from backend.routes import user_profile
+api.add_resource(user_profile, "/user/<int:user_id>/profile")
+
+# from backend.routes import problem, problem_post_args
+# api.add_resource(problem, "/problem/<int:problem_id>")
