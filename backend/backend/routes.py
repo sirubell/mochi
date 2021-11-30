@@ -1,4 +1,4 @@
-from flask_restful import Api, Resource, reqparse
+from flask_restful import Api, Resource, reqparse, abort
 import datetime
 # import json
 
@@ -47,5 +47,84 @@ class problem(Resource):
         db.session.commit()
         return 200
 
+signup_post_args = reqparse.RequestParser()
+signup_post_args.add_argument("name", type=str, required=True, help='Username is necessary!')
+signup_post_args.add_argument("email", type=str, required=True, help='Email is necessary!')
+signup_post_args.add_argument("password", type=str, required=True, help='Password is necessary!')
+signup_post_args.add_argument("confirm_password", type=str, required=True, help='Confirm_password is necessary!')
 
+def if_username_has_existed(name):
+    from backend.models import User
+    from backend import db
+    user = User.query.filter_by(name).first()
+    if user:
+       abort(409, message="Existed Username")
+def if_email_has_existed(email):
+    from backend.models import User
+    from backend import db
+    user = User.query.filter_by(email).first()
+    if user:
+        abort(409, message="Existed Email")
+
+class signup(Resource): 
+    def post(self):
+        from backend.models import User
+        from backend import bcrypt
+        args = signup_post_args.parse_args()
+#       if_username_has_existed(args.name)
+        if_email_has_existed(args.email)
+        if(args.password!=args.confirm_password):
+            return "Confirm_password isn't equal to password!"
+        hashed_password = bcrypt.generate_password_hash(args.password).decode('utf-8')
+        new_user = User(user_name=args.name, email=args.email, password=hashed_password, register_date=datetime.datetime.now()+datetime.timedelta(hours=8))
+        from backend import db
+        db.session.add(new_user)
+        db.session.commit()
+        return "Success to sign up", 200 
+
+login_post_args = reqparse.RequestParser()
+login_post_args.add_argument("email", type=str, required=True, help='Email is necessary!')
+login_post_args.add_argument("password", type=str, required=True, help='Password is necessary!')
+
+class login(Resource):
+    def post(self):
+        from backend.models import User
+        from backend import db
+        from backend import bcrypt
+        args = login_post_args.parse_args()
+        user = User.query.filter_by(args.email).first()
+        if user and bcrypt.check_password_hash(user.password, args.password):
+            return "success to login", 200
+        elif user:
+            return "Password is wrong"
+        else:
+            return "Couldn't find the user", 404
+
+user_profile_get_args = reqparse.RequestParser()
+user_profile_get_args.add_argument("name", type=str)
+user_profile_get_args.add_argument("email", type=str)
+user_profile_get_args.add_argument("user_to_problem", type=str)
+
+user_profile_put_args = reqparse.RequestParser()
+user_profile_put_args.add_argument("name", type=str)
+user_profile_put_args.add_argument("email", type=str)
+user_profile_put_args.add_argument("password", type=str)
+
+class user_profile(Resource):
+    def get(self):
+        from backend.models import User, User_problem
+        from backend import db
+        args = user_profile_get_args.parse_args()
+        user = User.query.filter_by(args.name).first()
+        if user: 
+            return user
+        return 404
+    def put(self):
+        from backend.models import User
+        args = user_profile_put_args.parse_args()
+        if_username_has_existed(args.name)
+        if_email_has_existed(args.email)
+        self = args
+        from backend import db
+        db.session.commit()
 
