@@ -32,8 +32,11 @@ class User(db.Model):
     authority = db.Column(db.Integer, default=0)
     user_to_problem = db.relationship("User_problem", backref="user")
 
-    def __repr__(self):
-        return f"User('{self.name}', '{self.email}')"
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    #def __repr__(self):
+        #return f"User('{self.name}', '{self.email}')"
 #✔
 
 class Problem(db.Model):

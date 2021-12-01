@@ -28,5 +28,8 @@ api.add_resource(signup, "/signup")
 from backend.routes import user_profile
 api.add_resource(user_profile, "/user/<int:user_id>/profile")
 
+from backend.routes import submission
+api.add_resource(submission, "/submission/new")
+
 # from backend.routes import problem, problem_post_args
 # api.add_resource(problem, "/problem/<int:problem_id>")
