@@ -126,7 +126,7 @@ class user_profile(Resource):
         from backend import db
         user = User.query.filter_by(user_id=user_id).first()
         if user: 
-            return jsonify(user)
+            return user.as_dict()
         return 404
     def put(self):
         from backend.models import User
