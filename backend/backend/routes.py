@@ -8,6 +8,7 @@ from backend.argument import signup_post_args, submission_post_args, login_post_
 
 import json
 
+#竣竣
 # hey this is test
 
 class problem(Resource):
@@ -129,8 +130,7 @@ class dispatcher(Resource):
             data=Queue.query.filter_by(source_id=submission["Source_id"]).first()
             new_submission = Submission(user_id=data.user_id,problem_id=data.problem_id,source_id=submission["Source_id"],status=submission["Status"],code_content=data.code_content,exam_id=data.exam_id,homework_id=data.homework_id,error_hint=submission["Compile_error_out"],error_line=0,language=data.language,time_used=submission["Time"],memory_used=submission["Memory"],upload_date=data.upload_date)
             db.session.add(new_submission)
-            db.session.delete
             Queue.query.filter_by(source_id=submission["Source_id"]).delete()
-        db.session.commit()
+            db.session.commit()
         return "success to return", 200
 
