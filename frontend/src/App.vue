@@ -1,50 +1,37 @@
 <template>
-  <nav class = "navbar navbar-expand-lg navbar-light fixed-top bd-light">
-    <div class = "container-fluid">
-      <a class = "navbar-brand" href = "/home"> Home </a>
-      <div class = "collapse navbar-collapse" id = "navbarSupportedContent">
-      <ul class = "navbar-nav me-auto mb-2 mb-lg-0">
-        <li class = "nav-item">
-          <router-link class = "nav-link" to = "/problem"> Problem </router-link>
-        </li>
-        <li class = "nav-item">
-          <router-link class = "nav-link" to = "/course"> Course </router-link>
-        </li>
-        <li class = "nav-item">
-          <router-link class = "nav-link" to = "/class"> Class </router-link>
-        </li>
-      </ul>
-      <div class="flex-row-reverse">
-        <li class = "d-flex nav-item">
-          <router-link class = "nav-link" to = "/login"> Log in </router-link>
-          <router-link class = "nav-link" to = "/signup"> Sign up </router-link>
-        </li>
-
+    <div>
+      <div id="nav" style="background-color:rgb(89, 160, 101)">
+          <router-link to="/">Mochi</router-link> |
+          <router-link to="/problem">Problem</router-link> |
+          <router-link to="/status">Status</router-link> |
+          <router-link to="/class">Class</router-link> |
       </div>
+      <router-view/>
     </div>
-    </div>
-  </nav>
-  <div class = "container">
-    <router-view />
-  </div>  
 </template>
-
-<script>
-export default {
-  name: "App",
-  components: {},
-};
-</script>
 
 <style>
 #app {
-  font-family : Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing : antialiased;
-  -moz-osx-font-smoothing : grayscale;
-  text-align : center;
-  color : #2c3e50;
-  /* margin-top : 60px; */
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+#nav{
+      color:rgb(187, 40, 40)!important
+}
+#nav {
+  background-image: rgb(89, 160, 101);
+  padding: 20px;
 }
 
+#nav a {
+  font-weight: 200;
+  color: #126bc5;
+}
 
+#nav a.router-link-exact-active {
+  color: #06140e;
+}
 </style>

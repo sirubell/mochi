@@ -1,7 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router'
-import 'bootstrap'
-import './assets/custom.scss'
+import routera from './router'
 
-createApp(App).use(router).mount('#app')
+createApp(App).use(routera).mount('#app')
+
+// import VueJsonToTable from 'vue-json-to-table'
+// Vue.use(VueJsonToTable)
