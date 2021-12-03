@@ -28,14 +28,14 @@ api.add_resource(signup, "/signup")
 from backend.routes import user_profile
 api.add_resource(user_profile, "/user/<int:user_id>/profile")
 
-from backend.routes import submission_data, submission_new
+from backend.routes import submission_data
 api.add_resource(submission_data, "/submission/<int:submission_id>")
-api.add_resource(submission_new, "/submission/new")
 
-from backend.routes import queue_new, queue_data
-api.add_resource(queue_data, "/queue")
-api.add_resource(queue_new, "/queue/new")
+from backend.routes import queue_new
+api.add_resource(queue_new, "/submission/new")
 
+from backend.routes import dispatcher
+api.add_resource(dispatcher,"/dispatcher")
 
 
 # from backend.routes import problem, problem_post_args

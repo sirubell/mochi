@@ -11,6 +11,8 @@ problem_post_args.add_argument("memory_limit",type=int,required=True,help='memor
 problem_post_args.add_argument("testcase_count",type=int,required=True,help='testcase_count is required!')
 problem_post_args.add_argument("sample_input",type=str,required=True,help='sample_input is required!')
 problem_post_args.add_argument("is_hidden",type=int,required=True,help='is_hidden is required!')
+problem_post_args.add_argument("correct_source_code",type=str,required=True,help='correct_source_code is required!')
+
 
 problem_get_args = reqparse.RequestParser()
 # problem_get_args.add_argument("page",type=int,required=True,help='page is required!')
@@ -27,11 +29,6 @@ signup_post_args.add_argument("confirm_password", type=str, required=True, help=
 login_post_args = reqparse.RequestParser()
 login_post_args.add_argument("email", type=str, required=True, help='Email is necessary!')
 login_post_args.add_argument("password", type=str, required=True, help='Password is necessary!')
-
-user_profile_get_args = reqparse.RequestParser()
-user_profile_get_args.add_argument("name", type=str)
-user_profile_get_args.add_argument("email", type=str)
-user_profile_get_args.add_argument("user_to_problem", type=str)
 
 user_profile_put_args = reqparse.RequestParser()
 user_profile_put_args.add_argument("name", type=str)
@@ -52,13 +49,15 @@ submission_post_args.add_argument("exam_id", type=int)
 submission_post_args.add_argument("homework_id", type=int)
 submission_post_args.add_argument("code_content", type=str, required=True, help="Code_content is required!")
 
-
 queue_post_args = reqparse.RequestParser()
 queue_post_args.add_argument("user_id", type=int, required=True, help="User_id is required!")
 queue_post_args.add_argument("problem_id", type=int, required=True, help="Problem_id is required!")
-queue_post_args.add_argument("mode", type=int)
-queue_post_args.add_argument("exam_id", type=int)
-queue_post_args.add_argument("homework_id", type=int)
+queue_post_args.add_argument("mode", type=int,default=0)
+queue_post_args.add_argument("exam_id", type=int,default=0)
+queue_post_args.add_argument("homework_id", type=int,default=0)
 queue_post_args.add_argument("language", type=str, required=True, help="Language is required!")
-queue_post_args.add_argument("status", type=int, required=True, help="Status is required!")
 queue_post_args.add_argument("code_content", type=str, required=True, help="Code_content is required!")
+
+dispatcher_post_args = reqparse.RequestParser()
+dispatcher_post_args.add_argument("Return_count", type=int, required=True, help="Return_count is required!")
+dispatcher_post_args.add_argument("Return_Set",   type=dict, required=True, help="Return_Set is required!", action="append")

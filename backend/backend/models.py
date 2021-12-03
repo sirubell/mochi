@@ -34,12 +34,8 @@ class User(db.Model):
     user_to_problem = db.relationship("User_problem", backref="user")
     
     def __repr__(self):
-<<<<<<< HEAD
         return f"User('{self.name}', '{self.email}')"
 
-=======
-        return jsonify(self.name, self.email, str(self.register_date))
->>>>>>> 8ee181259e29a217937f244b97033bb94cb92e2b
     def as_dict(self):
        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 #✔
@@ -57,6 +53,9 @@ class Problem(db.Model):
     sample_input = db.Column(db.String(1024), nullable = False)
     is_hidden = db.Column(db.Integer, nullable=False, default=0)
     upload_date = db.Column(db.DateTime, nullable=False)
+
+    correct_source_code = db.Column(db.String(524288), nullable=False)
+
     #upload_date做法同上
     problem_to_user = db.relationship("User_problem", backref="problem")
     problem_topics = db.relationship("Topic", secondary=relations, backref="Problem")
@@ -65,12 +64,24 @@ class Problem(db.Model):
         return f"Problem('{self.problem_id}', '{self.name}', '{self.problem_content}', '{self.difficulty}')"
 #✔
 
+class Problem_Testcase(db.Model):
+    __tablename__ = "problem_testcase"
+    id = db.Column(db.Integer, primary_key=True)
+    problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id),nullable=False)
+    testcase_id = db.Column(db.Integer, nullable=False)
+    input_name = db.Column(db.String(1024),nullable=False)
+    output_name = db.Column(db.String(1024),nullable=False)
+
+
 class User_problem(db.Model):
     __tablename__ = "user_problem"
     user_problem_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey(User.user_id))
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id))
     status = db.Column(db.Integer, nullable=False, default=0)
+
+    def __repr__(self):
+        return jsonify(self.problem_id)
 
 #✔
 
@@ -102,7 +113,7 @@ class Submission(db.Model):
     memory_used = db.Column(db.String(20), nullable=False)     
     exam_id = db.Column(db.Integer)
     homework_id = db.Column(db.Integer)
-    upload_date = db.Column(db.DateTime, nullable=False)
+    upload_date = db.Column(db.String(30), nullable=False)
     #同register_date做法
     code_content = db.Column(db.String(524288), nullable=False)
 
@@ -121,13 +132,12 @@ class Queue(db.Model):
     language = db.Column(db.String(20), nullable=False)
     upload_date = db.Column(db.String(30), nullable=False)
     #同register_date做法
-    status = db.Column(db.Integer, nullable=False)
     code_content = db.Column(db.String(524288), nullable=False)
     
     def as_dict(self):
        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
     def __repr__(self):
-        return jsonify(self.source_id, self.user_id, self.problem_id, self.mode, self.exam_id, self.homework_id, self.language, str(self.upload_date), self.status, self.code_content)
+        return jsonify(self.source_id, self.user_id, self.problem_id, self.mode, self.exam_id, self.homework_id, self.language, str(self.upload_date), self.code_content)
 #✔
 
 
