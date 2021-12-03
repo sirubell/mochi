@@ -1,34 +1,15 @@
 from flask import jsonify
-from flask_restful import Api, Resource, reqparse, abort
+from flask_restful import Api, Resource
 import datetime
-# import json
+from backend.exception import if_email_has_existed, if_username_has_existed, if_problemname_has_existed
+from backend.models import Homework, Problem, User, Submission, User_problem, Queue
+from backend import bcrypt
+from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_get_args, queue_post_args
 
-problem_post_args = reqparse.RequestParser()
-problem_post_args.add_argument("name",type=str,required=True,help='name is required!')
-problem_post_args.add_argument("questioner_id",type=int,required=True,help='questioner_id is required!')
-problem_post_args.add_argument("difficulty",type=int,required=True,help='difficulty is required!')
-problem_post_args.add_argument("content",type=str,required=True,help='content is required!')
-problem_post_args.add_argument("time_limit",type=int,required=True,help='time_limit is required!')
-problem_post_args.add_argument("memory_limit",type=int,required=True,help='memory_limit is required!')
-problem_post_args.add_argument("testcase_count",type=int,required=True,help='testcase_count is required!')
-problem_post_args.add_argument("sample_input",type=str,required=True,help='sample_input is required!')
-problem_post_args.add_argument("is_hidden",type=int,required=True,help='is_hidden is required!')
-
-problem_get_args = reqparse.RequestParser()
-# problem_get_args.add_argument("page",type=int,required=True,help='page is required!')
-problem_get_args.add_argument("difficulty",type=int)
-problem_get_args.add_argument("name",type=str)
-
-def if_problemname_has_existed(name):
-    from backend.models import Problem
-    from backend import db
-    problem = Problem.query.filter_by(name=name).first()
-    if problem:
-       abort(409, message="Existed Problemname")
+import json
 
 class problem(Resource):
     def get(self):
-        from backend.models import Problem
         problem=problem_get_args.parse_args()
         # print(problem["difficulty"],problem["name"])
         # searchfor = {}
@@ -44,10 +25,9 @@ class problem(Resource):
         return "problem is not found",404
 
     def post(self):
-        from backend.models import Problem
         problem = problem_post_args.parse_args()
         if_problemname_has_existed(problem.name)
-        new_problem = Problem(questioner_id=problem.questioner_id,name=problem.name,difficulty=problem.difficulty,content=problem.content,time_limit=problem.time_limit,memory_limit=problem.memory_limit,testcase_count=problem.testcase_count,sample_input=problem.sample_input,is_hidden=problem.is_hidden,upload_date = datetime.datetime.now()+datetime.timedelta(hours = 8))
+        new_problem = Problem(questioner_id=problem.questioner_id,name=problem.name,difficulty=problem.difficulty,content=problem.content,time_limit=problem.time_limit,memory_limit=problem.memory_limit,testcase_count=problem.testcase_count,sample_input=problem.sample_input,is_hidden=problem.is_hidden,upload_date = datetime.datetime.now())
         from backend import db
         db.session.add(new_problem)
         db.session.commit()
@@ -55,52 +35,24 @@ class problem(Resource):
 
 # class problem(Resource):
 
-
-signup_post_args = reqparse.RequestParser()
-signup_post_args.add_argument("name", type=str, required=True, help='Username is necessary!')
-signup_post_args.add_argument("email", type=str, required=True, help='Email is necessary!')
-signup_post_args.add_argument("password", type=str, required=True, help='Password is necessary!')
-signup_post_args.add_argument("confirm_password", type=str, required=True, help='Confirm_password is necessary!')
-
-def if_username_has_existed(name):
-    from backend.models import User
-    from backend import db
-    user = User.query.filter_by(name=name).first()
-    if user:
-       abort(409, message="Existed Username")
-def if_email_has_existed(email):
-    from backend.models import User
-    from backend import db
-    user = User.query.filter_by(email=email).first()
-    if user:
-        abort(409, message="Existed Email")
-
 class signup(Resource): 
     def post(self):
-        from backend.models import User
-        from backend import bcrypt
         args = signup_post_args.parse_args()
-        print('here')
         if_username_has_existed(args.name)
         if_email_has_existed(args.email)
         if(args.password!=args.confirm_password):
             return "Confirm_password isn't equal to password!"
         hashed_password = bcrypt.generate_password_hash(args.password).decode('utf-8')
-        new_user = User(name=args.name, email=args.email, password=hashed_password, register_date=datetime.datetime.now()+datetime.timedelta(hours=8))
+        new_user = User(name=args.name, email=args.email, password=hashed_password, register_date=datetime.datetime.now())
+        #時間這邊，我先將這個{+datetime.timedelta(hours = 8)}拿掉，用臺灣當伺服器好像就是這邊的標準時間了
         from backend import db
         db.session.add(new_user)
         db.session.commit()
         return "Success to sign up", 200 
 
-login_post_args = reqparse.RequestParser()
-login_post_args.add_argument("email", type=str, required=True, help='Email is necessary!')
-login_post_args.add_argument("password", type=str, required=True, help='Password is necessary!')
-
 class login(Resource):
     def post(self):
-        from backend.models import User
         from backend import db
-        from backend import bcrypt
         args = login_post_args.parse_args()
         user = User.query.filter_by(email=args.email).first()
         if user and bcrypt.check_password_hash(user.password, args.password):
@@ -110,26 +62,18 @@ class login(Resource):
         else:
             return "Couldn't find the user", 404
 
-user_profile_get_args = reqparse.RequestParser()
-user_profile_get_args.add_argument("name", type=str)
-user_profile_get_args.add_argument("email", type=str)
-user_profile_get_args.add_argument("user_to_problem", type=str)
-
-user_profile_put_args = reqparse.RequestParser()
-user_profile_put_args.add_argument("name", type=str)
-user_profile_put_args.add_argument("email", type=str)
-user_profile_put_args.add_argument("password", type=str)
-
 class user_profile(Resource):
-    def get(self,user_id):
-        from backend.models import User, User_problem
+    def get(self, user_id):
         from backend import db
         user = User.query.filter_by(user_id=user_id).first()
         if user: 
+<<<<<<< HEAD
             return user.as_dict()
+=======
+            return user.__repr__()  
+>>>>>>> 8ee181259e29a217937f244b97033bb94cb92e2b
         return 404
     def put(self):
-        from backend.models import User
         args = user_profile_put_args.parse_args()
         if_username_has_existed(args.name)
         if_email_has_existed(args.email)
@@ -137,3 +81,35 @@ class user_profile(Resource):
         from backend import db
         db.session.commit()
 
+class submission_data(Resource):
+    def get(self, submission_id):
+        from backend import db
+        submission = Submission.query.filter_by(submission_id=submission_id).first()
+        if submission:
+            return submission.__repr__()
+        return 404
+class submission_new(Resource):
+    def post(self):
+        from backend import db
+        args = submission_post_args.parse_args()
+        new_submission = Submission(user_id=args.user_id, problem_id=args.problem_id, source_id=args.source_id, status=args.status, error_hint=args.error_hint, error_line=args.error_line, language=args.language, time_used=args.time_used, memory_used=args.memory_used, exam_id=args.exam_id, homework_id=args.homework_id, upload_date=datetime.datetime.now(), code_content=args.code_content)
+        db.session.add(new_submission)
+        db.session.commit()
+        return 200
+
+class queue_data(Resource):
+    def get(self):
+        from backend import db
+        queue = Queue.query.filter_by(mode=1).first()
+        #jsonString = json.dumps(queue)
+        if queue:   
+            return queue.__repr__()
+        return 404
+class queue_new(Resource):
+    def post(self):
+        from backend import db
+        args = queue_post_args.parse_args()
+        new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=args.mode, exam_id=args.exam_id, homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), status=args.status, code_content=args.code_content)
+        db.session.add(new_queue)
+        db.session.commit()
+        return 200

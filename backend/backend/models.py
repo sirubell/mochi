@@ -1,3 +1,4 @@
+from flask.json import jsonify
 from backend import db
 from flask_sqlalchemy import SQLAlchemy
 import datetime
@@ -31,10 +32,14 @@ class User(db.Model):
         #utc8 = utc + time_range
     authority = db.Column(db.Integer, default=0)
     user_to_problem = db.relationship("User_problem", backref="user")
-
+    
     def __repr__(self):
+<<<<<<< HEAD
         return f"User('{self.name}', '{self.email}')"
 
+=======
+        return jsonify(self.name, self.email, str(self.register_date))
+>>>>>>> 8ee181259e29a217937f244b97033bb94cb92e2b
     def as_dict(self):
        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 #✔
@@ -94,7 +99,7 @@ class Submission(db.Model):
     error_line = db.Column(db.Integer)              
     language = db.Column(db.String(20), nullable=False)
     time_used = db.Column(db.String(20), nullable=False)      
-    Memory_used = db.Column(db.String(20), nullable=False)     
+    memory_used = db.Column(db.String(20), nullable=False)     
     exam_id = db.Column(db.Integer)
     homework_id = db.Column(db.Integer)
     upload_date = db.Column(db.DateTime, nullable=False)
@@ -102,7 +107,7 @@ class Submission(db.Model):
     code_content = db.Column(db.String(524288), nullable=False)
 
     def __repr__(self):
-        return f"Submission('{self.submission_id}', '{self.user_id}', '{self.problem_id}', '{self.status}', '{self.code_content}')"
+        return jsonify(self.submission_id, self.user_id, self.problem_id, self.status,self.error_hint, self.error_line, self.time_used, self.memory_used, self.exam_id, self.homework_id, str(self.upload_date), self.code_content)
 #✔
     
 class Queue(db.Model):
@@ -113,15 +118,16 @@ class Queue(db.Model):
     mode = db.Column(db.Integer, nullable=False, default=0)
     exam_id = db.Column(db.Integer)      
     homework_id = db.Column(db.Integer)  
-    languege = db.Column(db.String(20), nullable=False)
-    upload_date = db.Column(db.DateTime, nullable=False)
+    language = db.Column(db.String(20), nullable=False)
+    upload_date = db.Column(db.String(30), nullable=False)
     #同register_date做法
     status = db.Column(db.Integer, nullable=False)
     code_content = db.Column(db.String(524288), nullable=False)
     
-    
+    def as_dict(self):
+       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
     def __repr__(self):
-        return f"Queue('{self.submission_id}', '{self.user_id}', '{self.problem_id}', '{self.status}', '{self.code_content}','{self.languege}')"
+        return jsonify(self.source_id, self.user_id, self.problem_id, self.mode, self.exam_id, self.homework_id, self.language, str(self.upload_date), self.status, self.code_content)
 #✔
 
 
