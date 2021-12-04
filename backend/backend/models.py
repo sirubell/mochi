@@ -132,7 +132,7 @@ class Queue(db.Model):
     language = db.Column(db.String(20), nullable=False)
     upload_date = db.Column(db.String(30), nullable=False)
     #同register_date做法
-    code_content = db.Column(db.String(524288), nullable=False)
+    code_content = db.Column(db.String(10000), nullable=False)
     
     def as_dict(self):
        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}

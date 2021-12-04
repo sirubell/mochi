@@ -85,7 +85,8 @@ class queue_new(Resource):
     def post(self):
         from backend import db
         args = queue_post_args.parse_args()
-        new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=args.mode, exam_id=args.exam_id, homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), code_content=args.code_content)
+        
+        new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=args.mode, exam_id=args.exam_id, homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), code_content="123")
         db.session.add(new_queue)
         db.session.commit()
         return 200
@@ -94,10 +95,13 @@ class queue_new(Resource):
 class dispatcher(Resource):
     def get(self):
         from backend import db
+        from backend.convert_file_to_json import convert_file_to_json as yea
         queues = Queue.query.limit(10).all()
         datas = {}
+        s = "C:/Users/a2320/Desktop/coding/mochi/backend/backend/1.c"
         datas["Submission_Count"]=len(queues)
         datas["Submission_Set"]=[]
+        cnt=0
         for queue in queues:
             data={}
             data["Mode"]=queue.mode
@@ -108,12 +112,12 @@ class dispatcher(Resource):
             data["Time_limit"]=problem.time_limit
             data["Memory_limit"]=problem.memory_limit
             data["Language"]=queue.language
-            data["Correct_source_code"]=problem.correct_source_code
-            data["Code"]=queue.code_content
+            # data["Correct_source_code"]=problem.correct_source_code
+            data["Code"]=yea(s)
             data["All_test_case_general_submission"]=[]
             testcases = Problem_Testcase.query.filter_by(problem_id=queue.problem_id).all()
-            for testcase in testcases:
-                data["All_test_case_general_submission"].append({"Test_case_name":testcase.input_name})
+            for i in range(10):
+                data["All_test_case_general_submission"].append({"Test_case_name":i,"Test_case_answer_name":i})
             datas["Submission_Set"].append(data)
         
         return jsonify(datas)
@@ -122,12 +126,13 @@ class dispatcher(Resource):
     def post(self):
         from backend import db
         args = dispatcher_post_args.parse_args()
+        print(args)
         count = args["Return_count"]
         for submission in args["Return_Set"]:
             data=Queue.query.filter_by(source_id=submission["Source_id"]).first()
-            new_submission = Submission(user_id=data.user_id,problem_id=data.problem_id,source_id=submission["Source_id"],status=submission["Status"],code_content=data.code_content,exam_id=data.exam_id,homework_id=data.homework_id,error_hint=submission["Compile_error_out"],error_line=0,language=data.language,time_used=submission["Time"],memory_used=submission["Memory"],upload_date=data.upload_date)
+            new_submission = Submission(user_id=data.user_id,problem_id=data.problem_id,source_id=submission["Source_id"],status=submission["Status"],code_content="123",exam_id=data.exam_id,homework_id=data.homework_id,error_hint=submission["Compile_error_out"],error_line=0,language=data.language,time_used=submission["Time"],memory_used=submission["Memory"],upload_date=data.upload_date)
             db.session.add(new_submission)
-            db.session.delete
+            # db.session.delete
             Queue.query.filter_by(source_id=submission["Source_id"]).delete()
         db.session.commit()
         return "success to return", 200
