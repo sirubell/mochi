@@ -5,3 +5,5 @@ import 'bootstrap'
 import './assets/custom.scss'
 
 createApp(App).use(router).mount('#app')
+
+// hello
