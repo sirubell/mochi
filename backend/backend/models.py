@@ -61,7 +61,10 @@ class Problem(db.Model):
     problem_topics = db.relationship("Topic", secondary=relations, backref="Problem")
 
     def __repr__(self):
-        return f"Problem('{self.problem_id}', '{self.name}', '{self.problem_content}', '{self.difficulty}')"
+        return jsonify(self.problem_id, self.name, self.content, self.difficulty)
+
+    def as_dict(self):
+       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 #✔
 
 class Problem_Testcase(db.Model):
@@ -95,7 +98,7 @@ class Topic(db.Model):
     topic_problems = db.relationship("Problem", secondary=relations, backref="Topic")
 
     def __repr__(self):
-        return f"Topic('{self.topic_id}', '{self.topic_name}')"
+        return jsonify(self.topic_id, self.topic_name)
 
 #✔
 

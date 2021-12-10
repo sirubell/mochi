@@ -4,24 +4,29 @@ import datetime
 from backend.exception import if_email_has_existed, if_username_has_existed, if_problemname_has_existed, is_email_format, confirm_password_equal_password
 from backend.models import Homework, Problem, User, Submission, User_problem, Queue, Problem_Testcase
 from backend import bcrypt
-from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_get_args, queue_post_args, dispatcher_post_args
+from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
 
 import json
 
 class problem(Resource):
     def get(self):
-        problem=problem_get_args.parse_args()
-        # print(problem["difficulty"],problem["name"])
-        # searchfor = {}
-        # if problem.difficulty:
-        #     searchfor["difficulty"]=problem.difficulty
-        # if problem.name:
-        #     searchfor["name"]=problem.name
-        # json_obj=json.dumps(dict(searchfor))
-        # problem=Problem.query.filter_by()
-
-        if problem:
-            return problem
+        args = problem_get_args.parse_args()
+        problems = Problem.query.all()
+        if args.difficulty:
+            problems = Problem.query.filter_by(difficulty=args.difficulty).all()
+        if args.name:
+            problems = Problem.query.filter(Problem.name.like(args.name)).all()
+    
+        if problems:
+            ret = {}
+            ret["returnset"] = []
+            for problem in problems:
+                ret["returnset"].append({
+                    "id":problem.problem_id,
+                    "name":problem.name,
+                    "difficulty":problem.difficulty
+                })
+            return jsonify(ret)
         return "problem is not found",404
 
     def post(self):
@@ -33,7 +38,98 @@ class problem(Resource):
         db.session.commit()
         return "Success to add problem",200
 
-# class problem(Resource):
+class problem_id(Resource):
+    def get(self,problem_id):
+        problem=Problem.query.filter_by(problem_id=problem_id).first()
+        return problem.as_dict()
+    
+    def put(self,problem_id):
+        args = problem_put_args.parse_args()
+        problem = Problem.query.filter_by(problem_id=problem_id).first()
+        if problem == None:
+            return "problem_id does not exist",500
+        if args.name:
+            if_problemname_has_existed(args.name,problem_id)
+            problem.name=args.name
+        if args.difficulty:
+            problem.difficulty=args.difficulty
+        if args.content:
+            problem.content=args.content
+        if args.time_limit:
+            problem.time_limit=args.time_limit
+        if args.memory_limit:
+            problem.memory_limit=args.memory_limit
+        if args.sample_input:
+            problem.sample_input=args.sample_input
+        if args.testcase_count:
+            problem.testcase_count=args.testcase_count
+        if args.is_hidden:
+            problem.is_hidden=args.is_hidden
+        if args.correct_source_code:
+            problem.correct_source_code=args.correct_source_code
+        from backend import db
+        db.session.commit()
+        return "Success to put problem",200
+
+    def delete(self,problem_id):
+        problem=Problem.query.filter_by(problem_id=problem_id).delete()
+        from backend import db
+        db.session.commit()
+        return "Success to delete problem",200
+
+class problem_solution(Resource):
+    def get(self,problem_id):
+        problem = Problem.query.filter_by(problem_id=problem_id)
+        if problem == None:
+            return "problem does not exist",404
+
+        return problem.correct_source_code
+
+class problem_submission(Resource):
+    def get(self,problem_id,user_id=-1):
+        problem = Problem.query.filter_by(problem_id=problem_id)
+        if problem == None:
+            return "problem does not exist",400
+        user = User.query.filter_by(user_id=user_id)
+        if user == None:
+            return "user does not exist",400
+        if user_id != -1:
+            submissions = Submission.query.filter_by(**{"user_id": user_id, "problem_id": problem.problem_id}).all()
+        else:
+            submissions = Submission.query.filter_by(problem_id = problem.problem_id).all()
+
+        if submissions:
+            ret = {}
+            ret["returnset"] = []
+            for submission in submissions:
+                ret["returnset"].append({
+                    "submission_id":submission.submission_id,
+                    "problem_id":problem.problem_id,
+                    "name":user.name,
+                    "status":submission.status,
+                    "language":submission.language,
+                    "upload_date":submission.upload_date
+                })
+            return jsonify(ret)
+        return "you have not tried this problem"
+
+
+class status(Resource):
+    def get(self,page):
+        submissions = submission.query.all()
+        ret = {}
+        ret["returnset"] = []
+        for submission in submissions:
+            ret["returnset"].append({
+                "submission_id":submission.submission_id,
+                "problem_id":problem.problem_id,
+                "name":user.name,
+                "status":submission.status,
+                "language":submission.language,
+                "upload_date":submission.upload_date
+            })
+        return jsonify(ret)
+
 
 class signup(Resource): 
     def post(self):
@@ -50,6 +146,7 @@ class signup(Resource):
         db.session.commit()
         return "Success to sign up", 200 
 
+
 class login(Resource):
     def post(self):
         from backend import db
@@ -62,11 +159,14 @@ class login(Resource):
         else:
             return "Couldn't find the user", 404
 
+# if no login 401
+
 class user_profile(Resource):
     def get(self, user_id):
         from backend import db
         user = User.query.filter_by(user_id=user_id).first_or_404()
         return user.as_dict()
+
     def put(self):
         args = user_profile_put_args.parse_args()
         if_username_has_existed(args.name)
@@ -75,11 +175,13 @@ class user_profile(Resource):
         from backend import db
         db.session.commit()
 
+
 class submission_data(Resource):
     def get(self, submission_id):
         from backend import db
         submission = Submission.query.filter_by(submission_id=submission_id).first_or_404()
         return submission.__repr__()
+
 
 class queue_new(Resource):
     def post(self):

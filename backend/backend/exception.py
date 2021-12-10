@@ -1,11 +1,11 @@
 from flask_restful import abort
 import re
 
-def if_problemname_has_existed(name):
+def if_problemname_has_existed(name,problem_id):
     from backend.models import Problem
     from backend import db
     problem = Problem.query.filter_by(name=name).first()
-    if problem:
+    if problem and problem.problem_id != problem_id:
        abort(409, message="Existed Problemname")
 
 
