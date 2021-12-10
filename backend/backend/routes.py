@@ -116,14 +116,14 @@ class problem_submission(Resource):
 
 class status(Resource):
     def get(self,page):
-        submissions = submission.query.all()
+        submissions = Submission.query.all()
         ret = {}
         ret["returnset"] = []
         for submission in submissions:
             ret["returnset"].append({
                 "submission_id":submission.submission_id,
                 "problem_id":problem.problem_id,
-                "name":user.name,
+                "name":User.name,
                 "status":submission.status,
                 "language":submission.language,
                 "upload_date":submission.upload_date
