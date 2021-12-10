@@ -73,7 +73,10 @@ class Problem(db.Model):
     problem_topics = db.relationship("Topic", secondary=relations, backref="Problem")
 
     def __repr__(self):
-        return f"Problem('{self.problem_id}', '{self.name}', '{self.problem_content}', '{self.difficulty}')"
+        return jsonify(self.problem_id, self.name, self.content, self.difficulty)
+
+    def as_dict(self):
+       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 #✔
 
 class Problem_Testcase(db.Model):
@@ -83,6 +86,7 @@ class Problem_Testcase(db.Model):
     testcase_id = db.Column(db.Integer, nullable=False)
     input_name = db.Column(db.String(1024),nullable=False)
     output_name = db.Column(db.String(1024),nullable=False)
+    #problem_backreference
 
 
 class User_problem(db.Model):
@@ -144,7 +148,7 @@ class Queue(db.Model):
     language = db.Column(db.String(20), nullable=False)
     upload_date = db.Column(db.String(30), nullable=False)
     #同register_date做法
-    code_content = db.Column(db.String(524288), nullable=False)
+    code_content = db.Column(db.String(10000), nullable=False)
     
     def as_dict(self):
        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
