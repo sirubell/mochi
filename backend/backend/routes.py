@@ -1,12 +1,12 @@
-from flask import jsonify
-from flask_restful import Api, Resource
+from flask import jsonify, url_for, redirect, flash, render_template
+from flask_restful import Api, Resource, abort
 import datetime
 from backend.exception import if_email_has_existed, if_username_has_existed, if_problemname_has_existed, is_email_format, confirm_password_equal_password
 from backend.models import Homework, Problem, User, Submission, User_problem, Queue, Problem_Testcase
 from backend import bcrypt
 from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
+from flask_login import login_user, current_user, logout_user
 
-import json
 
 class problem(Resource):
     def get(self):
@@ -132,7 +132,11 @@ class status(Resource):
 
 
 class signup(Resource): 
+    #if current_user.is_authenticated:
+        #return redirect(url_for('home'))
     def post(self):
+        if current_user.is_authenticated:
+            return redirect(url_for('home'))
         args = signup_post_args.parse_args()
         if_username_has_existed(args.name)
         is_email_format(args.email)
@@ -144,29 +148,47 @@ class signup(Resource):
         from backend import db
         db.session.add(new_user)
         db.session.commit()
-        return "Success to sign up", 200 
+        flash('Your account has been created! You are able to log in now', 'Success')
+        return redirect(url_for('login'))
 
 
 class login(Resource):
+    #def get(self):
+        #return render_template('login.html')
     def post(self):
         from backend import db
+        if current_user.is_authenticated:
+            return redirect(url_for('home'))
         args = login_post_args.parse_args()
         user = User.query.filter_by(email=args.email).first()
         if user and bcrypt.check_password_hash(user.password, args.password):
-            return "success to login", 200
+            login_user(user, remember = args.remember)
+            flash('Logged in successfully.')
+            return redirect(url_for('home'))
         elif user:
-            return "Password is wrong"
+            #return ('Password is wrong')
+            flash('Password is wrong')
+            return render_template('login.html', args=args)
         else:
-            return "Couldn't find the user", 404
+            abort(404, message = "Couldn't find the user")
+            
+class logout(Resource):
+    def logout():
+        logout_user()
+        return redirect(url_for('home'))            
 
 # if no login 401
 
 class user_profile(Resource):
     def get(self, user_id):
         from backend import db
-        user = User.query.filter_by(user_id=user_id).first_or_404()
-        return user.as_dict()
-
+        user = User.query.filter_by(id=user_id).first_or_404()
+        ACs = User_problem.query.filter_by(user_id=user.id, status=1).all()
+        datas = []
+        for AC in ACs:
+            datas.append(AC.problem_id)
+        return jsonify({"name":user.name, "email":user.email, "register_date":str(user.register_date), "user_problem":datas})
+        #return user.__repr__()
     def put(self):
         args = user_profile_put_args.parse_args()
         if_username_has_existed(args.name)
