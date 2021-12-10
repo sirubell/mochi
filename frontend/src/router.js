@@ -6,6 +6,8 @@ import Status from './components/status.vue'
 import ClassAll from './components/class/class_all.vue'
 import Login from './components/login.vue'
 import SignUp from './components/signup.vue'
+import User from './components/user.vue'
+
 
 const routes = [
   {
@@ -21,6 +23,10 @@ const routes = [
     path: '/status',
     name: 'status',
     component: Status
+  },
+  {
+    path: '/user',
+    component: User
   },
   {
     path: '/login',
