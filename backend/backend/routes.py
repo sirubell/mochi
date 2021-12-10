@@ -1,27 +1,32 @@
-from flask import jsonify
-from flask_restful import Api, Resource
+from flask import jsonify, url_for, redirect, flash, render_template
+from flask_restful import Api, Resource, abort
 import datetime
 from backend.exception import if_email_has_existed, if_username_has_existed, if_problemname_has_existed, is_email_format, confirm_password_equal_password
 from backend.models import Homework, Problem, User, Submission, User_problem, Queue, Problem_Testcase
 from backend import bcrypt
-from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_get_args, queue_post_args, dispatcher_post_args
+from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
+from flask_login import login_user, current_user, logout_user
 
-import json
 
 class problem(Resource):
     def get(self):
-        problem=problem_get_args.parse_args()
-        # print(problem["difficulty"],problem["name"])
-        # searchfor = {}
-        # if problem.difficulty:
-        #     searchfor["difficulty"]=problem.difficulty
-        # if problem.name:
-        #     searchfor["name"]=problem.name
-        # json_obj=json.dumps(dict(searchfor))
-        # problem=Problem.query.filter_by()
-
-        if problem:
-            return problem
+        args = problem_get_args.parse_args()
+        problems = Problem.query.all()
+        if args.difficulty:
+            problems = Problem.query.filter_by(difficulty=args.difficulty).all()
+        if args.name:
+            problems = Problem.query.filter(Problem.name.like(args.name)).all()
+    
+        if problems:
+            ret = {}
+            ret["returnset"] = []
+            for problem in problems:
+                ret["returnset"].append({
+                    "id":problem.problem_id,
+                    "name":problem.name,
+                    "difficulty":problem.difficulty
+                })
+            return jsonify(ret)
         return "problem is not found",404
 
     def post(self):
@@ -33,10 +38,105 @@ class problem(Resource):
         db.session.commit()
         return "Success to add problem",200
 
-# class problem(Resource):
+class problem_id(Resource):
+    def get(self,problem_id):
+        problem=Problem.query.filter_by(problem_id=problem_id).first()
+        return problem.as_dict()
+    
+    def put(self,problem_id):
+        args = problem_put_args.parse_args()
+        problem = Problem.query.filter_by(problem_id=problem_id).first()
+        if problem == None:
+            return "problem_id does not exist",500
+        if args.name:
+            if_problemname_has_existed(args.name,problem_id)
+            problem.name=args.name
+        if args.difficulty:
+            problem.difficulty=args.difficulty
+        if args.content:
+            problem.content=args.content
+        if args.time_limit:
+            problem.time_limit=args.time_limit
+        if args.memory_limit:
+            problem.memory_limit=args.memory_limit
+        if args.sample_input:
+            problem.sample_input=args.sample_input
+        if args.testcase_count:
+            problem.testcase_count=args.testcase_count
+        if args.is_hidden:
+            problem.is_hidden=args.is_hidden
+        if args.correct_source_code:
+            problem.correct_source_code=args.correct_source_code
+        from backend import db
+        db.session.commit()
+        return "Success to put problem",200
+
+    def delete(self,problem_id):
+        problem=Problem.query.filter_by(problem_id=problem_id).delete()
+        from backend import db
+        db.session.commit()
+        return "Success to delete problem",200
+
+class problem_solution(Resource):
+    def get(self,problem_id):
+        problem = Problem.query.filter_by(problem_id=problem_id)
+        if problem == None:
+            return "problem does not exist",404
+
+        return problem.correct_source_code
+
+class problem_submission(Resource):
+    def get(self,problem_id,user_id=-1):
+        problem = Problem.query.filter_by(problem_id=problem_id)
+        if problem == None:
+            return "problem does not exist",400
+        user = User.query.filter_by(user_id=user_id)
+        if user == None:
+            return "user does not exist",400
+        if user_id != -1:
+            submissions = Submission.query.filter_by(**{"user_id": user_id, "problem_id": problem.problem_id}).all()
+        else:
+            submissions = Submission.query.filter_by(problem_id = problem.problem_id).all()
+
+        if submissions:
+            ret = {}
+            ret["returnset"] = []
+            for submission in submissions:
+                ret["returnset"].append({
+                    "submission_id":submission.submission_id,
+                    "problem_id":problem.problem_id,
+                    "name":user.name,
+                    "status":submission.status,
+                    "language":submission.language,
+                    "upload_date":submission.upload_date
+                })
+            return jsonify(ret)
+        return "you have not tried this problem"
+
+
+class status(Resource):
+    def get(self,page):
+        submissions = submission.query.all()
+        ret = {}
+        ret["returnset"] = []
+        for submission in submissions:
+            ret["returnset"].append({
+                "submission_id":submission.submission_id,
+                "problem_id":problem.problem_id,
+                "name":user.name,
+                "status":submission.status,
+                "language":submission.language,
+                "upload_date":submission.upload_date
+            })
+        return jsonify(ret)
+
 
 class signup(Resource): 
+    #if current_user.is_authenticated:
+        #return redirect(url_for('home'))
     def post(self):
+        if current_user.is_authenticated:
+            return redirect(url_for('home'))
         args = signup_post_args.parse_args()
         if_username_has_existed(args.name)
         is_email_format(args.email)
@@ -48,25 +148,47 @@ class signup(Resource):
         from backend import db
         db.session.add(new_user)
         db.session.commit()
-        return "Success to sign up", 200 
+        flash('Your account has been created! You are able to log in now', 'Success')
+        return redirect(url_for('login'))
+
 
 class login(Resource):
+    #def get(self):
+        #return render_template('login.html')
     def post(self):
         from backend import db
+        if current_user.is_authenticated:
+            return redirect(url_for('home'))
         args = login_post_args.parse_args()
         user = User.query.filter_by(email=args.email).first()
         if user and bcrypt.check_password_hash(user.password, args.password):
-            return "success to login", 200
+            login_user(user, remember = args.remember)
+            flash('Logged in successfully.')
+            return redirect(url_for('home'))
         elif user:
-            return "Password is wrong"
+            #return ('Password is wrong')
+            flash('Password is wrong')
+            return render_template('login.html', args=args)
         else:
-            return "Couldn't find the user", 404
+            abort(404, message = "Couldn't find the user")
+            
+class logout(Resource):
+    def logout():
+        logout_user()
+        return redirect(url_for('home'))            
+
+# if no login 401
 
 class user_profile(Resource):
     def get(self, user_id):
         from backend import db
-        user = User.query.filter_by(user_id=user_id).first_or_404()
-        return user.as_dict()
+        user = User.query.filter_by(id=user_id).first_or_404()
+        ACs = User_problem.query.filter_by(user_id=user.id, status=1).all()
+        datas = []
+        for AC in ACs:
+            datas.append(AC.problem_id)
+        return jsonify({"name":user.name, "email":user.email, "register_date":str(user.register_date), "user_problem":datas})
+        #return user.__repr__()
     def put(self):
         args = user_profile_put_args.parse_args()
         if_username_has_existed(args.name)
@@ -75,17 +197,20 @@ class user_profile(Resource):
         from backend import db
         db.session.commit()
 
+
 class submission_data(Resource):
     def get(self, submission_id):
         from backend import db
         submission = Submission.query.filter_by(submission_id=submission_id).first_or_404()
         return submission.__repr__()
 
+
 class queue_new(Resource):
     def post(self):
         from backend import db
         args = queue_post_args.parse_args()
-        new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=args.mode, exam_id=args.exam_id, homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), code_content=args.code_content)
+        
+        new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=args.mode, exam_id=args.exam_id, homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), code_content="123")
         db.session.add(new_queue)
         db.session.commit()
         return 200
@@ -94,10 +219,13 @@ class queue_new(Resource):
 class dispatcher(Resource):
     def get(self):
         from backend import db
+        from backend.convert_file_to_json import convert_file_to_json as yea
         queues = Queue.query.limit(10).all()
         datas = {}
+        s = "C:/Users/a2320/Desktop/coding/mochi/backend/backend/1.c"
         datas["Submission_Count"]=len(queues)
         datas["Submission_Set"]=[]
+        cnt=0
         for queue in queues:
             data={}
             data["Mode"]=queue.mode
@@ -108,12 +236,12 @@ class dispatcher(Resource):
             data["Time_limit"]=problem.time_limit
             data["Memory_limit"]=problem.memory_limit
             data["Language"]=queue.language
-            data["Correct_source_code"]=problem.correct_source_code
-            data["Code"]=queue.code_content
+            # data["Correct_source_code"]=problem.correct_source_code
+            data["Code"]=yea(s)
             data["All_test_case_general_submission"]=[]
             testcases = Problem_Testcase.query.filter_by(problem_id=queue.problem_id).all()
-            for testcase in testcases:
-                data["All_test_case_general_submission"].append({"Test_case_name":testcase.input_name})
+            for i in range(10):
+                data["All_test_case_general_submission"].append({"Test_case_name":i,"Test_case_answer_name":i})
             datas["Submission_Set"].append(data)
         
         return jsonify(datas)
@@ -122,12 +250,13 @@ class dispatcher(Resource):
     def post(self):
         from backend import db
         args = dispatcher_post_args.parse_args()
+        print(args)
         count = args["Return_count"]
         for submission in args["Return_Set"]:
             data=Queue.query.filter_by(source_id=submission["Source_id"]).first()
-            new_submission = Submission(user_id=data.user_id,problem_id=data.problem_id,source_id=submission["Source_id"],status=submission["Status"],code_content=data.code_content,exam_id=data.exam_id,homework_id=data.homework_id,error_hint=submission["Compile_error_out"],error_line=0,language=data.language,time_used=submission["Time"],memory_used=submission["Memory"],upload_date=data.upload_date)
+            new_submission = Submission(user_id=data.user_id,problem_id=data.problem_id,source_id=submission["Source_id"],status=submission["Status"],code_content="123",exam_id=data.exam_id,homework_id=data.homework_id,error_hint=submission["Compile_error_out"],error_line=0,language=data.language,time_used=submission["Time"],memory_used=submission["Memory"],upload_date=data.upload_date)
             db.session.add(new_submission)
+            # db.session.delete
             Queue.query.filter_by(source_id=submission["Source_id"]).delete()
             db.session.commit()
         return "success to return", 200
-

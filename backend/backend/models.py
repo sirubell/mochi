@@ -1,7 +1,9 @@
-from flask.json import jsonify
-from backend import db
+from flask.json import jsonify, dumps
+from backend import db, login_manager
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 import datetime
+import base64
 
 relations = db.Table(
     'relations between problem and topic',
@@ -10,10 +12,21 @@ relations = db.Table(
 )
 #✔
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+def load_user_from_header(header_val):
+    header_val = header_val.replace('Basic', '', 1)
+    try:
+        header_val = base64.b64decode(header_val)
+    except TypeError:
+        pass
+    return User.query.filter_by(user_id = header_val).first()
 
-class User(db.Model):
+
+class User(db.Model, UserMixin):
     __tablename__ = "user"
-    user_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
@@ -34,17 +47,16 @@ class User(db.Model):
     user_to_problem = db.relationship("User_problem", backref="user")
     
     def __repr__(self):
-        return f"User('{self.name}', '{self.email}')"
-
-    def as_dict(self):
-       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+        return jsonify({"name":self.name, "email":self.email, "register_date":str(self.register_date), "user_problem":dumps(self.user_to_problem.problem_id)})
+    #def as_dict(self):
+       #return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 #✔
 
 class Problem(db.Model):
     __tablename__ = "problem"
     problem_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), unique=True, nullable=False)
-    questioner_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
+    questioner_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     difficulty = db.Column(db.Integer, nullable=False)
     content = db.Column(db.String(524288), nullable=False)
     time_limit = db.Column(db.Integer, nullable = False)
@@ -76,7 +88,7 @@ class Problem_Testcase(db.Model):
 class User_problem(db.Model):
     __tablename__ = "user_problem"
     user_problem_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id))
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id))
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id))
     status = db.Column(db.Integer, nullable=False, default=0)
 
@@ -94,7 +106,7 @@ class Topic(db.Model):
     topic_problems = db.relationship("Problem", secondary=relations, backref="Topic")
 
     def __repr__(self):
-        return f"Topic('{self.topic_id}', '{self.topic_name}')"
+         return jsonify(self.topic_id, self.topic_name)
 
 #✔
 
@@ -102,7 +114,7 @@ class Topic(db.Model):
 class Submission(db.Model):
     __tablename__ = "submission"
     submission_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
     source_id = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Integer, nullable=False)
@@ -124,7 +136,7 @@ class Submission(db.Model):
 class Queue(db.Model):
     __tablename__ = "queue"
     source_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
     mode = db.Column(db.Integer, nullable=False, default=0)
     exam_id = db.Column(db.Integer)      
@@ -162,7 +174,7 @@ class Class_user(db.Model):
     class_id = db.Column(db.Integer, db.ForeignKey(Class.class_id), nullable=False)
     student_id = db.Column(db.Integer, nullable=False)
     #這邊的student_id是否有與id重複之嫌
-    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     authority = db.Column(db.Integer, nullable=False, default=0)
     
 class Homework(db.Model):
@@ -178,7 +190,7 @@ class Homework_problem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     homework_id = db.Column(db.Integer, db.ForeignKey(Homework.homework_id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     hand_in_status = db.Column(db.Integer, nullable=False, default=0)
     
 class Exam(db.Model):
@@ -203,7 +215,7 @@ class Dashboard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     exam_id = db.Column(db.Integer, db.ForeignKey(Exam.exam_id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     try_count = db.Column(db.Integer, nullable=False)
     current_status = db.Column(db.Integer, nullable=False, default=0)
     penalty_time = db.Column(db.Integer, nullable=False, default=0)
