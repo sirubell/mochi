@@ -1,11 +1,20 @@
 <template>
   <h1>Problem is not implemented.</h1>
-  <v-ace-editor
-    v-model:value="content"
-    @init="editorInit"
-    style="height: 300px"
-  />
-  <p>{{ content }}</p>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-2">
+          <button class="btn btn-success">Sumit</button>
+      </div>
+      <div class="col-lg">description</div>
+      <div class="col-lg-6">
+        <v-ace-editor
+          v-model:value="content"
+          @init="editorInit"
+          style="height: 600px;"
+        />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -16,7 +25,7 @@ export default {
   name: 'Problem',
   data() {
     return {
-      content: ""
+      content: "",
     }
   },
   methods: {
