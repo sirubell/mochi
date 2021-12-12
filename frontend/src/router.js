@@ -4,10 +4,9 @@ import ProblemAll from './components/problem/problem_all.vue'
 import ComponentSlot from './components/component_slot.vue'
 import Status from './components/status.vue'
 import ClassAll from './components/class/class_all.vue'
-import Login from './components/login.vue'
-import SignUp from './components/signup.vue'
-import User from './components/user.vue'
-
+import Login from './components/user/login.vue'
+import SignUp from './components/user/signup.vue'
+import User from './components/user/user.vue'
 
 const routes = [
   {
@@ -43,7 +42,7 @@ const routes = [
     children: [
       {
         path: 'all',
-        name: 'problem_all',
+        name: 'problem-all',
         component: ProblemAll
       }/*,
       {
