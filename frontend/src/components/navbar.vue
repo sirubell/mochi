@@ -13,7 +13,7 @@
       </ul>
 
       <div class="fs-5 col-md-3">
-        <div v-if="isLogin">
+        <div v-if="loginStatus">
           <router-link to="/user" class="text-end nav-link px-2 link-dark">User</router-link>
         </div>
         <div v-else>
@@ -28,10 +28,13 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'NavBar',
-  props: {
-    isLogin: Boolean
+  computed: {
+    ...mapGetters([
+      'loginStatus'
+    ])
   }
 }
 </script>

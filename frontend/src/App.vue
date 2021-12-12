@@ -1,7 +1,6 @@
 <template>
-  <NavBar :is-login="isLogin"/>
+  <NavBar/>
   <button class="btn btn-primary" @click="changeLoginStatus">change login status</button>
-  <p>is login? {{ isLogin }}</p>
   <router-view/>
 </template>
 
@@ -12,12 +11,12 @@ export default {
   name: 'App',
   data() {
     return {
-      isLogin: false
     }
   },
   methods: {
     changeLoginStatus() {
-      this.isLogin = !this.isLogin
+      console.log(this.$store.getters.loginStatus)
+      this.$store.dispatch('login', true)
     }
   },
   components: {

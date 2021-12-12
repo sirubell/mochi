@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'ProblemAll',
   data() {
@@ -19,18 +21,15 @@ export default {
       error: null
     }
   },
-  mounted() {
-    const axios = require('axios');
-    const url = process.env.VUE_APP_AXIOS_BASEURL + "/problem"
-
-    axios.get(url, {
+  created() {
+    axios.get('problem', {
       timeout: 5000,
       params: {
         page: this.page,
         topic: JSON.stringify(this.topic)
       }
     })
-    .then( (response) => {
+    .then( response => {
       this.problemTalbe = response.data
     })
     .catch( error => {

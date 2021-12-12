@@ -74,46 +74,6 @@ const routes = [
       }
     ]
   }
-  /*{
-    path: '/status',
-    name: 'Status',
-    component: () => import('./components/Status/Status.vue')
-  },
-  {
-    path: '/problem',
-    name: 'Problem',
-    component: () => import('./components/Problem/Problem.vue')
-  },
-  {
-    path: '/problem/new',
-    name: 'AddQuestion',
-    component: () => import('./components/Problem/addquestion.vue')
-  },
-  {
-    path: '/problem/problem_id',
-    name: 'SpecificProblem',
-    component: () => import('./components/Problem/Problem_id.vue')
-  },
-  {
-    path: '/problem/problem_id/code',
-    name: 'Code',
-    component: () => import('./components/Problem/problem_id/Code.vue')
-  },
-  {
-    path: '/problem/problem_id/submission',
-    name: 'ProblemSubmission',
-    component: () => import('./components/Problem/problem_id/Submission.vue')
-  },
-  {
-    path: '/problem/problem_id/status',
-    name: 'ProblemStatus',
-    component: () => import('./components/Problem/problem_id/Status.vue')
-  },
-  {
-    path: '/problem/problem_id/solution',
-    name: 'ProblemSolution',
-    component: () => import('./components/Problem/problem_id/Solution.vue')
-  }*/
 ]
 
 const router = createRouter({
