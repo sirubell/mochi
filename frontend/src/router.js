@@ -7,8 +7,9 @@ import ClassAll from './components/class/class_all.vue'
 import Login from './components/user/login.vue'
 import SignUp from './components/user/signup.vue'
 import User from './components/user/user.vue'
-
+import Problem from './components/problem/problem.vue'
 const routes = [
+  { path: '/test', component: Problem },
   {
     path: '/',
     redirect: 'home'
