@@ -3,8 +3,6 @@
   <v-ace-editor
     v-model:value="content"
     @init="editorInit"
-    lang="html"
-    theme="chrome"
     style="height: 300px"
   />
   <p>{{ content }}</p>
@@ -12,12 +10,18 @@
 
 <script>
 import { VAceEditor } from 'vue3-ace-editor'
+import 'ace-builds/src-noconflict/theme-chrome'
 
 export default {
   name: 'Problem',
   data() {
     return {
       content: ""
+    }
+  },
+  methods: {
+    editorInit() {
+      console.log("creating ace editor")
     }
   },
   components: {
