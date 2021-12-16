@@ -157,7 +157,6 @@ class login(Resource):
     def get(self):
         return render_template('login.html')
     def post(self):
-        from backend import db
         if current_user.is_authenticated:
             return redirect(url_for('home'))
         args = login_post_args.parse_args()
