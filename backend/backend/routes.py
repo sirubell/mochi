@@ -131,9 +131,10 @@ class status(Resource):
         return jsonify(ret)
 
 
-class signup(Resource): 
-    #if current_user.is_authenticated:
-        #return redirect(url_for('home'))
+class signup(Resource):
+    def get(self):
+        return render_template("signup.html")
+        # get 註冊畫面
     def post(self):
         if current_user.is_authenticated:
             return redirect(url_for('home'))
@@ -153,8 +154,8 @@ class signup(Resource):
 
 
 class login(Resource):
-    #def get(self):
-        #return render_template('login.html')
+    def get(self):
+        return render_template('login.html')
     def post(self):
         from backend import db
         if current_user.is_authenticated:

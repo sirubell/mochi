@@ -14,6 +14,8 @@ relations = db.Table(
 
 @login_manager.user_loader
 def load_user(user_id):
+    if user_id not in User:
+        return 
     return User.query.get(user_id)
 def load_user_from_header(header_val):
     header_val = header_val.replace('Basic', '', 1)
