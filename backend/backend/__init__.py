@@ -13,6 +13,7 @@ bcrypt = Bcrypt(app)
 app.config.from_object(Config)
 login_manager = LoginManager(app)
 
+
 @app.route('/')
 def home():
     return "hello world"
