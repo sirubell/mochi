@@ -1,9 +1,9 @@
 from flask.json import jsonify, dumps
-from backend import db, login_manager
+from backend import db
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 import datetime
-import base64
+
 
 relations = db.Table(
     'relations between problem and topic',
@@ -11,18 +11,6 @@ relations = db.Table(
     db.Column('problem_id', db.Integer, db.ForeignKey('problem.problem_id'))  
 )
 #✔
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
-def load_user_from_header(header_val):
-    header_val = header_val.replace('Basic', '', 1)
-    try:
-        header_val = base64.b64decode(header_val)
-    except TypeError:
-        pass
-    return User.query.filter_by(user_id = header_val).first()
-
 
 class User(db.Model, UserMixin):
     __tablename__ = "user"
