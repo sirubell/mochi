@@ -10,6 +10,7 @@
         <li><router-link to="/problem" class="nav-link px-2 link-dark">Problem</router-link></li>
         <li><router-link to="/status" class="nav-link px-2 link-dark">Status</router-link></li>
         <li><router-link to="/class" class="nav-link px-2 link-dark">Class</router-link></li>
+        <li><router-link to="/test" class="nav-link px-2 link-dark">Test</router-link></li>
       </ul>
 
       <div class="fs-5 col-md-3">
