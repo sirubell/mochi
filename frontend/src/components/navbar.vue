@@ -16,7 +16,12 @@
 
       <div class="fs-5 col-md-2">
         <div v-if="loginStatus">
-          <router-link to="/user" class="text-end nav-link px-2 link-dark">User</router-link>
+          <ul class="nav mb-2 justify-content-end mb-md-0">
+            <router-link to="/user" class="text-end nav-link px-2 link-dark">User</router-link>
+            <li class="nav-item">
+              <a href="javascript:void(0)" @click="handleClick" class="text-end nav-link px-2 link-dark">Logout</a>
+            </li>
+          </ul>
         </div>
         <div v-else>
           <ul class="nav mb-2 justify-content-end mb-md-0">
@@ -31,12 +36,21 @@
 
 <script>
 import { mapGetters } from 'vuex'
+
 export default {
   name: 'NavBar',
+  methods: {
+        handleClick() {
+            localStorage.removeItem('token');
+            this.$store.dispatch('loginStatus', null);
+            this.$router.push('/');
+        }
+    },
   computed: {
     ...mapGetters([
       'loginStatus'
     ])
-  }
+  },
+
 }
 </script>
