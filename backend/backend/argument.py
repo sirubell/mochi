@@ -42,6 +42,7 @@ signup_post_args.add_argument("confirm_password", type=str, required=True, help=
 login_post_args = reqparse.RequestParser()
 login_post_args.add_argument("email", type=str, required=True, help='Email is necessary!')
 login_post_args.add_argument("password", type=str, required=True, help='Password is necessary!')
+login_post_args.add_argument("remember", type=bool)
 
 user_profile_put_args = reqparse.RequestParser()
 user_profile_put_args.add_argument("name", type=str)
