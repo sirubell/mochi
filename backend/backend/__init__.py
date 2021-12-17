@@ -27,22 +27,9 @@ def home():
     # return "home"
 
 
-from backend.models import User
-import base64
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
-def load_user_from_header(header_val):
-    header_val = header_val.replace('Basic', '', 1)
-    try:
-        header_val = base64.b64decode(header_val)
-    except TypeError:
-        pass
-    return User.query.filter_by(user_id = header_val).first()
+# from backend.routes import problem
+# api.add_resource(problem, "/problem?page=1&topic=bs,arr")
 
-
-from backend.routes import problem
-api.add_resource(problem, "/problem")
 
 from backend.routes import problem_id
 api.add_resource(problem_id, "/problem/<int:problem_id>")
