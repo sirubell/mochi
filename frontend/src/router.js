@@ -8,8 +8,11 @@ import Login from './components/user/login.vue'
 import SignUp from './components/user/signup.vue'
 import User from './components/user/user.vue'
 import Problem from './components/problem/problem.vue'
+import NewProblem from './components/problem/new_problem.vue'
+
 const routes = [
-  { path: '/test', component: Problem },
+  { path: '/test-problem', component: Problem },
+  { path: '/test-new-problem', component: NewProblem },
   {
     path: '/',
     redirect: 'home'
