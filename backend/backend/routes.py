@@ -133,7 +133,8 @@ class status(Resource):
 
 class signup(Resource):
     def get(self):
-        return render_template("signup.html")
+        #return 'Signup'
+        return render_template("register.html")
         # get 註冊畫面
     def post(self):
         if current_user.is_authenticated:

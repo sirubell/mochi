@@ -1,4 +1,5 @@
 from flask import Flask
+from flask.templating import render_template
 from flask_bcrypt import Bcrypt
 from flask_login.utils import login_required
 from flask_restful import Api, Resource, reqparse
@@ -7,7 +8,7 @@ from backend.config import Config
 from flask_login import LoginManager
 
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../templates')
 api = Api(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
@@ -22,7 +23,8 @@ login_manager.login_message = '該網頁需要登入才能瀏覽'
 
 @app.route('/')
 def home():
-    return "hello world"
+    return render_template("home.html")
+    # return "home"
 
 
 from backend.models import User
