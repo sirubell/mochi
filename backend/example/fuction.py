@@ -56,8 +56,6 @@ def add_submission():
     db.session.add(tmp_submission)
     db.session.commit()
 
-    
-
 
 def delete_submission(submission_id):
     query = Submission.query.filter_by(submission_id=submission_id).first()
@@ -129,7 +127,7 @@ def delete_user_problem(problem_id):
     problem_query = Problem.query.filter_by(problem_id=problem_id).delete()
     for uid in range(1, User.query.count()+1):
         user_problem_query = User_problem.query.filter_by(
-            **{'user_id': uid, 'problem_id': problem_id}).first()
+            user_id=uid, problem_id=problem_id).first()
         db.session.delete(user_problem_query)
     db.session.commit()
 
@@ -157,7 +155,7 @@ def show_user_problem(user_id):
     tmp_user = User.query.filter_by(user_id=user_id)
     for problem in Problem.query:
         status = User_problem.query.filter_by(
-            **{"user_id": user_id, "problem_id": problem.problem_id}).first().status
+            user_id=user_id, problem_id=problem.problem_id).first().status
         print(problem.problem_id, problem.problem_name, status)
 
 
@@ -165,7 +163,7 @@ def show_problem_submission(problem_id, user_id=-1, AC=False):
     if user_id == -1:
         if AC:
             submission_query = Submission.query.filter_by(
-                **{'problem_id': problem_id, 'status': 1})
+                problem_id=problem_id, status=1)
             for submission in submission_query:
                 print(submission)
         else:
@@ -179,16 +177,16 @@ def show_problem_submission(problem_id, user_id=-1, AC=False):
     else:
         if AC:
             submission_query = Submission.query.filter_by(
-                **{'problem_id': problem_id, 'user_id': user_id, 'states': 1})
+                problem_id=problem_id, user_id=user_id, states=1)
             for submission in submission_query:
                 print(submission)
         else:
             queue_query = Queue.query.filter_by(
-                **{'problem_id': problem_id, 'user_id': user_id})
+                problem_id=problem_id, user_id=user_id)
             for queue in queue_query:
                 print(queue)
             submission_query = Submission.query.filter_by(
-                **{'problem_id': problem_id, 'user_id': user_id})
+                problem_id=problem_id, user_id=user_id)
             for submission in submission_query:
                 print(submission)
 
@@ -196,14 +194,14 @@ def show_problem_submission(problem_id, user_id=-1, AC=False):
 def show_user_submission(user_id, AC=False):
     if AC:
         submission_query = Submission.query.filter_by(
-            **{'user_id': user_id, 'states': 1})
+            user_id=user_id, states=1)
         for submission in submission_query:
             print(submission)
     else:
-        queue_query = Queue.query.filter_by(**{'user_id': user_id})
+        queue_query = Queue.query.filter_by(user_id=user_id)
         for queue in queue_query:
             print(queue)
-        submission_query = Submission.query.filter_by(**{'user_id': user_id})
+        submission_query = Submission.query.filter_by(user_id=user_id)
         for submission in submission_query:
             print(submission)
 

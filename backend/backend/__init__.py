@@ -25,8 +25,8 @@ def home():
     return "hello world"
 
 
-# from backend.routes import problem
-# api.add_resource(problem, "/problem?page=1&topic=bs,arr")
+from backend.routes import problem
+api.add_resource(problem, "/problem")
 
 
 from backend.routes import problem_id
