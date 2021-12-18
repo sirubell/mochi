@@ -5,68 +5,140 @@ import datetime
 from backend.exception import if_email_has_existed, if_username_has_existed, if_problemname_has_existed, is_email_format, confirm_password_equal_password
 from backend.models import Homework, Problem, User, Submission, User_problem, Queue, Problem_Testcase
 from backend import bcrypt
-from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
+from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args, test_run_post_args, create_problem_test_run_args
 from flask_login import login_user, current_user, logout_user, login_required
+import os
 
 from backend import app
 
 
-@app.route('/problem', methods=['GET'])
-def get_problem():
-    if 'page' in request.args:
-        page = request.args['page']
-    else:
-        return "Error, page is required"
-    topic = None
-    difficulty = None
-    name = None
-    if 'topic' in request.args:
-        topic = request.args['topic']
-    if 'difficulty' in request.args:
-        difficulty = request.args['difficulty']
-    if 'name' in request.args:
-        name = request.args['name']
-
-    problems = Problem.query.all()
-    ''' if topic and difficulty and name:
-         from backend import db
-         problems = Problem.query.filter(db.and_(db.and_(Problem.topic==topic,Problem.difficulty==difficulty),Problem.name.like(name))).all()
-     elif topic:
-         problems = Problem.query.filter(Problem.topic==topic).all()
-     elif topic and difficulty:
-         problems = Problem.query.filter(db.and_(Problem.difficulty==difficulty,Problem.topic==topic)).all()'''
-
-    if difficulty:
-        problems = Problem.query.filter(Problem.difficulty == difficulty).all()
-    elif name:
-        problems = Problem.query.filter(Problem.name.like(name)).all()
-    elif difficulty and name:
-        problems = Problem.query.filter(
-            db.and_(Problem.difficulty == difficulty, Problem.name.like(name))).all()
-
-    if problems:
-        ret = {}
-        ret["returnset"] = []
-        for problem in problems:
-            ret["returnset"].append({
-                "id": problem.problem_id,
-                "name": problem.name,
-                "difficulty": problem.difficulty
-            })
-        return jsonify(ret)
-    return "problem is not found", 404
+class check(Resource):
+    def get(self):
+        return os.path.abspath(os.path.dirname(__file__))
 
 
 class problem(Resource):
+    def get(self):
+        if 'page' in request.args:
+            page = request.args['page']
+        else:
+            return "Error, page is required"
+        topic = None
+        difficulty = None
+        name = None
+        if 'topic' in request.args:
+            topic = request.args['topic']
+        if 'difficulty' in request.args:
+            difficulty = request.args['difficulty']
+        if 'name' in request.args:
+            name = request.args['name']
+
+        problems = Problem.query.all()
+        ''' if topic and difficulty and name:
+            from backend import db
+            problems = Problem.query.filter(db.and_(db.and_(Problem.topic==topic,Problem.difficulty==difficulty),Problem.name.like(name))).all()
+        elif topic:
+            problems = Problem.query.filter(Problem.topic==topic).all()
+        elif topic and difficulty:
+            problems = Problem.query.filter(db.and_(Problem.difficulty==difficulty,Problem.topic==topic)).all()'''
+
+        if difficulty:
+            problems = Problem.query.filter(
+                Problem.difficulty == difficulty).all()
+        elif name:
+            problems = Problem.query.filter(Problem.name.like(name)).all()
+        elif difficulty and name:
+            problems = Problem.query.filter(
+                db.and_(Problem.difficulty == difficulty, Problem.name.like(name))).all()
+
+        if problems:
+            ret = {}
+            ret["returnset"] = []
+            for problem in problems:
+                ret["returnset"].append({
+                    "id": problem.problem_id,
+                    "name": problem.name,
+                    "difficulty": problem.difficulty
+                })
+            return jsonify(ret)
+        return "problem is not found", 404
+
     def post(self):
         problem = problem_post_args.parse_args()
         if_problemname_has_existed(problem.name)
         new_problem = Problem(questioner_id=problem.questioner_id, name=problem.name, difficulty=problem.difficulty, content=problem.content, time_limit=problem.time_limit, memory_limit=problem.memory_limit,
-                              testcase_count=problem.testcase_count, sample_input=problem.sample_input, is_hidden=problem.is_hidden, upload_date=datetime.datetime.now(), correct_source_code=problem.correct_source_code)
+                              testcase_count=problem.testcase_count, sample_input=problem.sample_input, is_hidden=problem.is_hidden, upload_date=datetime.datetime.now(), correct_source_code=problem.correct_source_code, correct_answer_language=problem.correct_answer_language)
         from backend import db
         db.session.add(new_problem)
         db.session.commit()
         return "Success to add problem", 200
+
+
+class create_problem_test_run(Resource):
+    def post(self):
+        args = create_problem_test_run_args.parse_args()
+        path = "buffer/"+str(args.user_id)
+        if not os.path.isdir(path):
+            os.mkdir(path)
+        else:
+            return "you have another problem creating"
+        if not os.path.isdir(path+"/input"):
+            os.mkdir(path+"/input")
+        else:
+            return "you have another problem creating"
+        if not os.path.isdir(path+"/code"):
+            os.mkdir(path+"/code")
+        else:
+            return "you have another problem creating"
+        with open(path+"/code/"+"correct_source_code"+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+            file.write(args.code_content)
+        input_set = args["test_case"]
+        cnt = 0
+        for testcase in input_set:
+            with open(path+'/input/'+str(cnt)+".in", mode='w', encoding="utf-8") as file:
+                file.write(testcase)
+            cnt+=1
+        new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(testcase), upload_date=str(
+            datetime.datetime.now()), code_content=args.code_content)
+        from backend import db
+        db.session.add(new_queue)
+        db.session.commit()
+        return 200
+
+
+class test_run(Resource):
+    def get(self):
+        if 'source_id' in request.args:
+            source_id = request.args['source_id']
+        else:
+            return "Error, source_id is required"
+        now = Queue.query.filter_by(source_id=source_id).first()
+        if now.status == 0:
+            return "not ok"
+        from backend import db            
+        db.session.delete(now)
+        db.session.commit()
+        from backend.convert_file_to_json import convert_file_to_json as yea
+        res = yea("buffer/output/"+str(source_id)+'.out')
+        return res
+
+    def post(self):
+        from backend import db
+        args = test_run_post_args.parse_args()
+        if not os.path.isdir("buffer/input/"):
+            os.mkdir("buffer/input/")
+        if not os.path.isdir("buffer/code/"):
+            os.mkdir("buffer/code/")
+        new_queue = Queue(user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
+            datetime.datetime.now()), code_content=args.code_content)
+        source_id = Queue.query.count() + 1
+        with open("buffer/input/"+str(Queue.query.count() + 1)+".in", mode="w", encoding="utf-8") as file:
+            file.write(args.test_case)
+        with open("buffer/code/"+str(Queue.query.count() + 1)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+            file.write(args.code_content)
+        db.session.add(new_queue)
+        db.session.commit()
+        return 200,source_id
 
 
 class problem_id(Resource):
@@ -168,7 +240,7 @@ class status(Resource):
 
 class signup(Resource):
     def get(self):
-        #return 'Signup'
+        # return 'Signup'
         return render_template("register.html")
         # get 註冊畫面
 
@@ -230,7 +302,6 @@ class user_profile(Resource):
         for AC in ACs:
             datas.append(AC.problem_id)
         return jsonify({"name": user.name, "email": user.email, "register_date": str(user.register_date), "user_problem": datas})
-        # return user.__repr__()
 
     def put(self):
         args = user_profile_put_args.parse_args()
@@ -254,8 +325,15 @@ class queue_new(Resource):
         from backend import db
         args = queue_post_args.parse_args()
 
-        new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=args.mode, exam_id=args.exam_id,
-                          homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), code_content="123")
+        new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
+                          homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), code_content=args.code_content)
+
+        if not os.path.isdir("buffer/code/"):
+            os.mkdir("buffer/code/")
+
+        with open("buffer/code/"+str(Queue.query.count() + 1)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+            file.write(args.code_content)
+
         db.session.add(new_queue)
         db.session.commit()
         return 200
@@ -267,29 +345,57 @@ class dispatcher(Resource):
         from backend.convert_file_to_json import convert_file_to_json as yea
         queues = Queue.query.limit(10).all()
         datas = {}
-        s = "C:/Users/a2320/Desktop/coding/mochi/backend/backend/1.c"
         datas["Submission_Count"] = len(queues)
         datas["Submission_Set"] = []
         cnt = 0
         for queue in queues:
             data = {}
             data["Mode"] = queue.mode
-            data["Problem_id"] = queue.problem_id
+            if queue.mode in [1, 2]:
+                data["Problem_id"] = queue.problem_id
             data["Source_id"] = queue.source_id
+            data["Keep"] = 1
             problem = Problem.query.filter_by(
                 problem_id=queue.problem_id).first()
-            data["Test_case_count"] = problem.testcase_count
-            data["Time_limit"] = problem.time_limit
-            data["Memory_limit"] = problem.memory_limit
+            if problem == None and queue.mode in [1,2]:
+                return "no problem's id = " + str(queue.problem_id)
+            if queue.mode == 1:
+                data["Test_case_count"] = problem.testcase_count
+            elif queue.mode == 2:
+                data["Test_case_count"] = 1
+            else:
+                data["Test_case_count"] = queue.test_case_count
+            if queue.mode in [1,2]:
+                data["Time_limit"] = problem.time_limit
+                data["Memory_limit"] = problem.memory_limit
+            else:
+                data["Time_limit"] = queue.time_limit
+                data["Memory_limit"] = queue.memory_limit
             data["Language"] = queue.language
-            # data["Correct_source_code"]=problem.correct_source_code
-            data["Code"] = yea(s)
+            if queue.mode in [1,2]:
+                data["Correct_answer_language"] = problem.correct_answer_language
+            if queue.mode in [1,2]:
+                data["Correct_source_code"] = problem.correct_source_code
+            data["Code"] = yea(
+                "buffer/code/"+str(queue.source_id)+'.'+str(queue.language))
             data["All_test_case_general_submission"] = []
-            testcases = Problem_Testcase.query.filter_by(
-                problem_id=queue.problem_id).all()
-            for i in range(10):
-                data["All_test_case_general_submission"].append(
-                    {"Test_case_name": i, "Test_case_answer_name": i})
+            data["Self_test_case"] = []
+            # if queue.mode == 1:
+            #     testcases = Problem_Testcase.query.filter_by(
+            #         problem_id=queue.problem_id).all()
+            #     for i in range(problem.testcase_count):
+            #         data["All_test_case_general_submission"].append(
+            #             {"Test_case_name": testcases[i].input_name, "Test_case_answer_name": testcases[i].output_name})
+            # else:
+            #     if mode == 2:
+            #         for i in range(problem.testcase_count):
+            #             data["Self_test_case"].append(
+            #                 {"Test_case_name": testcases[i].input_name, "Test_case_answer_name": testcases[i].output_name})
+            if queue.mode == 3:
+                for i in range(queue.test_case_count):
+                    data["Self_test_case"].append(
+                        {"Test_case_name": str(i)+".in"})
+
             datas["Submission_Set"].append(data)
 
         return jsonify(datas)
@@ -297,15 +403,20 @@ class dispatcher(Resource):
     def post(self):
         from backend import db
         args = dispatcher_post_args.parse_args()
-        print(args)
         count = args["Return_count"]
         for submission in args["Return_Set"]:
             data = Queue.query.filter_by(
                 source_id=submission["Source_id"]).first()
-            new_submission = Submission(user_id=data.user_id, problem_id=data.problem_id, source_id=submission["Source_id"], status=submission["Status"], code_content="123", exam_id=data.exam_id, homework_id=data.homework_id, error_hint=submission[
+            if data.mode == 2:
+                new_submission = Submission(user_id=data.user_id, problem_id=data.problem_id, source_id=submission["Source_id"], status=submission["Status"], code_content="123", exam_id=data.exam_id, homework_id=data.homework_id, error_hint=submission[
                                         "Compile_error_out"], error_line=0, language=data.language, time_used=submission["Time"], memory_used=submission["Memory"], upload_date=data.upload_date)
-            db.session.add(new_submission)
-            # db.session.delete
-            Queue.query.filter_by(source_id=submission["Source_id"]).delete()
-            db.session.commit()
+                db.session.add(new_submission)
+                Queue.query.filter_by(source_id=submission["Source_id"]).delete()
+            elif data.mode == 1:
+                data.status = 1
+                if not os.path.isdir("buffer/output/"):
+                    os.mkdir("buffer/output/")
+                with open("buffer/output/"+str(data.source_id)+".out", mode="w", encoding="utf-8") as file:
+                    file.write(submission["All_stander_out"][0])
+        db.session.commit()
         return "success to return", 200

@@ -6,6 +6,7 @@ from flask_restful import Api, Resource, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from backend.config import Config
 from flask_login import LoginManager
+import os
 
 
 app = Flask(__name__, template_folder='../templates')
@@ -40,12 +41,14 @@ def load_user_from_header(header_val):
     return User.query.filter_by(user_id = header_val).first()
 
 
-from backend.routes import problem
-api.add_resource(problem, "/problem")
+from backend.routes import check
+api.add_resource(check, "/check")
 
 from backend.routes import problem
 api.add_resource(problem, "/problem")
 
+from backend.routes import create_problem_test_run
+api.add_resource(create_problem_test_run,"/problem/new/test_run")
 
 from backend.routes import problem_id
 api.add_resource(problem_id, "/problem/<int:problem_id>")
@@ -55,6 +58,9 @@ api.add_resource(problem_solution,"/problem/<int:problem_id>/solution")
 
 from backend.routes import problem_submission
 api.add_resource(problem_submission, "/problem/<int:problem_id>/submission/<int:user_id>")
+
+from backend.routes import test_run
+api.add_resource(test_run,"/problem/test_run")
 
 from backend.routes import status
 api.add_resource(status, "/status/<int:page>")

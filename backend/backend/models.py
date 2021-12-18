@@ -54,11 +54,13 @@ class Problem(db.Model):
     is_hidden = db.Column(db.Integer, nullable=False, default=0)
     upload_date = db.Column(db.DateTime, nullable=False)
 
+    correct_answer_language = db.Column(db.String(10), nullable=False)
     correct_source_code = db.Column(db.String(524288), nullable=False)
 
     #upload_date做法同上
     problem_to_user = db.relationship("User_problem", backref="problem")
     problem_topics = db.relationship("Topic", secondary=relations, backref="Problem")
+    problem_to_testcase = db.relationship("Problem_Testcase", backref="problem")
 
     def __repr__(self):
         return jsonify(self.problem_id, self.name, self.content, self.difficulty)
@@ -128,13 +130,17 @@ class Submission(db.Model):
 class Queue(db.Model):
     __tablename__ = "queue"
     source_id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.Integer, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
-    problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
+    problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), default=0)
     mode = db.Column(db.Integer, nullable=False, default=0)
-    exam_id = db.Column(db.Integer)      
-    homework_id = db.Column(db.Integer)  
+    exam_id = db.Column(db.Integer,default=0)
+    homework_id = db.Column(db.Integer,default=0)  
     language = db.Column(db.String(20), nullable=False)
     upload_date = db.Column(db.String(30), nullable=False)
+    test_case_count = db.Column(db.Integer,default=0)
+    time_limit = db.Column(db.Integer, default = 1024)
+    memory_limit = db.Column(db.Integer, default = 1024)
     #同register_date做法
     code_content = db.Column(db.String(10000), nullable=False)
     

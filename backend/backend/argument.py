@@ -12,7 +12,7 @@ problem_post_args.add_argument("testcase_count",type=int,required=True,help='tes
 problem_post_args.add_argument("sample_input",type=str,required=True,help='sample_input is required!')
 problem_post_args.add_argument("is_hidden",type=int,required=True,help='is_hidden is required!')
 problem_post_args.add_argument("correct_source_code",type=str,required=True,help='correct_source_code is required!')
-
+problem_post_args.add_argument("correct_answer_language",type=str,required=True,help='correct_answer_language is required!')
 
 problem_get_args = reqparse.RequestParser()
 problem_get_args.add_argument("page",type=int)
@@ -31,6 +31,21 @@ problem_put_args.add_argument("is_hidden",type=int)
 problem_put_args.add_argument("testcase_count",type=int)
 problem_put_args.add_argument("correct_source_code",type=str)
 
+test_run_post_args = reqparse.RequestParser()
+test_run_post_args.add_argument("user_id", type=int, required=True, help="User_id is required!")
+test_run_post_args.add_argument("problem_id", type=int, default=0)
+test_run_post_args.add_argument("mode", type=int,default=0, required=True)
+test_run_post_args.add_argument("exam_id", type=int,default=0)
+test_run_post_args.add_argument("homework_id", type=int,default=0)
+test_run_post_args.add_argument("language", type=str, required=True, help="Language is required!")
+test_run_post_args.add_argument("code_content", type=str, required=True, help="Code_content is required!")
+test_run_post_args.add_argument("test_case", type=str, required=True, help="Testcase is required!")
+
+create_problem_test_run_args = reqparse.RequestParser()
+create_problem_test_run_args.add_argument("user_id", type=int, required=True, help="User_id is required!")
+create_problem_test_run_args.add_argument("language", type=str, required=True, help="Language is required!")
+create_problem_test_run_args.add_argument("code_content", type=str, required=True, help="Code_content is required!")
+create_problem_test_run_args.add_argument("test_case", type=str, required=True, action="append")
 
 
 signup_post_args = reqparse.RequestParser()
@@ -65,8 +80,7 @@ submission_post_args.add_argument("code_content", type=str, required=True, help=
 
 queue_post_args = reqparse.RequestParser()
 queue_post_args.add_argument("user_id", type=int, required=True, help="User_id is required!")
-queue_post_args.add_argument("problem_id", type=int, required=True, help="Problem_id is required!")
-queue_post_args.add_argument("mode", type=int,default=0)
+queue_post_args.add_argument("problem_id", type=int, default=0)
 queue_post_args.add_argument("exam_id", type=int,default=0)
 queue_post_args.add_argument("homework_id", type=int,default=0)
 queue_post_args.add_argument("language", type=str, required=True, help="Language is required!")
