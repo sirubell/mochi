@@ -94,8 +94,12 @@ class problem(Resource):
 
         if now.status == 0:
             return "not ok"
+        if not os.path.isdir(BASE+"buffer"):
+            os.mkdir(BASE+"buffer")
         path = BASE+"buffer/"+str(now.user_id)
         import shutil
+        if not os.path.isdir(BASE+"problem"):
+            os.mkdir(BASE+"problem")
         shutil.move(path, BASE+"problem/"+str(Problem.query.count()+1))
         from backend import db
         for i in range(now.test_case_count):
@@ -122,7 +126,8 @@ class create_problem_test_run(Resource):
         now = Queue.query.filter_by(source_id=source_id).first()
         if now.status == 0:
             return "not ok"
-
+        if not os.path.isdir(BASE+"buffer"):
+            os.mkdir(BASE+"buffer")
         path = BASE+"buffer/"+str(args.user_id)
         if not os.path.isdir(path+"/output"):
             os.mkdir(path+"/output")
@@ -142,6 +147,8 @@ class create_problem_test_run(Resource):
 
     def post(self):
         args = create_problem_test_run_args.parse_args()
+        if not os.path.isdir(BASE+"buffer"):
+            os.mkdir(BASE+"buffer")
         path = BASE+"buffer/"+str(args.user_id)
         if not os.path.isdir(path):
             os.mkdir(path)
@@ -182,6 +189,8 @@ class test_run(Resource):
             return "not ok"
         # from backend.convert_file_to_json import convert_file_to_json as yea
         # res = yea("buffer/output/"+str(source_id)+'.out')
+        if not os.path.isdir(BASE+"buffer"):
+            os.mkdir(BASE+"buffer")
         with open(BASE+"buffer/output/"+str(source_id)+".out", mode="r", encoding="utf-8") as file:
             res = file.read()
         from backend import db
@@ -192,6 +201,8 @@ class test_run(Resource):
     def post(self):
         from backend import db
         args = test_run_post_args.parse_args()
+        if not os.path.isdir(BASE+"buffer"):
+            os.mkdir(BASE+"buffer")
         if not os.path.isdir(BASE+"buffer/input/"):
             os.mkdir(BASE+"buffer/input/")
         if not os.path.isdir(BASE+"buffer/code/"):
