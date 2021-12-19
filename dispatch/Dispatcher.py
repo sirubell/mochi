@@ -223,7 +223,7 @@ def running_func(running_case):
 
 if __name__ == "__main__" :
 	# source_url="http://127.0.0.1:8000"
-	source_url = "http://192.168.122.232:8000/dispatcher"
+	source_url = "http://192.168.122.184:5000/dispatcher"
 	requirement = requests.get(source_url)
 	req_json = json.loads(requirement.text)
 
@@ -320,6 +320,7 @@ if __name__ == "__main__" :
 				utility.write_file("%s/Submission/%s/%s.in"%(file_root,Source_id,Test_case_name),Test_case_data)
 				running_case.append({"Mode":Mode,"Source_id":Source_id,"Time_limit":Time_limit,"Memory_limit":Memory_limit,"Language":Language,"Test_case_name":Test_case_name})
 			if utility.check_file_exist("%s/Submission/%s/%s.exe"%(file_root,Source_id,Source_id)) == "OK" :
+				subprocess.run(["cp %s/Submission/%s/%s.exe %s/buffer/%s/%s.ansexe"%(file_root,Source_id,Source_id,file_root,Source_id,Source_id)],shell=True)
 				subprocess.run(["cp %s/Submission/%s/%s.exe %s/Submission/%s/%s.ansexe"%(file_root,Source_id,Source_id,file_root,Source_id,Source_id)],shell=True)
 
 	pool = Pool()
@@ -351,7 +352,7 @@ if __name__ == "__main__" :
 
 	result = json.dumps(result,indent = 4)
 	# return_url="127.0.0.1:8000"
-	return_url = "http://192.168.122.232:8000/dispatcher"
+	return_url = "http://192.168.122.184:5000/dispatcher"
 	# print(result)
 	headers = {'Content-Type':"application/json"}
 	response = requests.post(return_url, headers=headers , data=result)

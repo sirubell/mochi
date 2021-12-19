@@ -1,95 +1,85 @@
 {
-    "Return_count": 4,
+    "Return_count": 2,
     "Return_Set": [
         {
-            "Source_id": "1",
+            "Source_id": 1,
             "Mode": 1,
-            "Status": "WA",
-            "Compile_error_out": "",
-            "Time": "18",
-            "Memory": "20096",
-            "All_stander_out": {},
-            "All_compare_out": [
-                {
-                    "0": "WA"
-                },
-                {
-                    "1": "WA"
-                },
-                {
-                    "2": "WA"
-                },
-                {
-                    "3": "WA"
-                },
-                {
-                    "4": "WA"
-                },
-                {
-                    "5": "WA"
-                },
-                {
-                    "6": "WA"
-                },
-                {
-                    "7": "WA"
-                },
-                {
-                    "8": "WA"
-                },
-                {
-                    "9": "WA"
-                },
-                {
-                    "10": "WA"
-                }
-            ]
-        },
-        {
-            "Source_id": "2",
-            "Mode": 2,
-            "Status": "AC",
-            "Compile_error_out": "",
-            "Time": "1",
-            "Memory": "2064",
-            "All_stander_out": {
-                "0": "23140 "
-            },
-            "All_compare_out": [
-                {
-                    "0": "AC"
-                }
-            ]
-        },
-        {
-            "Source_id": "3",
-            "Mode": 3,
-            "Status": "AC",
-            "Compile_error_out": "",
-            "Time": "14",
-            "Memory": "19696",
-            "All_stander_out": {
-                "0": "Hi "
-            },
-            "All_compare_out": [
-                {
-                    "0": "AC"
-                }
-            ]
-        },
-        {
-            "Source_id": "4",
-            "Mode": 3,
             "Status": "AC",
             "Compile_error_out": "",
             "Time": "2",
-            "Memory": "8160",
-            "All_stander_out": {
-                "110": "Hi "
-            },
+            "Memory": "2384",
+            "All_stander_out": {},
             "All_compare_out": [
                 {
-                    "110": "AC"
+                    "1": "AC"
+                },
+                {
+                    "2": "AC"
+                },
+                {
+                    "3": "AC"
+                },
+                {
+                    "4": "AC"
+                },
+                {
+                    "5": "AC"
+                },
+                {
+                    "6": "AC"
+                },
+                {
+                    "7": "AC"
+                },
+                {
+                    "8": "AC"
+                },
+                {
+                    "9": "AC"
+                },
+                {
+                    "10": "AC"
+                }
+            ]
+        },
+        {
+            "Source_id": 2,
+            "Mode": 1,
+            "Status": "AC",
+            "Compile_error_out": "",
+            "Time": "1",
+            "Memory": "2304",
+            "All_stander_out": {},
+            "All_compare_out": [
+                {
+                    "1": "AC"
+                },
+                {
+                    "2": "AC"
+                },
+                {
+                    "3": "AC"
+                },
+                {
+                    "4": "AC"
+                },
+                {
+                    "5": "AC"
+                },
+                {
+                    "6": "AC"
+                },
+                {
+                    "7": "AC"
+                },
+                {
+                    "8": "AC"
+                },
+                {
+                    "9": "AC"
+                },
+                {
+                    "10": "AC"
                 }
             ]
         }
