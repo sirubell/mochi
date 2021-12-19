@@ -19,7 +19,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 login_manager.login_message = '該網頁需要登入才能瀏覽'
-
+BASE = "c:\\Users\\a2320\\Desktop\\coding\\mochi\\backend\\"
 
 
 @app.route('/')
