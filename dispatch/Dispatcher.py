@@ -222,8 +222,8 @@ def running_func(running_case):
 
 
 if __name__ == "__main__" :
-	source_url="http://127.0.0.1:8000"
-	# source_url = "http://192.168.122.232:8000/dispatcher"
+	# source_url="http://127.0.0.1:8000"
+	source_url = "http://192.168.122.232:8000/dispatcher"
 	requirement = requests.get(source_url)
 	req_json = json.loads(requirement.text)
 
@@ -308,7 +308,7 @@ if __name__ == "__main__" :
 		if Mode == 2 :
 			Correct_source_code = req_json["Submission_Set"][i]["Correct_source_code"]
 			Test_case_name = req_json["Submission_Set"][i]["Self_test_case"][0]["Test_case_name"]
-			Test_case_data = req_json["Submission_Set"][i]["Self_test_case"][0]["data"]
+			Test_case_data = req_json["Submission_Set"][i]["Self_test_case"][0]["Data"]
 			Correct_answer_language = req_json["Submission_Set"][i]["Correct_answer_language"]
 			test = utility.write_file("%s/Submission/%s/%s.in"%(file_root,Source_id,Test_case_name),Test_case_data)
 			running_case.append({"Mode":Mode,"Problem_id":Problem_id,"Source_id":Source_id,"Time_limit":Time_limit,"Memory_limit":Memory_limit,"Language":Language,"Correct_answer_language":Correct_answer_language,"Correct_source_code":Correct_source_code,"Test_case_name":Test_case_name})
@@ -316,7 +316,7 @@ if __name__ == "__main__" :
 		if Mode == 3 :
 			for j in range (0,Test_case_count):
 				Test_case_name = req_json["Submission_Set"][i]["Self_test_case"][j]["Test_case_name"]
-				Test_case_data = req_json["Submission_Set"][i]["Self_test_case"][j]["data"]
+				Test_case_data = req_json["Submission_Set"][i]["Self_test_case"][j]["Data"]
 				utility.write_file("%s/Submission/%s/%s.in"%(file_root,Source_id,Test_case_name),Test_case_data)
 				running_case.append({"Mode":Mode,"Source_id":Source_id,"Time_limit":Time_limit,"Memory_limit":Memory_limit,"Language":Language,"Test_case_name":Test_case_name})
 			if utility.check_file_exist("%s/Submission/%s/%s.exe"%(file_root,Source_id,Source_id)) == "OK" :
@@ -351,8 +351,8 @@ if __name__ == "__main__" :
 
 	result = json.dumps(result,indent = 4)
 	# return_url="127.0.0.1:8000"
-	# return_url = "http://192.168.122.232:8000/dispatcher"
+	return_url = "http://192.168.122.232:8000/dispatcher"
 	# print(result)
-	# headers = {'Content-Type':"application/json"}
-	# response = requests.post(return_url, headers=headers , data=result)
+	headers = {'Content-Type':"application/json"}
+	response = requests.post(return_url, headers=headers , data=result)
 	# print(response.status_code)
