@@ -145,7 +145,8 @@ class create_problem_test_run(Resource):
         args = create_problem_test_run_args.parse_args()
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
-
+            
+        input_set = args["test_case"]
         new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
         datetime.datetime.now()), code_content=args.code_content)
         from backend import db
@@ -159,7 +160,6 @@ class create_problem_test_run(Resource):
         #omgomg
         with open(path+"/"+"correct_source_code"+'.'+str(args.language), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
-        input_set = args["test_case"]
         cnt = 1
         for testcase in input_set:
             with open(path+'/'+str(cnt)+".in", mode='w', encoding="utf-8") as file:
