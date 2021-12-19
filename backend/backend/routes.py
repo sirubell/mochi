@@ -24,9 +24,9 @@ class delete_dir(Resource):
         import shutil
         shutil.rmtree(BASE+'buffer')
         os.mkdir(BASE+'buffer')
-        if os.path.isdir(BASE+"problem"):
-            shutil.rmtree(BASE+'problem')
-            os.mkdir(BASE+'problem')
+        if os.path.isdir(BASE+"Problem"):
+            shutil.rmtree(BASE+'Problem')
+            os.mkdir(BASE+'Problem')
         return "delete success"
 
 
@@ -98,9 +98,9 @@ class problem(Resource):
             os.mkdir(BASE+"buffer")
         path = BASE+"buffer/"+str(now.user_id)
         import shutil
-        if not os.path.isdir(BASE+"problem"):
-            os.mkdir(BASE+"problem")
-        shutil.move(path, BASE+"problem/"+str(Problem.query.count()+1))
+        if not os.path.isdir(BASE+"Problem"):
+            os.mkdir(BASE+"Problem")
+        shutil.move(path, BASE+"Problem/"+str(Problem.query.count()+1))
         from backend import db
         for i in range(now.test_case_count):
             test_case = Problem_Testcase(problem_id=Problem.query.count(
