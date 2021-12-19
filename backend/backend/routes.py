@@ -145,14 +145,14 @@ class create_problem_test_run(Resource):
         args = create_problem_test_run_args.parse_args()
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
-            
+
         input_set = args["test_case"]
         new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
         datetime.datetime.now()), code_content=args.code_content)
         from backend import db
         db.session.add(new_queue)
         db.session.commit()
-        path = BASE+"buffer/"+str(now_queue.source_id)
+        path = BASE+"buffer/"+str(new_queue.source_id)
         if not os.path.isdir(path):
             os.mkdir(path)
         else:
