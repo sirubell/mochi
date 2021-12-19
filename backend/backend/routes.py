@@ -449,7 +449,7 @@ class dispatcher(Resource):
                     problem_id=queue.problem_id).all()
                 for i in range(len(testcases)):
                     data["All_test_case_general_submission"].append(
-                        {"Test_case_name": testcases[i].input_name.replace('.in',""), "Test_case_answer_name": testcases[i].ansput_name.replace('.ans',"")})
+                        {"Test_case_name": testcases[i].input_name.replace('.in',""), "Test_case_answer_name": testcases[i].output_name.replace('.ans',"")})
 
             if queue.mode == 2:
                 data["Self_test_case"].append(
