@@ -125,6 +125,8 @@ class Submission(db.Model):
 
     def __repr__(self):
         return jsonify(self.submission_id, self.user_id, self.problem_id, self.status,self.error_hint, self.error_line, self.time_used, self.memory_used, self.exam_id, self.homework_id, str(self.upload_date), self.code_content)
+    def as_dict(self):
+       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 #✔
     
 class Queue(db.Model):
