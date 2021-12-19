@@ -100,6 +100,7 @@ class problem(Resource):
         import shutil
         if not os.path.isdir(BASE+"Problem"):
             os.mkdir(BASE+"Problem")
+        os.rename(BASE+"buffer"+str(now.source_id)+'.ansexe', BASE+"buffer"+str(Problem.query.count()+1)+'.ansexe')
         shutil.move(path, BASE+"Problem/"+str(Problem.query.count()+1))
         from backend import db
         for i in range(now.test_case_count):
