@@ -14,6 +14,8 @@
     </div>
     <div class="row" v-for="(input, index) in inputs" :key="index">
       <div class="col-2">
+        <button></button>
+        <button></button>
       </div>
       <div class="col">
         <div class="form-floating">
