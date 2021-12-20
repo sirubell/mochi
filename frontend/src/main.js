@@ -4,6 +4,6 @@ import router from './router'
 import store from './vuex'
 import 'bootstrap'
 import './assets/custom.scss'
-import './axios
+import './axios'
 
 createApp(App).use(router).use(store).mount('#app')
