@@ -6,6 +6,7 @@ from flask_restful import Api, Resource, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from backend.config import Config
 from flask_login import LoginManager
+#from flask_cors import CORS
 import os
 
 
@@ -13,6 +14,7 @@ app = Flask(__name__, template_folder='../templates')
 api = Api(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+#CORS(app)
 app.config.from_object(Config)
 login_manager = LoginManager()
 login_manager.init_app(app)
