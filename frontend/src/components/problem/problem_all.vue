@@ -22,8 +22,9 @@ export default {
     }
   },
   created() {
+    console.log("hi")
     axios.get('problem', {
-      timeout: 5000,
+      timeout: 3000,
       params: {
         page: this.page,
         topic: JSON.stringify(this.topic)
