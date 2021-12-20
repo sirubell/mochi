@@ -9,6 +9,8 @@ import SignUp from './components/user/signup.vue'
 import User from './components/user/user.vue'
 import Problem from './components/problem/problem.vue'
 import NewProblem from './components/problem/new_problem.vue'
+import Forgot from './components/user/forgot.vue'
+import Reset from './components/user/reset.vue'
 
 const routes = [
   { path: '/test-problem', component: Problem },
@@ -77,6 +79,14 @@ const routes = [
         component: ClassAll
       }
     ]
+  },
+  {
+    path: "/forgot",
+    component: Forgot,
+  },
+  {
+    path: "/reset/:token",
+    component: Reset,
   }
 ]
 
