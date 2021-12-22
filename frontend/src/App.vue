@@ -9,7 +9,6 @@
 <script>
 import axios from 'axios'
 import NavBar from './components/navbar.vue'
-// import axios from 'axios'
 
 export default {
   name: 'App',
@@ -33,7 +32,6 @@ export default {
   }
 }
 </script>
-
 
 <style>
   @import url('https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600,700,800');

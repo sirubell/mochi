@@ -21,7 +21,7 @@
 
             <div class="form-group">
                 <label>Confirm Password</label>
-                <input type="password" class="form-control" v-model="password_confirm" placeholder="Confirm Password"/>
+                <input type="password" class="form-control" v-model="confirm_password" placeholder="Confirm Password"/>
             </div>
 
             <button class="btn btn-primary btn-block">Sign Up</button>
@@ -41,7 +41,7 @@ export default {
             name: '',
             email: '',
             password: '',
-            password_confirm: '',
+            confirm_password: '',
             error: ''
         }
     },
@@ -49,11 +49,11 @@ export default {
     methods: {
         async handleSubmit(){
             try{
-            await axios.post('register', {
+              await axios.post('signup', {
                 name: this.name,
                 email: this.email,
                 password: this.password,
-                password_confirm: this.password_confirm,
+                confirm_password: this.confirm_password,
             });
 
             this.$router.push('/login');
