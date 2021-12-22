@@ -1,13 +1,9 @@
 <template>
-  <h1>Login</h1>
+  <h1>Status is not implemented.</h1>
 </template>
 
 <script>
 export default {
-
+  name: 'Status'
 }
 </script>
-
-<style>
-
-</style>

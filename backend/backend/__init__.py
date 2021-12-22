@@ -48,12 +48,20 @@ def load_user_from_request(request):
     user_id = request.form.get('user_id')
     return User.query.get(user_id)
 
+from backend.routes import check
+api.add_resource(check, "/check")
+
+from backend.routes import delete_dir
+api.add_resource(delete_dir, "/delete_dir")
+
+from backend.routes import reset_database
+api.add_resource(reset_database, "/reset_database")
+
 from backend.routes import problem
 api.add_resource(problem, "/problem")
 
-# from backend.routes import problem
-# api.add_resource(problem, "/problem?page=1&topic=bs,arr")
-
+from backend.routes import create_problem_test_run
+api.add_resource(create_problem_test_run,"/problem/new/test_run")
 
 from backend.routes import problem_id
 api.add_resource(problem_id, "/problem/<int:problem_id>")
@@ -63,6 +71,9 @@ api.add_resource(problem_solution,"/problem/<int:problem_id>/solution")
 
 from backend.routes import problem_submission
 api.add_resource(problem_submission, "/problem/<int:problem_id>/submission/<int:user_id>")
+
+from backend.routes import test_run
+api.add_resource(test_run,"/problem/test_run")
 
 from backend.routes import status
 api.add_resource(status, "/status/<int:page>")
@@ -80,7 +91,7 @@ from backend.routes import user_profile
 api.add_resource(user_profile, "/user/<int:user_id>/profile")
 
 from backend.routes import submission_data
-api.add_resource(submission_data, "/submission/<int:submission_id>")
+api.add_resource(submission_data, "/submission/<int:source_id>")
 
 from backend.routes import queue_new
 api.add_resource(queue_new, "/submission/new")

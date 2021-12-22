@@ -1,6 +1,6 @@
 import os
 
-basedir =os.path.abspath(os.path.dirname(__file__))
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'A-VERY_LONG_SECRET-KEY'
