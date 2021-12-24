@@ -494,7 +494,7 @@ class dispatcher(Resource):
                 if not os.path.isdir(BASE+"buffer/"):
                     os.mkdir(BASE+"buffer/")
                 with open(BASE+"buffer/"+str(data.source_id)+".ans", mode="w", encoding="utf-8") as file:
-                    file.write(submission["All_stander_out"][str(1)])
+                    file.write(submission["All_stander_out"][str(data.source_id)])
             else:
                 data.status = 1
                 if not os.path.isdir(BASE+"buffer/"+str(data.user_id)+"/"):
