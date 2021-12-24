@@ -430,6 +430,7 @@ class dispatcher(Resource):
             data["Mode"] = queue.mode
             if queue.mode in [1, 2]:
                 data["Problem_id"] = queue.problem_id
+            data["User_id"] = queue.user_id
             data["Source_id"] = queue.source_id
             data["Keep"] = 0
             problem = Problem.query.filter_by(
