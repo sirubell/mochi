@@ -133,7 +133,7 @@ class create_problem_test_run(Resource):
         res = {}
         res["test_case_count"] = now.test_case_count
         res["return_set"] = []
-        for i in range(len(now.test_case_count)):
+        for i in range(now.test_case_count):
             # from backend.convert_file_to_json import convert_file_to_json as yea
             # res = yea("buffer/"+str(user.id)+"/"+str(i+1)+'.ans')
             with open(BASE+"buffer/"+str(source_id)+"/"+str(i+1)+'.ans', mode="r", encoding="utf-8") as file:
@@ -148,7 +148,7 @@ class create_problem_test_run(Resource):
             os.mkdir(BASE+"buffer")
 
         input_set = args["test_case"]
-        new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
+        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count(),user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
         datetime.datetime.now()), code_content=args.code_content)
         from backend import db
         db.session.add(new_queue)
@@ -167,7 +167,7 @@ class create_problem_test_run(Resource):
                 file.write(testcase)
             cnt += 1
 
-        return 200
+        return 200,new_queue.source_id
 
 
 class test_run(Resource):
@@ -195,7 +195,7 @@ class test_run(Resource):
         args = test_run_post_args.parse_args()
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
-        new_queue = Queue(user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
+        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count(),user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
             datetime.datetime.now()), code_content=args.code_content, test_case_count=1)
         source_id = Queue.query.count() + 1
         with open(BASE+"buffer/"+str(Queue.query.count() + 1)+".in", mode="w", encoding="utf-8") as file:
@@ -391,7 +391,7 @@ class queue_new(Resource):
         from backend import db
         args = queue_post_args.parse_args()
         problem = Problem.query.filter_by(problem_id=args.problem_id).first()
-        new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
+        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count(),user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
                           homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), code_content=args.code_content, test_case_count=problem.testcase_count)
 
         if not os.path.isdir(BASE+"buffer/"):
