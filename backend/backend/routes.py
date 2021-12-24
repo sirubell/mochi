@@ -1,17 +1,17 @@
+from django.core import mail
 from flask import jsonify, url_for, redirect, flash, render_template, request
 from flask_login.utils import login_required
 from flask_restful import Api, Resource, abort
 import datetime
-from backend.exception import if_email_has_existed, if_username_has_existed, if_problemname_has_existed, is_email_format, confirm_password_equal_password
+from backend.exception import *
 from backend.models import Homework, Problem, User, Submission, User_problem, Queue, Problem_Testcase
-from backend import bcrypt
+from backend import bcrypt, app, mail
 from backend.argument import *
 #from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
 #8同理9
 from flask_login import login_user, current_user, logout_user, login_required
 import os
 
-from backend import app
 
 
 
@@ -353,6 +353,23 @@ class login(Resource):
         else:
             abort(404, message="Couldn't find the user")
 
+class reset_sent_email(Resource):
+    def post(self):
+        if current_user.is_authenticated:
+            return redirect(url_for('home'))
+        args = request_reset_post_args.parse_args()
+        reset_check_email(args.email)
+        user = User.query.filter_by(email=args.email).first()
+        token = user.get_reset_token()
+        send_mail(sender='Mail', recipients=[user.email])
+class reset_check(Resource):
+    def reset_check(self):
+        if current_user.is_authenticated:
+            return redirect(url_for('home'))
+class reset_password(Resource):
+    def reset_password(self):
+        if current_user.is_authenticated:
+            return redirect(url_for('home'))
 
 class logout(Resource):
     def logout():
@@ -363,6 +380,7 @@ class logout(Resource):
 
 
 class user_profile(Resource):
+    @login_required
     def get(self, user_id):
         from backend import db
         user = User.query.filter_by(id=user_id).first_or_404()

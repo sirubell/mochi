@@ -1,8 +1,9 @@
 from flask.json import jsonify, dumps
-from backend import db
+from backend import db, app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-import datetime
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+#import datetime
 
 
 relations = db.Table(
@@ -34,10 +35,21 @@ class User(db.Model, UserMixin):
     authority = db.Column(db.Integer, default=0)
     user_to_problem = db.relationship("User_problem", backref="user")
     
+    def get_reset_token(self, expires_sec = 1800):
+        s = Serializer(app.config['SECRET_KEY'], expires_sec)
+        return s.dumps({'user_id': self.id}).decode('utf-8')
+    @staticmethod
+    def verify_reset_token(token):
+        s = Serializer(app.config['SECRET_KEY'])
+        try:
+            user_id = s.loads(token)['user_id']
+        except:
+            return None
+        return User.query.get(user_id)
+
+
     def __repr__(self):
         return jsonify({"name":self.name, "email":self.email, "register_date":str(self.register_date), "user_problem":dumps(self.user_to_problem.problem_id)})
-    #def as_dict(self):
-       #return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 #✔
 
 class Problem(db.Model):

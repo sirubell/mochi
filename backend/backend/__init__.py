@@ -8,6 +8,7 @@ from backend.config import Config
 from flask_login import LoginManager
 #from flask_cors import CORS
 import os
+from flask_mail import Mail
 
 app = Flask(__name__, template_folder='../templates')
 api = Api(app)
@@ -20,7 +21,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 login_manager.login_message = '該網頁需要登入才能瀏覽'
-
+mail = Mail(app)
 app.permanent_session_lifetime
 
 
@@ -89,6 +90,8 @@ api.add_resource(signup, "/signup")
 
 from backend.routes import user_profile
 api.add_resource(user_profile, "/user/<int:user_id>/profile")
+
+
 
 from backend.routes import submission_data
 api.add_resource(submission_data, "/submission/<int:source_id>")
