@@ -422,7 +422,6 @@ class dispatcher(Resource):
         from backend.convert_file_to_json import convert_file_to_json as yea
         queues = Queue.query.limit(20).all()
         datas = {}
-        datas["Submission_Count"] = len(queues)
         datas["Submission_Set"] = []
         cnt = 0
         for queue in queues:
@@ -485,6 +484,7 @@ class dispatcher(Resource):
             datas["Submission_Set"].append(data)
             cnt += 1
 
+        datas["Submission_Count"] = cnt
         return jsonify(datas)
 
     def post(self):
