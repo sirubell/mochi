@@ -1,44 +1,98 @@
-import { createRouter, createWebHistory } from 'vue-router';
-
+import { createRouter, createWebHistory } from 'vue-router'
 import Home from './components/Home.vue'
-import Problem from './components/Problem.vue'
-import Course from './components/Course.vue'
-import Class from './components/Class.vue'
-import Login from './components/Login.vue'
-import Signup from './components/Signup.vue'
+import ProblemAll from './components/problem/problem_all.vue'
+import ComponentSlot from './components/component_slot.vue'
+import Status from './components/status.vue'
+import ClassAll from './components/class/class_all.vue'
+import Login from './components/user/login.vue'
+import SignUp from './components/user/signup.vue'
+import User from './components/user/user.vue'
+import Problem from './components/problem/problem.vue'
+import NewProblem from './components/problem/new_problem.vue'
+import Forgot from './components/user/forgot.vue'
+import Reset from './components/user/reset.vue'
 
-export default createRouter({
-  history : createWebHistory(),
-  routes: [
-    {
-      path: '/home',
-      name: 'home',
-      component: Home
-    },
-    {
-      path: '/problem',
-      name: 'problem',
-      component: Problem
-    },
-    {
-      path: '/course',
-      name: 'course',
-      component: Course
-    },
-    {
-      path: '/class',
-      name: 'class',
-      component: Class
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: Login
-    },
-    {
-      path: '/signup',
-      name: 'signup',
-      component: Signup
-    },
-  ]
+const routes = [
+  { path: '/test-problem', component: Problem },
+  { path: '/test-new-problem', component: NewProblem },
+  {
+    path: '/',
+    redirect: 'home'
+  },
+  {
+    path: '/home',
+    name: 'home',
+    component: Home
+  },
+  {
+    path: '/status',
+    name: 'status',
+    component: Status
+  },
+  {
+    path: '/user',
+    component: User
+  },
+  {
+    path: '/login',
+    component: Login
+  },
+  {
+    path: '/signup',
+    component: SignUp
+  },
+  {
+    path: '/problem',
+    redirect: '/problem/all',
+    component: ComponentSlot,
+    children: [
+      {
+        path: 'all',
+        name: 'problem-all',
+        component: ProblemAll
+      }/*,
+      {
+        path: 'new'
+        component: ProblemNew
+      },
+      {
+        path: ':problemId',
+        redirect: ':problem_id/code',
+        component: ProblemSpecific,
+        props: true
+        children: {
+          path: 'code'
+          
+        }
+      }
+      */
+    ]
+  },
+  {
+    path: '/class',
+    redirect: '/class/all',
+    component: ComponentSlot,
+    children: [
+      {
+        path: 'all',
+        name: 'class_all',
+        component: ClassAll
+      }
+    ]
+  },
+  {
+    path: "/forgot",
+    component: Forgot,
+  },
+  {
+    path: "/reset/:token",
+    component: Reset,
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
 })
+
+export default router

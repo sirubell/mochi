@@ -4,8 +4,10 @@ from flask_restful import Api, Resource, abort
 import datetime
 from backend.exception import if_email_has_existed, if_username_has_existed, if_problemname_has_existed, is_email_format, confirm_password_equal_password
 from backend.models import Homework, Problem, User, Submission, User_problem, Queue, Problem_Testcase
-from backend import bcrypt,BASE
-from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args, test_run_post_args, create_problem_test_run_args
+from backend import bcrypt
+from backend.argument import *
+#from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
+#8同理9
 from flask_login import login_user, current_user, logout_user, login_required
 import os
 
@@ -70,6 +72,7 @@ class problem(Resource):
         elif name:
             problems = Problem.query.filter(Problem.name.like(name)).all()
         elif difficulty and name:
+            from backend import db
             problems = Problem.query.filter(
                 db.and_(Problem.difficulty == difficulty, Problem.name.like(name))).all()
 
