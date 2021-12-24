@@ -1,24 +1,26 @@
-from django.core import mail
 from flask import jsonify, url_for, redirect, flash, render_template, request
 from flask_login.utils import login_required
 from flask_restful import Api, Resource, abort
 import datetime
 from backend.exception import *
 from backend.models import Homework, Problem, User, Submission, User_problem, Queue, Problem_Testcase
-from backend import bcrypt, app, mail
+from backend import bcrypt, app, mail, BASE
 from backend.argument import *
 #from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
-#8同理9
+# 8同理9
 from flask_login import login_user, current_user, logout_user, login_required
 import os
 
 
 
-
-
 class check(Resource):
     def get(self):
-        return os.path.abspath(os.path.dirname(__file__))
+        queues = Queue.query.all()
+        res = {}
+        res["returnSet"] = []
+        for q in queues:
+            res["returnSet"].append(q.as_dict())
+        return res
 
 
 class delete_dir(Resource):
@@ -103,7 +105,8 @@ class problem(Resource):
         import shutil
         if not os.path.isdir(BASE+"Problem"):
             os.mkdir(BASE+"Problem")
-        os.rename(BASE+"buffer/"+str(now.source_id)+'/'+str(now.source_id)+'.ansexe', BASE+"buffer/"+str(now.source_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
+        os.rename(BASE+"buffer/"+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
+                  BASE+"buffer/"+str(now.user_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
         shutil.move(path, BASE+"Problem/"+str(Problem.query.count()+1))
         from backend import db
         for i in range(now.test_case_count):
@@ -132,14 +135,14 @@ class create_problem_test_run(Resource):
             return "not ok"
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
-        path = BASE+"buffer/"+str(source_id)
+        path = BASE+"buffer/"+str(user_id)
         res = {}
         res["test_case_count"] = now.test_case_count
         res["return_set"] = []
-        for i in range(len(now.test_case_count)):
+        for i in range(now.test_case_count):
             # from backend.convert_file_to_json import convert_file_to_json as yea
             # res = yea("buffer/"+str(user.id)+"/"+str(i+1)+'.ans')
-            with open(BASE+"buffer/"+str(source_id)+"/"+str(i+1)+'.ans', mode="r", encoding="utf-8") as file:
+            with open(path+"/"+str(i+1)+'.ans', mode="r", encoding="utf-8") as file:
                 temp = file.read()
                 res["return_set"].append(temp)
 
@@ -149,19 +152,19 @@ class create_problem_test_run(Resource):
         args = create_problem_test_run_args.parse_args()
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
-
-        input_set = args["test_case"]
-        new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
-        datetime.datetime.now()), code_content=args.code_content)
-        from backend import db
-        db.session.add(new_queue)
-        db.session.commit()
-        path = BASE+"buffer/"+str(new_queue.source_id)
+        path = BASE+"buffer/"+str(args.user_id)
         if not os.path.isdir(path):
             os.mkdir(path)
         else:
             return "Error, XD"
-        #omgomg
+        input_set = args["test_case"]
+        new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
+            datetime.datetime.now()), code_content=args.code_content)
+        from backend import db
+        db.session.add(new_queue)
+        db.session.commit()
+        
+        # omgomg
         with open(path+"/"+"correct_source_code"+'.'+str(args.language), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
         cnt = 1
@@ -170,7 +173,7 @@ class create_problem_test_run(Resource):
                 file.write(testcase)
             cnt += 1
 
-        return 200
+        return 200, new_queue.source_id
 
 
 class test_run(Resource):
@@ -179,6 +182,10 @@ class test_run(Resource):
             source_id = request.args['source_id']
         else:
             return "Error, source_id is required"
+        if 'user_id' in request.args:
+            user_id = request.args['user_id']
+        else:
+            return "Error, user_id is required"
         now = Queue.query.filter_by(source_id=source_id).first()
         if now.status == 0:
             return "not ok"
@@ -200,10 +207,10 @@ class test_run(Resource):
             os.mkdir(BASE+"buffer")
         new_queue = Queue(user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
             datetime.datetime.now()), code_content=args.code_content, test_case_count=1)
-        source_id = Queue.query.count() + 1
-        with open(BASE+"buffer/"+str(Queue.query.count() + 1)+".in", mode="w", encoding="utf-8") as file:
+        source_id = Queue.query.count()+1
+        with open(BASE+"buffer/"+str(source_id)+".in", mode="w", encoding="utf-8") as file:
             file.write(args.test_case)
-        with open(BASE+"buffer/"+str(Queue.query.count() + 1)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+        with open(BASE+"buffer/"+str(source_id)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
         db.session.add(new_queue)
         db.session.commit()
@@ -430,18 +437,22 @@ class dispatcher(Resource):
     def get(self):
         from backend import db
         from backend.convert_file_to_json import convert_file_to_json as yea
-        queues = Queue.query.limit(10).all()
+        queues = Queue.query.limit(20).all()
         datas = {}
-        datas["Submission_Count"] = len(queues)
         datas["Submission_Set"] = []
         cnt = 0
         for queue in queues:
+            if queue.status == 1:
+                continue
+            if cnt > 10:
+                break
             data = {}
             data["Mode"] = queue.mode
             if queue.mode in [1, 2]:
                 data["Problem_id"] = queue.problem_id
+            data["User_id"] = queue.user_id
             data["Source_id"] = queue.source_id
-            data["Keep"] = 1
+            data["Keep"] = 0
             problem = Problem.query.filter_by(
                 problem_id=queue.problem_id).first()
             if problem == None and queue.mode in [1, 2]:
@@ -471,7 +482,7 @@ class dispatcher(Resource):
                     problem_id=queue.problem_id).all()
                 for i in range(len(testcases)):
                     data["All_test_case_general_submission"].append(
-                        {"Test_case_name": testcases[i].input_name.replace('.in',""), "Test_case_answer_name": testcases[i].output_name.replace('.ans',"")})
+                        {"Test_case_name": testcases[i].input_name.replace('.in', ""), "Test_case_answer_name": testcases[i].output_name.replace('.ans', "")})
 
             if queue.mode == 2:
                 data["Self_test_case"].append(
@@ -488,7 +499,9 @@ class dispatcher(Resource):
                          })
 
             datas["Submission_Set"].append(data)
+            cnt += 1
 
+        datas["Submission_Count"] = cnt
         return jsonify(datas)
 
     def post(self):
@@ -498,6 +511,15 @@ class dispatcher(Resource):
         for submission in args["Return_Set"]:
             data = Queue.query.filter_by(
                 source_id=submission["Source_id"]).first()
+            if data == None:
+                queues = Queue.query.all()
+                res = {}
+                res["returnSet"] = []
+                res["disappeared_source_id"] = submission["Source_id"]
+                for q in queues:
+                    res["returnSet"].append(q.as_dict())
+                print(res)
+                continue
             if data.mode == 1:
                 new_submission = Submission(user_id=data.user_id, problem_id=data.problem_id, source_id=submission["Source_id"], status=submission["Status"], code_content=data.code_content, exam_id=data.exam_id, homework_id=data.homework_id, error_hint=submission[
                     "Compile_error_out"], error_line=0, language=data.language, time_used=submission["Time"], memory_used=submission["Memory"], upload_date=data.upload_date)
@@ -509,7 +531,7 @@ class dispatcher(Resource):
                 if not os.path.isdir(BASE+"buffer/"):
                     os.mkdir(BASE+"buffer/")
                 with open(BASE+"buffer/"+str(data.source_id)+".ans", mode="w", encoding="utf-8") as file:
-                    file.write(submission["All_stander_out"][str(1)])
+                    file.write(submission["All_stander_out"][str(data.source_id)])
             else:
                 data.status = 1
                 if not os.path.isdir(BASE+"buffer/"+str(data.user_id)+"/"):

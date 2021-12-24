@@ -22,6 +22,8 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 login_manager.login_message = '該網頁需要登入才能瀏覽'
 mail = Mail(app)
+BASE = 'c\\Users\\a2320\\Desktop\\coding\\mochi\\backend\\'
+
 app.permanent_session_lifetime
 
 
