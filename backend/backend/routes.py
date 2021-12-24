@@ -201,6 +201,7 @@ class test_run(Resource):
         args = test_run_post_args.parse_args()
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
+        user_id = args.user_id
         new_queue = Queue(user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
             datetime.datetime.now()), code_content=args.code_content, test_case_count=1)
         with open(BASE+"buffer/"+str(user_id)+".in", mode="w", encoding="utf-8") as file:
