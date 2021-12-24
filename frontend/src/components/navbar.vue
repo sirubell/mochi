@@ -20,10 +20,10 @@
             <li class="nav-item dropdown">
               <a href="#" class="text-end nav-link dropdown-toggle px-2 link-dark" data-bs-toggle="dropdown" aria-expanded="false">User</a>
               <ul class="dropdown-menu" aria-labelledby="dropdown03">
-              <li><router-link to="/user"  class="dropdown-item">My profile</router-link></li>
-              <li><a class="dropdown-item" href="#">查看個人解題紀錄</a></li>
-              <li><a class="dropdown-item" href="#">Something else here</a></li>
-            </ul>
+                <li><router-link to="/user"  class="dropdown-item">My profile</router-link></li>
+                <li><a class="dropdown-item" href="#">查看個人解題紀錄</a></li>
+                <li><a class="dropdown-item" href="#">Something else here</a></li>
+              </ul>
             </li>
             <li class="nav-item">
               <a href="javascript:void(0)" @click="handleClick" class="text-end nav-link px-2 link-dark">Logout</a>
