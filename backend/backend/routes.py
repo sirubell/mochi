@@ -431,7 +431,7 @@ class dispatcher(Resource):
             if queue.mode in [1, 2]:
                 data["Problem_id"] = queue.problem_id
             data["Source_id"] = queue.source_id
-            data["Keep"] = 1
+            data["Keep"] = 0
             problem = Problem.query.filter_by(
                 problem_id=queue.problem_id).first()
             if problem == None and queue.mode in [1, 2]:
