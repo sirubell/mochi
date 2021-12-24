@@ -4,16 +4,14 @@ from flask_restful import Api, Resource, abort
 import datetime
 from backend.exception import if_email_has_existed, if_username_has_existed, if_problemname_has_existed, is_email_format, confirm_password_equal_password
 from backend.models import Homework, Problem, User, Submission, User_problem, Queue, Problem_Testcase
-from backend import bcrypt
+from backend import bcrypt, BASE
 from backend.argument import *
 #from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
-#8同理9
+# 8同理9
 from flask_login import login_user, current_user, logout_user, login_required
 import os
 
 from backend import app
-
-
 
 
 class check(Resource):
@@ -103,7 +101,8 @@ class problem(Resource):
         import shutil
         if not os.path.isdir(BASE+"Problem"):
             os.mkdir(BASE+"Problem")
-        os.rename(BASE+"buffer/"+str(now.source_id)+'/'+str(now.source_id)+'.ansexe', BASE+"buffer/"+str(now.source_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
+        os.rename(BASE+"buffer/"+str(now.source_id)+'/'+str(now.source_id)+'.ansexe',
+                  BASE+"buffer/"+str(now.source_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
         shutil.move(path, BASE+"Problem/"+str(Problem.query.count()+1))
         from backend import db
         for i in range(now.test_case_count):
@@ -151,8 +150,8 @@ class create_problem_test_run(Resource):
             os.mkdir(BASE+"buffer")
 
         input_set = args["test_case"]
-        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count(),user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
-        datetime.datetime.now()), code_content=args.code_content)
+        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count(), user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
+            datetime.datetime.now()), code_content=args.code_content)
         from backend import db
         db.session.add(new_queue)
         db.session.commit()
@@ -161,7 +160,7 @@ class create_problem_test_run(Resource):
             os.mkdir(path)
         else:
             return "Error, XD"
-        #omgomg
+        # omgomg
         with open(path+"/"+"correct_source_code"+'.'+str(args.language), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
         cnt = 1
@@ -170,7 +169,7 @@ class create_problem_test_run(Resource):
                 file.write(testcase)
             cnt += 1
 
-        return 200,new_queue.source_id
+        return 200, new_queue.source_id
 
 
 class test_run(Resource):
@@ -198,7 +197,7 @@ class test_run(Resource):
         args = test_run_post_args.parse_args()
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
-        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count(),user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
+        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count(), user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
             datetime.datetime.now()), code_content=args.code_content, test_case_count=1)
         source_id = Queue.query.count() + 1
         with open(BASE+"buffer/"+str(Queue.query.count() + 1)+".in", mode="w", encoding="utf-8") as file:
@@ -394,7 +393,7 @@ class queue_new(Resource):
         from backend import db
         args = queue_post_args.parse_args()
         problem = Problem.query.filter_by(problem_id=args.problem_id).first()
-        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count(),user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
+        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count(), user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
                           homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), code_content=args.code_content, test_case_count=problem.testcase_count)
 
         if not os.path.isdir(BASE+"buffer/"):
@@ -453,7 +452,7 @@ class dispatcher(Resource):
                     problem_id=queue.problem_id).all()
                 for i in range(len(testcases)):
                     data["All_test_case_general_submission"].append(
-                        {"Test_case_name": testcases[i].input_name.replace('.in',""), "Test_case_answer_name": testcases[i].output_name.replace('.ans',"")})
+                        {"Test_case_name": testcases[i].input_name.replace('.in', ""), "Test_case_answer_name": testcases[i].output_name.replace('.ans', "")})
 
             if queue.mode == 2:
                 data["Self_test_case"].append(
