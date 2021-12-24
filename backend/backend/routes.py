@@ -420,12 +420,16 @@ class dispatcher(Resource):
     def get(self):
         from backend import db
         from backend.convert_file_to_json import convert_file_to_json as yea
-        queues = Queue.query.limit(10).all()
+        queues = Queue.query.limit(20).all()
         datas = {}
         datas["Submission_Count"] = len(queues)
         datas["Submission_Set"] = []
         cnt = 0
         for queue in queues:
+            if queue.status == 1:
+                continue
+            if cnt > 10:
+                break
             data = {}
             data["Mode"] = queue.mode
             if queue.mode in [1, 2]:
@@ -479,6 +483,7 @@ class dispatcher(Resource):
                          })
 
             datas["Submission_Set"].append(data)
+            cnt += 1
 
         return jsonify(datas)
 
