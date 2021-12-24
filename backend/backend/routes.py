@@ -489,6 +489,15 @@ class dispatcher(Resource):
         for submission in args["Return_Set"]:
             data = Queue.query.filter_by(
                 source_id=submission["Source_id"]).first()
+            if data == None:
+                queues = Queue.query.all()
+                res = {}
+                res["returnSet"] = []
+                res["disappeared_source_id"] = submission["Source_id"]
+                for q in queues:
+                    res["returnSet"].append(q.as_dict())
+                print(res)
+                continue
             if data.mode == 1:
                 new_submission = Submission(user_id=data.user_id, problem_id=data.problem_id, source_id=submission["Source_id"], status=submission["Status"], code_content=data.code_content, exam_id=data.exam_id, homework_id=data.homework_id, error_hint=submission[
                     "Compile_error_out"], error_line=0, language=data.language, time_used=submission["Time"], memory_used=submission["Memory"], upload_date=data.upload_date)
