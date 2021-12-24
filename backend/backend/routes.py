@@ -203,9 +203,10 @@ class test_run(Resource):
             os.mkdir(BASE+"buffer")
         new_queue = Queue(user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
             datetime.datetime.now()), code_content=args.code_content, test_case_count=1)
-        with open(BASE+"buffer/"+str(Queue.query.count()+1)+".in", mode="w", encoding="utf-8") as file:
+        source_id = Queue.query.count()+1
+        with open(BASE+"buffer/"+str(source_id)+".in", mode="w", encoding="utf-8") as file:
             file.write(args.test_case)
-        with open(BASE+"buffer/"+str(Queue.query.count()+1)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+        with open(BASE+"buffer/"+str(source_id)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
         db.session.add(new_queue)
         db.session.commit()
