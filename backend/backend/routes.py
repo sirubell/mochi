@@ -131,14 +131,14 @@ class create_problem_test_run(Resource):
             return "not ok"
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
-        path = BASE+"buffer/"+str(source_id)
+        path = BASE+"buffer/"+str(user_id)
         res = {}
         res["test_case_count"] = now.test_case_count
         res["return_set"] = []
         for i in range(now.test_case_count):
             # from backend.convert_file_to_json import convert_file_to_json as yea
             # res = yea("buffer/"+str(user.id)+"/"+str(i+1)+'.ans')
-            with open(BASE+"buffer/"+str(source_id)+"/"+str(i+1)+'.ans', mode="r", encoding="utf-8") as file:
+            with open(path+"/"+str(i+1)+'.ans', mode="r", encoding="utf-8") as file:
                 temp = file.read()
                 res["return_set"].append(temp)
 
@@ -150,12 +150,12 @@ class create_problem_test_run(Resource):
             os.mkdir(BASE+"buffer")
 
         input_set = args["test_case"]
-        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count()+1, user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
+        new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
             datetime.datetime.now()), code_content=args.code_content)
         from backend import db
         db.session.add(new_queue)
         db.session.commit()
-        path = BASE+"buffer/"+str(new_queue.source_id)
+        path = BASE+"buffer/"+str(new_queue.user_id)
         if not os.path.isdir(path):
             os.mkdir(path)
         else:
@@ -178,6 +178,10 @@ class test_run(Resource):
             source_id = request.args['source_id']
         else:
             return "Error, source_id is required"
+        if 'user_id' in request.args:
+            user_id = request.args['user_id']
+        else:
+            return "Error, user_id is required"
         now = Queue.query.filter_by(source_id=source_id).first()
         if now.status == 0:
             return "not ok"
@@ -185,7 +189,7 @@ class test_run(Resource):
         # res = yea("buffer/"+str(source_id)+'.ans')
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
-        with open(BASE+"buffer/"+str(source_id)+".ans", mode="r", encoding="utf-8") as file:
+        with open(BASE+"buffer/"+str(user_id)+".ans", mode="r", encoding="utf-8") as file:
             res = file.read()
         from backend import db
         db.session.delete(now)
@@ -197,12 +201,11 @@ class test_run(Resource):
         args = test_run_post_args.parse_args()
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
-        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count()+1, user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
+        new_queue = Queue(user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
             datetime.datetime.now()), code_content=args.code_content, test_case_count=1)
-        source_id = Queue.query.count() + 1
-        with open(BASE+"buffer/"+str(Queue.query.count() + 1)+".in", mode="w", encoding="utf-8") as file:
+        with open(BASE+"buffer/"+str(user_id)+".in", mode="w", encoding="utf-8") as file:
             file.write(args.test_case)
-        with open(BASE+"buffer/"+str(Queue.query.count() + 1)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+        with open(BASE+"buffer/"+str(user_id)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
         db.session.add(new_queue)
         db.session.commit()
@@ -393,7 +396,7 @@ class queue_new(Resource):
         from backend import db
         args = queue_post_args.parse_args()
         problem = Problem.query.filter_by(problem_id=args.problem_id).first()
-        new_queue = Queue(source_id=Queue.query.count()+Submission.query.count()+1, user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
+        new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
                           homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), code_content=args.code_content, test_case_count=problem.testcase_count)
 
         if not os.path.isdir(BASE+"buffer/"):
@@ -489,7 +492,7 @@ class dispatcher(Resource):
                 data.status = 1
                 if not os.path.isdir(BASE+"buffer/"):
                     os.mkdir(BASE+"buffer/")
-                with open(BASE+"buffer/"+str(data.source_id)+".ans", mode="w", encoding="utf-8") as file:
+                with open(BASE+"buffer/"+str(data.user_id)+".ans", mode="w", encoding="utf-8") as file:
                     file.write(submission["All_stander_out"][str(1)])
             else:
                 data.status = 1
