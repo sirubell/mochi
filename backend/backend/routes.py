@@ -189,7 +189,7 @@ class test_run(Resource):
         # res = yea("buffer/"+str(source_id)+'.ans')
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
-        with open(BASE+"buffer/"+str(user_id)+".ans", mode="r", encoding="utf-8") as file:
+        with open(BASE+"buffer/"+str(source_id)+".ans", mode="r", encoding="utf-8") as file:
             res = file.read()
         from backend import db
         db.session.delete(now)
@@ -201,12 +201,11 @@ class test_run(Resource):
         args = test_run_post_args.parse_args()
         if not os.path.isdir(BASE+"buffer"):
             os.mkdir(BASE+"buffer")
-        user_id = args.user_id
         new_queue = Queue(user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
             datetime.datetime.now()), code_content=args.code_content, test_case_count=1)
-        with open(BASE+"buffer/"+str(user_id)+".in", mode="w", encoding="utf-8") as file:
+        with open(BASE+"buffer/"+str(source_id)+".in", mode="w", encoding="utf-8") as file:
             file.write(args.test_case)
-        with open(BASE+"buffer/"+str(user_id)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+        with open(BASE+"buffer/"+str(source_id)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
         db.session.add(new_queue)
         db.session.commit()
@@ -493,7 +492,7 @@ class dispatcher(Resource):
                 data.status = 1
                 if not os.path.isdir(BASE+"buffer/"):
                     os.mkdir(BASE+"buffer/")
-                with open(BASE+"buffer/"+str(data.user_id)+".ans", mode="w", encoding="utf-8") as file:
+                with open(BASE+"buffer/"+str(data.source_id)+".ans", mode="w", encoding="utf-8") as file:
                     file.write(submission["All_stander_out"][str(1)])
             else:
                 data.status = 1
