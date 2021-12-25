@@ -17,9 +17,6 @@
       <div class="fs-5 col-md-2">
         <div v-if="loginStatus">
           <ul class="nav mb-2 justify-content-end mb-md-0">
-<<<<<<< HEAD
-            <router-link to="/user" class="nav-link px-2 link-dark">User</router-link>
-=======
             <li class="nav-item dropdown">
               <a href="#" class="text-end nav-link dropdown-toggle px-2 link-dark" data-bs-toggle="dropdown" aria-expanded="false">User</a>
               <ul class="dropdown-menu" aria-labelledby="dropdown03">
@@ -28,7 +25,6 @@
                 <li><a class="dropdown-item" href="#">Something else here</a></li>
               </ul>
             </li>
->>>>>>> fe5603fa067899aa30554aec3a64fdd3a80f9d5a
             <li class="nav-item">
               <a href="javascript:void(0)" @click="handleClick" class="text-end nav-link px-2 link-dark">Logout</a>
             </li>
