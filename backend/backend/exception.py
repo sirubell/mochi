@@ -31,3 +31,14 @@ def is_email_format(emailaddr):
 def confirm_password_equal_password(password, confirm_password):
     if(password != confirm_password):
         abort (400, message="Confirm_password isn't equal to password!")
+
+
+def reset_check_email(emailaddr):
+    from backend.models import User
+    email_format = re.compile(r"[^@]+@[^@]+\.[^@]+")
+    if(not email_format.match(emailaddr)):
+        abort(400, message="Request invalid: The format of email is invalid!")        
+    user = User.query.filter_by(email=emailaddr).first()
+    if user is None:
+        abort(404, message="There is no account with the email. You must register first.")
+
