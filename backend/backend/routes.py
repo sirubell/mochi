@@ -69,15 +69,16 @@ class problem(Resource):
         elif topic and difficulty:
             problems = Problem.query.filter(db.and_(Problem.difficulty==difficulty,Problem.topic==topic)).all()'''
 
-        if difficulty:
+        if difficulty and name:
+            from backend import db
+            problems = Problem.query.filter(
+                db.and_(Problem.difficulty == difficulty, Problem.name.like(name))).all()
+        elif difficulty:
             problems = Problem.query.filter(
                 Problem.difficulty == difficulty).all()
         elif name:
             problems = Problem.query.filter(Problem.name.like(name)).all()
-        elif difficulty and name:
-            from backend import db
-            problems = Problem.query.filter(
-                db.and_(Problem.difficulty == difficulty, Problem.name.like(name))).all()
+        
 
         if problems:
             ret = {}
@@ -141,8 +142,6 @@ class create_problem_test_run(Resource):
         res["test_case_count"] = now.test_case_count
         res["return_set"] = []
         for i in range(now.test_case_count):
-            # from backend.convert_file_to_json import convert_file_to_json as yea
-            # res = yea("buffer/"+str(user.id)+"/"+str(i+1)+'.ans')
             with open(path+"/"+str(i+1)+'.ans', mode="r", encoding="utf-8") as file:
                 temp = file.read()
                 res["return_set"].append(temp)
@@ -223,6 +222,7 @@ class problem_id(Resource):
         problem = Problem.query.filter_by(problem_id=problem_id).first()
         return problem.as_dict()
 
+    #!!
     def put(self, problem_id):
         args = problem_put_args.parse_args()
         problem = Problem.query.filter_by(problem_id=problem_id).first()
@@ -247,10 +247,12 @@ class problem_id(Resource):
             problem.is_hidden = args.is_hidden
         if args.correct_source_code:
             problem.correct_source_code = args.correct_source_code
+        
         from backend import db
         db.session.commit()
         return "Success to put problem", 200
 
+    #!!
     def delete(self, problem_id):
         problem = Problem.query.filter_by(problem_id=problem_id).delete()
         from backend import db
@@ -422,10 +424,10 @@ class user_profile(Resource):
 
 
 class submission_data(Resource):
-    def get(self, source_id):
+    def get(self, submission_id):
         from backend import db
         submission = Submission.query.filter_by(
-            source_id=source_id).first_or_404()
+            submission_id=submission_id).first_or_404()
         return submission.as_dict()
 
 
