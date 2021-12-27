@@ -325,7 +325,6 @@ class signup(Resource):
 
     def post(self):
         if current_user.is_authenticated:
-            logout()
             return redirect(url_for('home'))
         args = signup_post_args.parse_args()
         if_username_has_existed(args.name)
