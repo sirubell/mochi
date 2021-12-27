@@ -1,11 +1,11 @@
 <template>
   <!-- <h1>User is not implemented.</h1> -->
-  <div class="container-fluid">
+<div class="container-fluid">
   <div class="row">
-    <a href="/" class="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom">
+    <!-- <a href="/" class="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom">
       <svg class="bi me-2" width="30" height="24"><use xlink:href="#bootstrap"/></svg>
       <span class="fs-5 fw-semibold">Refresh</span>
-    </a>
+    </a> -->
     <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
       <div class="position-sticky pt-3">
         <ul class="nav flex-column">
@@ -33,8 +33,8 @@
             </button>
             <div class="collapse" id="orders-collapse">
               <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a href="#" class="link-dark rounded">Change Information</a></li>
-                <li><a href="#" class="link-dark rounded">Change Password</a></li>
+                <li><router-link to="/change_profile" class="link-dark rounded">Change Information</router-link></li>
+                <li><router-link to="/change_password" class="link-dark rounded">Change Password</router-link></li>
               </ul>
             </div>
           </li>

@@ -11,6 +11,8 @@ import Problem from './components/problem/problem.vue'
 import NewProblem from './components/problem/new_problem.vue'
 import Forgot from './components/user/forgot.vue'
 import Reset from './components/user/reset.vue'
+import Change_Profile from './components/user/change_profile.vue'
+import Change_Password from './components/user/change_password.vue'
 
 const routes = [
   { path: '/test-problem', component: Problem },
@@ -87,6 +89,14 @@ const routes = [
   {
     path: "/reset/:token",
     component: Reset,
+  },
+  {
+    path: "/change_profile",
+    component: Change_Profile,
+  },
+  {
+    path: "/change_password",
+    component: Change_Password,
   }
 ]
 
