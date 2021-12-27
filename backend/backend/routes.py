@@ -1,6 +1,7 @@
 from flask import jsonify, url_for, redirect, flash, render_template, request
 from flask_login.utils import login_required
 from flask_restful import Api, Resource, abort
+from flask_mail import Message
 import datetime
 from backend.exception import *
 from backend.models import Homework, Problem, User, Submission, User_problem, Queue, Problem_Testcase
@@ -322,6 +323,7 @@ class signup(Resource):
 
     def post(self):
         if current_user.is_authenticated:
+            logout()
             return redirect(url_for('home'))
         args = signup_post_args.parse_args()
         if_username_has_existed(args.name)
@@ -356,7 +358,7 @@ class login(Resource):
         elif user:
             # return ('Password is wrong')
             flash('Password is wrong')
-            return render_template('login.html', args=args)
+            return "wrong password"
         else:
             abort(404, message="Couldn't find the user")
 
@@ -368,15 +370,28 @@ class reset_sent_email(Resource):
         reset_check_email(args.email)
         user = User.query.filter_by(email=args.email).first()
         token = user.get_reset_token()
-        send_mail(sender='Mail', recipients=[user.email])
-class reset_check(Resource):
-    def reset_check(self):
-        if current_user.is_authenticated:
-            return redirect(url_for('home'))
+        recipient = args.email
+        title = "Reset your password."
+        msg = Message(title, recipients = [recipient])
+        msg.body = token
+        mail.send(msg)
+        return 
+
 class reset_password(Resource):
-    def reset_password(self):
+    def put(self, token):
         if current_user.is_authenticated:
             return redirect(url_for('home'))
+        user = User.verify_reset_token(token)
+        if user is None:
+            flash('This is an invalid or expired token', 'warning')
+            return "Invalid"
+        args = reset_password_put_args.parse_args()
+        confirm_password_equal_password(args.password, args.confirm_password)
+        hashed_password = bcrypt.generate_password_hash(args.password).decode('utf-8')
+        user.password = hashed_password
+        from backend import db
+        db.session.commit()
+        
 
 class logout(Resource):
     def logout():

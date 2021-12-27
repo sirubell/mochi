@@ -90,6 +90,12 @@ api.add_resource(logout, "/logout")
 from backend.routes import signup
 api.add_resource(signup, "/signup")
 
+from backend.routes import reset_sent_email
+api.add_resource(reset_sent_email, "/forgot_password/email")
+
+from backend.routes import reset_password
+api.add_resource(reset_password, "/forgot_password/<token>/new_password")
+
 from backend.routes import user_profile
 api.add_resource(user_profile, "/user/<int:user_id>/profile")
 
