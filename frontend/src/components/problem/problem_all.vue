@@ -1,36 +1,40 @@
 <template>
+<div>
   <h1>Problem All is not implemented</h1>
-  <div v-if="problemTable">
-    {{ problemTable.page }}
-  </div>
+  <table class="table">
+    <tr v-for="item in problemTalbe" :key="item.title">
+      <!-- <td><router-link :to="{ path: '/asdf', params:{id :item.id}}"> <a v-bind:href="item.id">{{ item.id }}</a></router-link></td> -->
+      <td><a v-bind:href="item.id">{{ item.id }}</a></td>
+      <td>{{ item.name }}</td>
+      <td>{{ item.username }}</td>
+      <td>{{ item.email }}</td>
+      <td>{{ item.address.street }}</td>
+    </tr>
+  </table>
+  
   <div v-if="error">
     {{ error }}
   </div>
+  
+</div>
+
 </template>
 
 <script>
+
 import axios from 'axios'
 
 export default {
-  name: 'ProblemAll',
   data() {
     return {
-      page: 1,
-      topic: ['bs', 'arr'],
-      problemTable: null,
-      error: null
+      problemTalbe: {}
     }
   },
   created() {
-    axios.get('problem', {
-      timeout: 5000,
-      params: {
-        page: this.page,
-        topic: JSON.stringify(this.topic)
-      }
-    })
+    axios.get('https://jsonplaceholder.typicode.com/users')
     .then( response => {
       this.problemTalbe = response.data
+      console.log(response.data)
     })
     .catch( error => {
       this.error = error

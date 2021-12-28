@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from './components/Home.vue'
 import ProblemAll from './components/problem/problem_all.vue'
+import ProblemID from './components/problem/problem_id.vue'
 import ComponentSlot from './components/component_slot.vue'
 import Status from './components/status.vue'
 import ClassAll from './components/class/class_all.vue'
@@ -50,7 +51,12 @@ const routes = [
         path: 'all',
         name: 'problem-all',
         component: ProblemAll
-      }/*,
+      },
+      {
+        path: ':id',
+        name: 'e',
+        component: ProblemID
+      },/*,
       {
         path: 'new'
         component: ProblemNew
@@ -64,8 +70,8 @@ const routes = [
           path: 'code'
           
         }
-      }
-      */
+      }*/
+      
     ]
   },
   {
@@ -87,6 +93,11 @@ const routes = [
   {
     path: "/reset/:token",
     component: Reset,
+  },
+  {
+    path: '/asdf',
+    component: ProblemID,
+
   }
 ]
 
