@@ -220,16 +220,25 @@ class Exam_problem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     exam_id = db.Column(db.Integer, db.ForeignKey(Exam.exam_id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
-    sequence = db.Column(db.Integer)
+    sequence = db.Column(db.Integer, nullable=False)
     #id同?
 class Dashboard(db.Model):
     __tablename__ = "dashboard"
     id = db.Column(db.Integer, primary_key=True)
     exam_id = db.Column(db.Integer, db.ForeignKey(Exam.exam_id), nullable=False)
-    problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    penalty_time = db.Column(db.Integer, default=0)
+    solved_count = db.Column(db.Integer, default=0)
+    total_time = db.Column(db.Integer, default=0)
+
+class Dashboard_with_problem(db.Model):
+    __tablename__ = "dashboard_with_problem"
+    id = db.Column(db.Integer, primary_key=True)
+    exam_id = db.Column(db.Integer, db.ForeignKey(Exam.exam_id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
+    sequence = db.Column(db.Integer, nullable=False)
     try_count = db.Column(db.Integer, nullable=False)
+    solved_time = db.Column(db.Integer, nullable=False)
     current_status = db.Column(db.Integer, nullable=False, default=0)
-    penalty_time = db.Column(db.Integer, nullable=False, default=0)
-    solved_count = db.Column(db.Integer, nullable=False, default=0)
-    total_time = db.Column(db.Integer, nullable=False, default=0)
+    

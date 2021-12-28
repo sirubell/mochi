@@ -111,7 +111,19 @@ from backend.routes import dispatcher
 api.add_resource(dispatcher,"/dispatcher")
 
 from backend.routes import class_all
-api.add_resourcee(class_all,"/class/all")
+api.add_resource(class_all,"/class/all")
 
 from backend.routes import A_class
-api.add_resourcee(A_class,"/class")
+api.add_resource(A_class,"/class/<int:class_id>")
+
+from backend.routes import class_member
+api.add_resource(class_member,"/class/<int:class_id>/member")
+
+from backend.routes import add_member_to_class
+api.add_resource(add_member_to_class,"/class/<int:class_id>/add_member")
+
+from backend.routes import exam
+api.add_resource(exam,"/exam")
+
+from backend.routes import dashboard
+api.add_resource(dashboard,"/exam/<int:exam_id>/dashboard")

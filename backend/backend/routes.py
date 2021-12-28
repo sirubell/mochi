@@ -569,7 +569,7 @@ class dispatcher(Resource):
 
 
 class class_all(Resource):
-    def get():  #給所有班級資訊
+    def get(self):  #給所有班級資訊
         if 'page' in request.args:
             page = request.args['page']
         else:
@@ -591,7 +591,7 @@ class class_all(Resource):
             return jsonify(ret)
         return "don't have any class", 404
 
-    def post():    #新增班級，需要teacher的user_id,class_name,semester,is_public
+    def post(self):    #新增班級，需要teacher的user_id,class_name,semester,is_public
         if 'user_id' in request.args:
             teacher_id = request.args['user_id']
         else:
@@ -631,41 +631,34 @@ class class_all(Resource):
 
 
 class A_class(Resource):
-    def get():
-        if 'class_id' in request.args:
-            class_id = request.args['class_id']
-        else:
-            return "Error, class_id is required"
-
+    def get(self,class_id):
         a_class = Class.query.filter_by(class_id=class_id).first()
-        if a_class:
-            user = User.query.filter_by(user_id=a_class.teacher_id).first()
-            ret = {
-                "id": a_class.id,
-                "name": a_class.name,
-                "semester": a_class.semester,
-                "teacher_name": user.name,
-                "is_public": a_class.public,
-                "invite_code": a_calss.invite_code
-            }
-            return jsonify(ret)
-        else:
-            return "class is not find", 404
+        if a_class == None:
+            return "class is not found", 404
+        user = User.query.filter_by(user_id=a_class.teacher_id).first()
+        ret = {
+            "id": a_class.id,
+            "name": a_class.name,
+            "semester": a_class.semester,
+            "teacher_name": user.name,
+            "is_public": a_class.public,
+            "invite_code": a_calss.invite_code
+        }
+        return jsonify(ret)
+            
 
     def put():
         XD
 
 class class_member(Resource):
-    def get():
-        if 'class_id' in request.args:
-            class_id = request.args['class_id']
-        else:
-            return "Error, class_id is required"
-        students = Class_user.query.filter_by(class_id=class_id).all()
-        if students:
+    def get(self,class_id):
+        a_class = Class_user.query.filter_by(class_id=class_id).all()
+        if a_class == None:
+            return "class is not found",404
+        if a_class:
             ret = {}
             ret["returnset"] = []
-            for student in students:
+            for student in a_class:
                 user = User.query.filter_by(user_id=student.user_id)
                 ret["returnset"].append({
                     "id": user.id,
@@ -675,7 +668,7 @@ class class_member(Resource):
         return jsonify({})
 
 class add_member_to_class(Resource):
-    def get():    #確認邀請碼是否正確
+    def get(self):    #確認邀請碼是否正確
         if 'class_id' in request.args:
             class_id = request.args['class_id']
         else:
@@ -693,7 +686,7 @@ class add_member_to_class(Resource):
             return "invite code is wrong"
         return "invite code is correct",200
 
-    def put():  #給我user_id和student_id(學號)更新table
+    def put(self):  #給我user_id和student_id(學號)更新table
         if 'class_id' in request.args:
             class_id = request.args['class_id']
         else:
@@ -725,7 +718,7 @@ class add_member_to_class(Resource):
 
 
 class exam(Resource):
-    def post():
+    def post(self):
         if 'class_id' in request.args:
             class_id = request.args['class_id']
         else:
@@ -771,6 +764,55 @@ class exam(Resource):
 
 
 class dashboard(Resource):
-    XD
+    def get(self,exam_id):
+        lines = Dashboard.query.filter_by(exam_id=exam_id).all()
+        if lines == None:
+            return "Error, dashboard hadn't been created",404
+        problem_set = []
+        exam_problems = Exam_problem.filter_by(exam_id=exam_id).all()
+        for exam_problem in exam_problems:
+            problem_set.append(exam_problem.problem_id)
+        ret = {}
+        ret["return_set"]=[]
+        for line in lines:
+            user = User.query.filter_by(user_id=line.user_id).first()
+            a_student={}
+            a_student["name"] = user.name
+            a_student["solved"] = line.solved_count
+            dashs = Dashboard_with_problem.query.filter_by(user_id=line.user_id).all()
+            a_student["problem_status"]=[]
+            a_student["problem_time"]=[]
+            a_student["problem_try_count"]=[]
+            for dash in dashs:
+                a_student["problem_status"].append(dash.current_status)
+                a_student["problem_time"].append(dash.solved_time)
+                a_student["problem_try_count"].append(dash.try_count)
+            ret["return_set"].append(a_student)
+        return ret
+
+    def post(self):
+        if 'exam_id' in request.args:
+            exam_id = request.args['exam_id']
+        else:
+            return "Error, exam_id is required"
+        exam = Exam.query.filter_by(exam_id=exam_id).first()
+        class_id = exam.class_id
+        students = Class_user.query.filter_by(class_id=class_id).all()
+        from backend import db
+        for student in students:
+            new_dashboard = Dashboard(exam_id=exam_id,user_id=student.user_id)
+            db.session.add(new_dashboard)
+        db.session.commit()
+        return "create_succes",200
+
+    def put():
+        XD
+
+            
+
+
+
+
+
 
 
