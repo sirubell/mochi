@@ -213,7 +213,7 @@ class Exam(db.Model):
     name = db.Column(db.String(100), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
-    exam_detail = db.Column(db.String(), )
+    exam_info = db.Column(db.String(3000))
     #大小
 class Exam_problem(db.Model):
     __tablename__ = "exam_problem"

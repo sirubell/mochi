@@ -13,7 +13,6 @@ from flask_login import login_user, current_user, logout_user, login_required
 import os
 
 
-
 class check(Resource):
     def get(self):
         queues = Queue.query.all()
@@ -78,7 +77,6 @@ class problem(Resource):
                 Problem.difficulty == difficulty).all()
         elif name:
             problems = Problem.query.filter(Problem.name.like(name)).all()
-        
 
         if problems:
             ret = {}
@@ -90,7 +88,7 @@ class problem(Resource):
                     "difficulty": problem.difficulty
                 })
             return jsonify(ret)
-        return "problem is not found", 404
+        return "don't have any problem", 404
 
     def post(self):
         problem = problem_post_args.parse_args()
@@ -163,7 +161,7 @@ class create_problem_test_run(Resource):
         from backend import db
         db.session.add(new_queue)
         db.session.commit()
-        
+
         # omgomg
         with open(path+"/"+"correct_source_code"+'.'+str(args.language), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
@@ -247,7 +245,7 @@ class problem_id(Resource):
             problem.is_hidden = args.is_hidden
         if args.correct_source_code:
             problem.correct_source_code = args.correct_source_code
-        
+
         from backend import db
         db.session.commit()
         return "Success to put problem", 200
@@ -301,7 +299,12 @@ class problem_submission(Resource):
 
 
 class status(Resource):
-    def get(self, page):
+    def get(self):
+        if 'page' in request.args:
+            page = request.args['page']
+        else:
+            return "Error, page is required"
+
         submissions = Submission.query.all()
         ret = {}
         ret["returnset"] = []
@@ -363,6 +366,7 @@ class login(Resource):
         else:
             abort(404, message="Couldn't find the user")
 
+
 class reset_sent_email(Resource):
     def post(self):
         if current_user.is_authenticated:
@@ -373,10 +377,11 @@ class reset_sent_email(Resource):
         token = user.get_reset_token()
         recipient = args.email
         title = "Reset your password."
-        msg = Message(title, recipients = [recipient])
+        msg = Message(title, recipients=[recipient])
         msg.body = token
         mail.send(msg)
-        return 
+        return
+
 
 class reset_password(Resource):
     def put(self, token):
@@ -388,11 +393,12 @@ class reset_password(Resource):
             return "Invalid"
         args = reset_password_put_args.parse_args()
         confirm_password_equal_password(args.password, args.confirm_password)
-        hashed_password = bcrypt.generate_password_hash(args.password).decode('utf-8')
+        hashed_password = bcrypt.generate_password_hash(
+            args.password).decode('utf-8')
         user.password = hashed_password
         from backend import db
         db.session.commit()
-        
+
 
 class logout(Resource):
     def logout():
@@ -547,7 +553,8 @@ class dispatcher(Resource):
                 if not os.path.isdir(BASE+"buffer/"):
                     os.mkdir(BASE+"buffer/")
                 with open(BASE+"buffer/"+str(data.source_id)+".ans", mode="w", encoding="utf-8") as file:
-                    file.write(submission["All_stander_out"][str(data.source_id)])
+                    file.write(submission["All_stander_out"]
+                               [str(data.source_id)])
             else:
                 data.status = 1
                 if not os.path.isdir(BASE+"buffer/"+str(data.user_id)+"/"):
@@ -559,3 +566,211 @@ class dispatcher(Resource):
                     cnt += 1
         db.session.commit()
         return "success to return", 200
+
+
+class class_all(Resource):
+    def get():  #給所有班級資訊
+        if 'page' in request.args:
+            page = request.args['page']
+        else:
+            return "Error, page is required"
+
+        classes = Class.query.all()
+        if classes:
+            ret = {}
+            ret["returnset"] = []
+            for a_class in classes:
+                user = User.query.filter_by(user_id=a_class.teacher_id).first()
+                ret["returnset"].append({
+                    "id": a_class.id,
+                    "name": a_class.name,
+                    "semester": a_class.semester,
+                    "teacher_name": user.name,
+                    "public": is_public
+                })
+            return jsonify(ret)
+        return "don't have any class", 404
+
+    def post():    #新增班級，需要teacher的user_id,class_name,semester,is_public
+        if 'user_id' in request.args:
+            teacher_id = request.args['user_id']
+        else:
+            return "Error, user_id is required"
+
+        if 'class_name' in request.args:
+            class_name = request.args['class_name']
+        else:
+            return "Error, class_name is required"
+
+        if 'semester' in request.args:
+            semester = request.args['semester']
+        else:
+            return "Error, semester is required"
+
+        if 'is_public' in request.args:
+            is_public = request.args['is_public']
+        else:
+            return "Error, is_public is required"
+
+        import random
+        import string
+        while 1:
+            s = ''.join(random.choice(string.ascii_letters + string.digits)for x in range(10))
+            search = Class.filter_by(invite_code=s).first()
+            if search == None:
+                break
+
+        user = User.query.filtyer_by(user_id=teacher_id)
+        new_class = Class(name=a_class.name, semester=a_class.semester, teacher_name=user.name,
+                          public=is_public, invite_code=s,teacher_id=teacher_id)
+        new_user_class = User_class(class_id=Class.query.count()+1,user_id=teacher_id,student_id=-1,authority=1)
+        from backend import db
+        db.session.add(new_class)
+        db.session.commit()
+        return "success, invite code = " + s , 200
+
+
+class A_class(Resource):
+    def get():
+        if 'class_id' in request.args:
+            class_id = request.args['class_id']
+        else:
+            return "Error, class_id is required"
+
+        a_class = Class.query.filter_by(class_id=class_id).first()
+        if a_class:
+            user = User.query.filter_by(user_id=a_class.teacher_id).first()
+            ret = {
+                "id": a_class.id,
+                "name": a_class.name,
+                "semester": a_class.semester,
+                "teacher_name": user.name,
+                "is_public": a_class.public,
+                "invite_code": a_calss.invite_code
+            }
+            return jsonify(ret)
+        else:
+            return "class is not find", 404
+
+    def put():
+        XD
+
+class class_member(Resource):
+    def get():
+        if 'class_id' in request.args:
+            class_id = request.args['class_id']
+        else:
+            return "Error, class_id is required"
+        students = Class_user.query.filter_by(class_id=class_id).all()
+        if students:
+            ret = {}
+            ret["returnset"] = []
+            for student in students:
+                user = User.query.filter_by(user_id=student.user_id)
+                ret["returnset"].append({
+                    "id": user.id,
+                    "name": user.name
+                })
+            return jsonify(ret)
+        return jsonify({})
+
+class add_member_to_class(Resource):
+    def get():    #確認邀請碼是否正確
+        if 'class_id' in request.args:
+            class_id = request.args['class_id']
+        else:
+            return "Error, class_id is required"
+        
+        if 'invite_code' in request.args:
+            invite_code = request.args['invite_code']
+        else:
+            return "Error, invite_code is required"
+
+        the_class = Class.query.filter_by(class_id=class_id).first()
+        if the_class == None:
+            return "class is not found",404
+        if the_class.invite_code != invite_code:
+            return "invite code is wrong"
+        return "invite code is correct",200
+
+    def put():  #給我user_id和student_id(學號)更新table
+        if 'class_id' in request.args:
+            class_id = request.args['class_id']
+        else:
+            return "Error, class_id is required"
+        
+        if 'user_id' in request.args:
+            user_id = request.args['user_id']
+        else:
+            return "Error, user_id is required"
+
+        if 'student_id' in request.args:
+            student_id = request.args['student_id']
+        else:
+            return "Error, student_id is required"
+
+
+        the_class = Class.query.filter_by(class_id=class_id).first()
+        if the_class == None:
+            return "class is not found",404
+        if the_class.invite_code != invite_code:
+            return "invite code is wrong"
+        
+        new_user_class = User_class(class_id=class_id,user_id=user_id,student_id=student_id,authority=0)
+        from backend import db
+        db.session.add(new_user_class)
+        db.session.commit()
+        return "add member success",200
+
+
+
+class exam(Resource):
+    def post():
+        if 'class_id' in request.args:
+            class_id = request.args['class_id']
+        else:
+            return "Error, class_id is required"
+        
+        if 'exam_name' in request.args:
+            exam_name = request.args['exam_name']
+        else:
+            return "Error, exam_name is required"
+
+        if 'exam_info' in request.args:
+            exam_info = request.args['exam_info']
+        else:
+            return "Error, exam_info is required"
+
+        if 'exam_start_time' in request.args:
+            exam_start_time = request.args['exam_start_time']
+        else:
+            return "Error, exam_name is required"
+
+        if 'exam_end_time' in request.args:
+            exam_end_time = request.args['exam_end_time']
+        else:
+            return "Error, exam_end_time is required"
+        
+        if 'problem_set' in requerst.args:
+            problem_set = request.args['problem_set']
+        else:
+            return "Error, problem_set is required"
+
+        exam = Exam(class_id=class_id,name=exam_name,start_time=exam_start_time,end_time=exam_end_time,exam_info=exam_info)
+        from backend import db
+        
+        cnt = 1
+        for a_problem in problemset:
+            new_exam_problem = Exam_problem(exam_id=Exam.query.count()+1,problem_id=a_problem,sequence=cnt)
+            cnt+=1
+            db.session.add(new_exam_problem)
+            
+        db.session.add(exam)
+        db.session.commit()
+        return "success to add exam",300
+
+
+class dashboard(Resource):
+    XD
+
+

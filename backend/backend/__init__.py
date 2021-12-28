@@ -79,7 +79,7 @@ from backend.routes import test_run
 api.add_resource(test_run,"/problem/test_run")
 
 from backend.routes import status
-api.add_resource(status, "/status/<int:page>")
+api.add_resource(status, "/status")
 
 from backend.routes import login
 api.add_resource(login, "/login")
@@ -110,6 +110,8 @@ api.add_resource(queue_new, "/submission/new")
 from backend.routes import dispatcher
 api.add_resource(dispatcher,"/dispatcher")
 
+from backend.routes import class_all
+api.add_resourcee(class_all,"/class/all")
 
-# from backend.routes import problem, problem_post_args
-# api.add_resource(problem, "/problem/<int:problem_id>")
+from backend.routes import A_class
+api.add_resourcee(A_class,"/class")
