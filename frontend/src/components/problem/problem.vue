@@ -23,7 +23,7 @@
             <button type="button" @click="onClickInfoBtn" class="btn my-3" :class="showInfo() ? 'btn-secondary' : 'btn-outline-secondary'">Info</button>
             <div>
               <label for="uploadCode" class="form-label">Upload Code</label>
-              <input class="form-control" type="file" id="uploadCode" @change="uploadFile">
+              <input class="form-control" type="file" id="uploadCode" accept=".c,.cpp,.py" @change="uploadFile">
             </div>
           </div>
         </div>
@@ -46,7 +46,10 @@
         <v-ace-editor
           v-model:value="code"
           @init="editorInit"
+          :lang="aceLanguage"
+          theme="monokai"
           style="height: 800px;"
+          id="editor"
         />
       </div>
     </div>
@@ -55,7 +58,11 @@
 
 <script>
 import { VAceEditor } from 'vue3-ace-editor'
-import 'ace-builds/src-noconflict/theme-chrome'
+import 'ace-builds/src-noconflict/mode-text'
+import 'ace-builds/src-noconflict/mode-c_cpp'
+import 'ace-builds/src-noconflict/mode-python'
+import 'ace-builds/src-noconflict/theme-monokai.js'
+// import 'ace-builds/src-noconflict/theme-chrome.js'
 
 export default {
   name: 'Problem',
@@ -67,6 +74,13 @@ export default {
       description: "temp desc",
       info: "temp info",
       code: ""
+    }
+  },
+  computed: {
+    aceLanguage() {
+      if (this.selectedLanguage === "language") return "text"
+      if (this.selectedLanguage === "c" || this.selectedLanguage === "cpp") return "c_cpp"
+      return this.selectedLanguage
     }
   },
   methods: {
@@ -100,3 +114,9 @@ export default {
   }
 }
 </script>
+
+<style>
+#editor *{
+  font-family : monospace !important;font-size: 20px !important;direction:ltr !important;text-align:left !important;
+}
+</style>
