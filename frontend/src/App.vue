@@ -7,7 +7,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import NavBar from './components/navbar.vue'
 
 export default {
@@ -25,10 +24,6 @@ export default {
   },
   components: {
     NavBar
-  },
-  async created() {
-    const response = await axios.get('loginStatus');
-    console.log(response);
   }
 }
 </script>
