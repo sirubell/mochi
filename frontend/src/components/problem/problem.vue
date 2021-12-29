@@ -69,6 +69,9 @@ export default {
   data() {
     return {
       selectedLanguage: "language",
+      // when add new language to this array
+      // you need to update the mode and the
+      // language config(aceLanguage()) for ace editor
       languages: ["c", "cpp", "python"],
       panel: "description",
       description: "temp desc",
