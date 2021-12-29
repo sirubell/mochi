@@ -6,7 +6,7 @@ from flask_restful import Api, Resource, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from backend.config import Config
 from flask_login import LoginManager
-#from flask_cors import CORS
+# from flask_cors import CORS
 import os
 from flask_mail import Mail
 
@@ -14,7 +14,7 @@ app = Flask(__name__, template_folder='../templates')
 api = Api(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
-#CORS(app)
+# CORS(app)
 app.config.from_object(Config)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -111,7 +111,7 @@ from backend.routes import dispatcher
 api.add_resource(dispatcher,"/dispatcher")
 
 from backend.routes import class_all
-api.add_resource(class_all,"/class/all")
+api.add_resource(class_all,"/class")
 
 from backend.routes import A_class
 api.add_resource(A_class,"/class/<int:class_id>")

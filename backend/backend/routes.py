@@ -543,6 +543,38 @@ class dispatcher(Resource):
                 print(res)
                 continue
             if data.mode == 1:
+                if data.exam_id:
+                    status=submission["Status"]
+                    upload_date=data.upload_date
+                    exam = Exam.query.filter_by(exam_id=exam_id).first()
+                    dashboard = dashboard.query.filter_by(exam_id=data.exam_id,user_id=data.user_id).first()
+                    dash = Dashboard_with_problem.query.filter_by(exam_id=data.exam_id,user_id=data.user_id,problem_id=data.problem_id).first()
+                    from backend import db
+                    if dashboard == None:
+                        dashboard = Dashboard(exam_id=data.exam_id,user_id=data.user_id,solved_count=0,total_time=0)
+                        db.session.add(dashboard)
+                    if dash == None:
+                        problem = Exam_problem.query.filter_by(exam_id=data.exam_id,problem_id=problem_id).first()
+                        if status == 0:
+                            dash = Dashboard_with_problem(exam_id=data.exam_id,user_id=data.user_id,problem_id=data.problem_id,sequence=problem.sequence,try_count=1,current_status=0)
+                        else:
+                            dash = Dashboard_with_problem(exam_id=data.exam_id,user_id=data.user_id,problem_id=data.problem_id,sequence=problem.sequence,try_count=1,solved_time=upload_time - exam.start_time,current_status=0)
+                            dashboard.solved_count += 1
+                            dashboard.total_time += dash.solved_time
+                        db.session.add(dash)
+                    else:
+                        dash.try_count+=1
+                        if status == 1:
+                            if dash.current_status == 0: 
+                                dash.current_status = 1
+                                dash.solved_time = upload_time - exam.start_time
+                                dashboard.solved_count+=1
+                                dashboard.total_time += dash.solved_time + (dash.try_count - 1) * 20
+                    db.session.commit()
+
+                        
+                elif data.homework_id:
+                    XD
                 new_submission = Submission(user_id=data.user_id, problem_id=data.problem_id, source_id=submission["Source_id"], status=submission["Status"], code_content=data.code_content, exam_id=data.exam_id, homework_id=data.homework_id, error_hint=submission[
                     "Compile_error_out"], error_line=0, language=data.language, time_used=submission["Time"], memory_used=submission["Memory"], upload_date=data.upload_date)
                 db.session.add(new_submission)
@@ -647,11 +679,11 @@ class A_class(Resource):
         return jsonify(ret)
             
 
-    def put():
+    def put(): # 更新教室相關資訊
         XD
 
 class class_member(Resource):
-    def get(self,class_id):
+    def get(self,class_id): #get教室成員
         a_class = Class_user.query.filter_by(class_id=class_id).all()
         if a_class == None:
             return "class is not found",404
@@ -686,7 +718,7 @@ class add_member_to_class(Resource):
             return "invite code is wrong"
         return "invite code is correct",200
 
-    def put(self):  #給我user_id和student_id(學號)更新table
+    def put(self):  #新增同學到教室，給我user_id和student_id(學號)更新table
         if 'class_id' in request.args:
             class_id = request.args['class_id']
         else:
@@ -718,12 +750,32 @@ class add_member_to_class(Resource):
 
 
 class exam(Resource):
-    def post(self):
+    def get(self): #確認使用者有沒有權限
         if 'class_id' in request.args:
             class_id = request.args['class_id']
         else:
             return "Error, class_id is required"
         
+        if 'user_id' in request.args:
+            user_id = request.args['user_id']
+        else:
+            return "Error, user_id is required"
+        exam_class = Class.query.filter_by(class_id=class_id).first()
+        if exam_class.teacher_id != user_id:
+            return "only teacher can create exam",403
+        return "OK",200
+
+    def post(self): #新增考試
+        if 'class_id' in request.args:
+            class_id = request.args['class_id']
+        else:
+            return "Error, class_id is required"
+        
+        if 'user_id' in request.args:
+            user_id = request.args['user_id']
+        else:
+            return "Error, user_id is required"
+
         if 'exam_name' in request.args:
             exam_name = request.args['exam_name']
         else:
@@ -764,7 +816,7 @@ class exam(Resource):
 
 
 class dashboard(Resource):
-    def get(self,exam_id):
+    def get(self,exam_id):  #回傳dashboard table
         lines = Dashboard.query.filter_by(exam_id=exam_id).all()
         if lines == None:
             return "Error, dashboard hadn't been created",404
@@ -790,29 +842,21 @@ class dashboard(Resource):
             ret["return_set"].append(a_student)
         return ret
 
-    def post(self):
+    def post(self): #初始化dashboard table
         if 'exam_id' in request.args:
             exam_id = request.args['exam_id']
         else:
             return "Error, exam_id is required"
         exam = Exam.query.filter_by(exam_id=exam_id).first()
+        problem_set = Exam_problem.query.filter_by(exam_id=exam_id).all()
         class_id = exam.class_id
         students = Class_user.query.filter_by(class_id=class_id).all()
         from backend import db
         for student in students:
             new_dashboard = Dashboard(exam_id=exam_id,user_id=student.user_id)
             db.session.add(new_dashboard)
+            for problem in problem_set:
+                dash = Dashboard_with_problem(exam_id=exam_id,user_id=student.user_id,problem_id=problem.problem_id,sequence=problem.sequence,try_count=0,solved_time=-1,current_status=-1)
+                db.session.add(dash)
         db.session.commit()
         return "create_succes",200
-
-    def put():
-        XD
-
-            
-
-
-
-
-
-
-
