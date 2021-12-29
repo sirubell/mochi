@@ -23,7 +23,7 @@
             <button type="button" @click="onClickInfoBtn" class="btn my-3" :class="showInfo() ? 'btn-secondary' : 'btn-outline-secondary'">Info</button>
             <div>
               <label for="uploadCode" class="form-label">Upload Code</label>
-              <input class="form-control" type="file" id="uploadCode">
+              <input class="form-control" type="file" id="uploadCode" @change="uploadFile">
             </div>
           </div>
         </div>
@@ -84,6 +84,13 @@ export default {
     },
     onClickInfoBtn() {
       this.panel = "info"
+    },
+    uploadFile(evt) {
+      const reader = new FileReader()
+      reader.onload = (evt) => {
+        this.code = evt.target.result
+      }
+      reader.readAsText(evt.target.files[0])
     },
     test() {
     }
