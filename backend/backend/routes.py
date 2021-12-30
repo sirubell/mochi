@@ -13,6 +13,20 @@ from flask_login import login_user, current_user, logout_user, login_required
 import os
 
 
+class lazy(Resource):
+    def get(self):
+        from backend.convert_file_to_json import convert_file_to_testcase
+        return convert_file_to_testcase()
+
+    def post(self):
+        if 'lan' in request.args:
+            lan = request.args['lan']
+        else:
+            return "Error, lan is required"
+        from backend.convert_file_to_json import convert_file_to_code
+        return convert_file_to_code(lan)
+
+
 class check(Resource):
     def get(self):
         queues = Queue.query.all()
@@ -105,8 +119,8 @@ class problem(Resource):
         import shutil
         if not os.path.isdir(BASE+"Problem"):
             os.mkdir(BASE+"Problem")
-        os.rename(BASE+"buffer/"+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
-                  BASE+"buffer/"+str(now.user_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
+        # os.rename(BASE+"buffer/"+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
+                #   BASE+"buffer/"+str(now.user_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
         shutil.move(path, BASE+"Problem/"+str(Problem.query.count()+1))
         from backend import db
         for i in range(now.test_case_count):

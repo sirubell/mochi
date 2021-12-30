@@ -21,7 +21,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 login_manager.login_message = '該網頁需要登入才能瀏覽'
-BASE = 'c/Users/a2320/Desktop/coding/mochi/backend/'
+BASE = 'C:/Users/a2320/Desktop/coding/mochi/backend/'
 mail = Mail(app)
 
 app.permanent_session_lifetime
@@ -56,6 +56,9 @@ api.add_resource(check, "/check")
 
 from backend.routes import delete_dir
 api.add_resource(delete_dir, "/delete_dir")
+
+from backend.routes import lazy
+api.add_resource(lazy, "/lazy")
 
 from backend.routes import reset_database
 api.add_resource(reset_database, "/reset_database")
