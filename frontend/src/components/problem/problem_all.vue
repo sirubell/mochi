@@ -1,6 +1,9 @@
 <template>
 <div>
   <table class="table" >
+    <th>#</th>
+    <th>Problem name</th>
+    <th>Difficulty</th>
     <tr v-for="item in problemTable" :key="item.title" >
       <td><a v-bind:href="item.id">{{ item.id }}</a></td>
       <td>{{ item.name }}</td>
