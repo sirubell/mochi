@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from './components/Home.vue'
 import ProblemAll from './components/problem/problem_all.vue'
 import ProblemID from './components/problem/problem_id.vue'
+import ProblemID_dashboard from './components/problem/problem_id_dashboard.vue'
 import ComponentSlot from './components/component_slot.vue'
 import Status from './components/status.vue'
 import ClassAll from './components/class/class_all.vue'
@@ -56,6 +57,11 @@ const routes = [
         path: ':id',
         name: 'e',
         component: ProblemID
+      },
+      {
+        path: 'dashboard/:id',
+        name: 'q',
+        component: ProblemID_dashboard
       },/*,
       {
         path: 'new'
@@ -93,11 +99,6 @@ const routes = [
   {
     path: "/reset/:token",
     component: Reset,
-  },
-  {
-    path: '/asdf',
-    component: ProblemID,
-
   }
 ]
 
