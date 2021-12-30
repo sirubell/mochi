@@ -14,6 +14,9 @@ def problem_table():
         print(item, request.args.get(item))
     return request.args;
     
+@app.route('/register', methods=['POST'])
+def signup():
+    return "OK"
 
 if __name__ == '__main__':
     app.run()
