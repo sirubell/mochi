@@ -57,12 +57,12 @@ const routes = [
       },
       {
         path: ':id',
-        name: 'e',
+        name: 'problemid',
         component: ProblemID
       },
       {
-        path: 'dashboard/:id',
-        name: 'q',
+        path: ':id/dashboard',
+        name: 'id-board',
         component: ProblemID_dashboard
       },/*,
       {
