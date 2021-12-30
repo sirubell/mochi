@@ -16,6 +16,9 @@ import Reset from './components/user/reset.vue'
 import Change_Profile from './components/user/change_profile.vue'
 import Change_Password from './components/user/change_password.vue'
 
+import Homework from './components/class/homework.vue'
+import Exam from './components/class/exam.vue'
+
 const routes = [
   { path: '/test-problem', component: Problem },
   { path: '/test-new-problem', component: NewProblem },
@@ -91,6 +94,14 @@ const routes = [
         path: 'all',
         name: 'class_all',
         component: ClassAll
+      },
+      {
+        path: 'homework',
+        component: Homework
+      },
+      {
+        path: 'exam',
+        component: Exam
       }
     ]
   },
