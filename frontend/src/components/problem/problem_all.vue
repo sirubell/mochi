@@ -1,37 +1,38 @@
 <template>
-  <h1>Problem All is not implemented</h1>
-  <div v-if="problemTable">
-    {{ problemTable.page }}
-  </div>
+<div>
+  <table class="table" >
+    <th>#</th>
+    <th>Problem name</th>
+    <th>Difficulty</th>
+    <tr v-for="item in problemTable" :key="item.title" >
+      <td><a v-bind:href="item.id">{{ item.id }}</a></td>
+      <td>{{ item.name }}</td>
+      <td>{{ item.username }}</td>
+    </tr>
+  </table>
   <div v-if="error">
     {{ error }}
   </div>
+  
+</div>
+
 </template>
 
 <script>
+
 import axios from 'axios'
 
 export default {
-  name: 'ProblemAll',
   data() {
     return {
-      page: 1,
-      topic: ['bs', 'arr'],
-      problemTable: null,
-      error: null
+      problemTable: {}
     }
   },
   created() {
-    console.log("hi")
-    axios.get('problem', {
-      timeout: 3000,
-      params: {
-        page: this.page,
-        topic: JSON.stringify(this.topic)
-      }
-    })
+    axios.get('https://jsonplaceholder.typicode.com/users')
     .then( response => {
-      this.problemTalbe = response.data
+      this.problemTable = response.data
+      console.log(response.data)
     })
     .catch( error => {
       this.error = error

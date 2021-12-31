@@ -13,19 +13,25 @@
       </div>
     </div>
     <div class="row" v-for="(input, index) in inputs" :key="index">
-      <div class="col-2">
-        <button></button>
-        <button></button>
+      <div class="col-2 m-auto">
+        <button type="button" class="btn btn-warning" @click="onTest(index)">Test</button>
+        <button type="button" class="btn btn-danger" @click="onDelete(index)">Delete</button>
       </div>
       <div class="col">
-        <div class="form-floating">
-          <textarea v-model="inputs[index]" class="form-control" placeholder="Enter your input here" :id="'input' + index" style="height: 200px; resize: none;"></textarea>
-          <label :for="'input' + index">Input {{ index + 1 }}</label>
+        <div class="mb-3 text-start">
+          <label for="'input' + index" class="form-label">Input {{ index + 1 }}</label>
+          <textarea v-model="inputs[index]" class="form-control" :id="'input' + index" placeholder="" rows="3" style="resize: none;"></textarea>
         </div>
       </div>
       <div class="col">
-        <p>{{ input }}</p>
+        <div class="mb-3 text-start">
+          <label for="'output' + index" class="form-label">Output {{ index + 1 }}</label>
+          <textarea v-model="inputs[index]" class="form-control " :id="'output' + index" placeholder="" rows="3" style="resize: none;" readonly></textarea>
+        </div>
       </div>
+    </div>
+    <div class="my-2">
+      <button type="button" class="btn btn-success" @click="onNewTestcase">New Testcase</button>
     </div>
   </div>
 </template>
@@ -56,6 +62,15 @@ export default {
   methods: {
     editorInit() {
       // do nothing
+    },
+    onTest(index) {
+      console.log("test " + index)
+    },
+    onDelete(index) {
+      this.inputs.splice(index, 1)
+    },
+    onNewTestcase() {
+      this.inputs.push("")
     }
   },
   components: {
