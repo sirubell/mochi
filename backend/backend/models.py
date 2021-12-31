@@ -6,6 +6,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 #import datetime
 
 
+
 relations = db.Table(
     'relations between problem and topic',
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.topic_id')),
@@ -38,6 +39,7 @@ class User(db.Model, UserMixin):
     def get_reset_token(self, expires_sec = 1800):
         s = Serializer(app.config['SECRET_KEY'], expires_sec)
         return s.dumps({'user_id': self.id}).decode('utf-8')
+    
     @staticmethod
     def verify_reset_token(token):
         s = Serializer(app.config['SECRET_KEY'])
