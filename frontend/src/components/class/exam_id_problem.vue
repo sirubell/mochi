@@ -25,7 +25,7 @@ export default {
   },
 
   created() {
-    axios.get('http://127.1.1.1:8000/'/*+current.substr(-1,1)*/)
+    axios.get('http://192.168.122.231:5000/'+current.substr(12))
     .then( response => {
       this.ProblemContent = response.data
       this.ExamID = current.substr(12)

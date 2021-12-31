@@ -25,7 +25,7 @@ export default {
   },
 
   created() {
-    axios.get('http://192.168.122.231:5000/problem/'+current.substr(9,1)+'/submission')
+    axios.get('http://192.168.122.231:5000/'+'problem/'+current.substr(9,1)+'/submission')
     .then( response => {
       this.problemTable = response.data.returnset
       this.problemID=current.substr(9,1)

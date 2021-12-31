@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from './components/Home.vue'
 import ProblemAll from './components/problem/problem_all.vue'
 import ProblemID from './components/problem/problem_id.vue'
-import ProblemID_dashboard from './components/problem/problem_id_dashboard.vue'
+import Problem_id_submission from './components/problem/problem_id_submission.vue'
 import ComponentSlot from './components/component_slot.vue'
 import Status from './components/status.vue'
 import ClassAll from './components/class/class_all.vue'
@@ -18,7 +18,8 @@ import Change_Password from './components/user/change_password.vue'
 
 import Homework from './components/class/homework.vue'
 import Exam from './components/class/exam.vue'
-import Exam_id from './components/class/exam_id.vue'
+import Exam_id from './components/class/exam_id_problem.vue'
+import Exam_id_problemset from './components/class/exam_id_problemset.vue'
 import Exam_id_dashboard from './components/class/exam_id_dashboard.vue'
 
 const routes = [
@@ -66,9 +67,9 @@ const routes = [
         component: ProblemID
       },
       {
-        path: ':id/dashboard',
+        path: ':id/submission',
         name: 'id-board',
-        component: ProblemID_dashboard
+        component: Problem_id_submission
       },/*,
       {
         path: 'new'
@@ -103,7 +104,7 @@ const routes = [
       },
       {
         path: 'homework/:id',
-        redirect: '/problem/:id',
+        // redirect: '/problem/:id',
         component: Homework
       },
       {
@@ -112,7 +113,11 @@ const routes = [
       },
       {
         path: 'exam/:id',
-        component: Exam_id
+        component: Exam_id_problemset
+      },
+      {
+        path: 'exam/:id/:id',
+        component: Exam_id_problem
       },
       {
         path: 'exam/:id/dashboard',
