@@ -18,7 +18,7 @@ import Change_Password from './components/user/change_password.vue'
 
 import Homework from './components/class/homework.vue'
 import Exam from './components/class/exam.vue'
-import Exam_id from './components/class/exam_id_problem.vue'
+import Exam_id_problem from './components/class/exam_id_problem.vue'
 import Exam_id_problemset from './components/class/exam_id_problemset.vue'
 import Exam_id_dashboard from './components/class/exam_id_dashboard.vue'
 
