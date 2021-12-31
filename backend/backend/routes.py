@@ -361,11 +361,7 @@ class signup(Resource):
         from backend import db
         db.session.add(new_user)
         db.session.commit()
-<<<<<<< HEAD
-        return jsonify({"message":"post success,200"})
-=======
         return jsonify("message : success to login")
->>>>>>> 03a1aac0be3a5ab59982fde10004fa1602fdc7ab
 
 
 class login(Resource):
