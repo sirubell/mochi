@@ -182,6 +182,7 @@ class Class(db.Model):
     # s = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(10))
     # print s
     teacher_id = db.Column(db.Integer, nullable=False)
+    teacher_name = db.Column(db.String(100), nullable=False)
     #此行看需不需要
     
     
