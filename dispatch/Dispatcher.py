@@ -4,7 +4,7 @@ import requests,json
 import threading
 import utility
 
-file_root = "/home/piggy/Final/Dispatch"
+file_root = os.getcwd()
 
 def running_func(running_case):
 	Mode = int(running_case["Mode"])
@@ -224,7 +224,7 @@ def running_func(running_case):
 if __name__ == "__main__" :
 	while(1):
 		# source_url="http://127.0.0.1:8000"
-		source_url = "http://192.168.122.184:5000/dispatcher"
+		source_url = "http://localhost:5000/dispatcher"
 		requirement = requests.get(source_url)
 		if requirement.status_code == 400:
 			time.sleep(5)
@@ -361,7 +361,7 @@ if __name__ == "__main__" :
 
 		result = json.dumps(result,indent = 4)
 		# return_url="127.0.0.1:8000"
-		return_url = "http://192.168.122.184:5000/dispatcher"
+		return_url = "http://localhost:5000/dispatcher"
 		# print(result)
 		headers = {'Content-Type':"application/json"}
 		response = requests.post(return_url, headers=headers , data=result)
