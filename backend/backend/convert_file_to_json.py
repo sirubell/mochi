@@ -26,7 +26,7 @@ def convert_file_to_testcase():
 	return ret
 
 def convert_file_to_code(language):
-	another_path = 'C:/Users/a2320/Desktop/coding/mochi/backend/test_buffer/3/'
+	another_path = 'C:/Users/a2320/Desktop/coding/mochi/backend/test_buffer/1/'
 	with open(another_path+"code."+language,mode="r",encoding="utf-8") as f:
 		s = f.read()
 		return s

@@ -65,7 +65,7 @@ class reset_database(Resource):
 class problem(Resource):
     def get(self):
         if 'page' in request.args:
-            page = request.args['page']
+            page = int(request.args['page'])
         else:
             return "Error, page is required"
         topic = None
@@ -78,7 +78,7 @@ class problem(Resource):
         if 'name' in request.args:
             name = request.args['name']
 
-        problems = Problem.query.all()
+        problems = Problem.query.paginate(per_page=20,page=page)
         ''' if topic and difficulty and name:
             from backend import db
             problems = Problem.query.filter(db.and_(db.and_(Problem.topic==topic,Problem.difficulty==difficulty),Problem.name.like(name))).all()
@@ -87,20 +87,20 @@ class problem(Resource):
         elif topic and difficulty:
             problems = Problem.query.filter(db.and_(Problem.difficulty==difficulty,Problem.topic==topic)).all()'''
 
-        if difficulty and name:
-            from backend import db
-            problems = Problem.query.filter(
-                db.and_(Problem.difficulty == difficulty, Problem.name.like(name))).all()
-        elif difficulty:
-            problems = Problem.query.filter(
-                Problem.difficulty == difficulty).all()
-        elif name:
-            problems = Problem.query.filter(Problem.name.like(name)).all()
+        # if difficulty and name:
+        #     from backend import db
+        #     problems = Problem.query.filter(
+        #         db.and_(Problem.difficulty == difficulty, Problem.name.like(name))).all()
+        # elif difficulty:
+        #     problems = Problem.query.filter(
+        #         Problem.difficulty == difficulty).all()
+        # elif name:
+        #     problems = Problem.query.filter(Problem.name.like(name)).all()
 
         if problems:
             ret = {}
             ret["returnset"] = []
-            for problem in problems:
+            for problem in problems.items:
                 ret["returnset"].append({
                     "id": problem.problem_id,
                     "name": problem.name,
@@ -293,19 +293,19 @@ class problem_solution(Resource):
 
 
 class problem_submission(Resource):
-    def get(self, problem_id, user_id=-1):
-        problem = Problem.query.filter_by(problem_id=problem_id)
+    def get(self, problem_id):
+        problem = Problem.query.filter_by(problem_id=problem_id).first()
         if problem == None:
             return "problem does not exist", 400
-        user = User.query.filter_by(user_id=user_id)
-        if user == None:
-            return "user does not exist", 400
-        if user_id != -1:
-            submissions = Submission.query.filter_by(
-                **{"user_id": user_id, "problem_id": problem.problem_id}).all()
-        else:
-            submissions = Submission.query.filter_by(
-                problem_id=problem.problem_id).all()
+        # user = User.query.filter_by(user_id=user_id)
+        # if user == None:
+        #     return "user does not exist", 400
+        # if user_id != -1:
+        #     submissions = Submission.query.filter_by(
+        #         **{"user_id": user_id, "problem_id": problem.problem_id}).all()
+        # else:
+        submissions = Submission.query.filter_by(
+            problem_id=problem.problem_id).all()
 
         if submissions:
             ret = {}
@@ -314,13 +314,13 @@ class problem_submission(Resource):
                 ret["returnset"].append({
                     "submission_id": submission.submission_id,
                     "problem_id": problem.problem_id,
-                    "name": user.name,
+                    # "name": user.name,
                     "status": submission.status,
                     "language": submission.language,
                     "upload_date": submission.upload_date
                 })
             return jsonify(ret)
-        return "you have not tried this problem"
+        return jsonify([])
 
 
 class status(Resource):
@@ -746,6 +746,7 @@ class class_member(Resource):
             return jsonify(ret)
         return jsonify({})
 
+
 class add_member_to_class(Resource):
     def get(self):    #確認邀請碼是否正確
         if 'class_id' in request.args:
@@ -798,7 +799,6 @@ class add_member_to_class(Resource):
         db.session.add(new_user_class)
         db.session.commit()
         return "add member success",200
-
 
 
 class exam(Resource):
