@@ -7,7 +7,7 @@
     <tr v-for="item in problemTable" :key="item.id" >
       <td><a v-bind:href="item.id">{{ item.id }}</a></td>
       <td>{{ item.name }}</td>
-      <td>{{ item.username }}</td>
+      <td>{{ item.difficulty }}</td>
     </tr>
   </table>
   <div v-if="error">
@@ -29,10 +29,10 @@ export default {
     }
   },
   created() {
-    axios.get('https://jsonplaceholder.typicode.com/users')
+    axios.get('http://192.168.122.231:5000/'+'problem?page='+1)
     .then( response => {
-      this.problemTable = response.data
-      console.log(response.data)
+      this.problemTable = response.data.returnset
+      console.log(response.data.returnset)
     })
     .catch( error => {
       this.error = error
