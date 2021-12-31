@@ -1,3 +1,4 @@
+from typing import Sequence
 from flask.json import jsonify, dumps
 from backend import db, app
 from flask_sqlalchemy import SQLAlchemy
@@ -196,11 +197,20 @@ class Homework(db.Model):
     homework_id = db.Column(db.Integer, primary_key=True)
     class_id = db.Column(db.Integer, db.ForeignKey(Class.class_id), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    uploadtime = db.Column(db.DateTime, nullable=False)
+    upload_time = db.Column(db.DateTime, nullable=False)
     deadline = db.Column(db.DateTime, nullable=False)
+    homework_info = db.Column(db.String(3000))
+    
     
 class Homework_problem(db.Model):
     __tablename__ = "homework_problem"
+    id = db.Column(db.Integer, primary_key=True)
+    homework_id = db.Column(db.Integer, db.ForeignKey(Homework.homework_id), nullable=False)
+    problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
+    sequence = db.Column(db.Integer, nullable=False)
+
+class Homework_problem_status(db.Model):
+    __tablename__ = "homework_problem_status"
     id = db.Column(db.Integer, primary_key=True)
     homework_id = db.Column(db.Integer, db.ForeignKey(Homework.homework_id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)

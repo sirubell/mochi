@@ -170,6 +170,8 @@ class create_problem_test_run(Resource):
         else:
             return "Error, XD"
         input_set = args["test_case"]
+        if len(input_set) == 0:
+            return "test_case can't be empty!",500
         new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
             datetime.datetime.now()), code_content=args.code_content)
         from backend import db
@@ -820,6 +822,18 @@ class exam(Resource):
         else:
             return "Error, problem_set is required"
 
+        a_class = Class.query.filter_by(user_id=user_id).first()
+        if a_class == None:
+            return "class is not found",404
+        if a_class.teacher_id != user_id:
+            return "only teacher can create exam",403
+
+        for a_problem in problem_set:
+            problem = Problem.query.filter_by(problem_id=a_problem).first()
+            if problem == None:
+                return "problem id = " + str(a_problem) + " is not found",404
+        
+
         exam = Exam(class_id=class_id,name=exam_name,start_time=exam_start_time,end_time=exam_end_time,exam_info=exam_info)
         from backend import db
         
@@ -879,3 +893,108 @@ class dashboard(Resource):
                 db.session.add(dash)
         db.session.commit()
         return "create_succes",200
+
+class homework(Resource):
+    def get(self,homework_id):
+        homework = Homework.query.filter_by(homework_id=homework_id).first()
+        if homework == None:
+            return "homework is not found",404
+        homework_problem = Homework_problem.query.filter_by(homework_id=homework_id).all()
+        ret = {}
+        ret["class_id"]=homework.class_id
+        ret["name"]=homework.name
+        ret["upload_time"]=homework.upload_time
+        ret["deadline"]=homework.deadline
+        ret["homework_info"]=homework.homework_info
+        ret["problem_set"]=[]
+        for a_problem in homework_problem:
+            problem = Problem.query.filter_by(problem_id=a_problem.problem_id).first()
+            ret["problem_set"].append(problem.as_dict)
+        return jsonify(ret)
+
+    def post(self):
+        if 'class_id' in request.args:
+            class_id = request.args['class_id']
+        else:
+            return "Error, class_id is required"
+        
+        if 'user_id' in request.args:
+            user_id = request.args['user_id']
+        else:
+            return "Error, user_id is required"
+
+        if 'homework_name' in request.args:
+            homework_name = request.args['homework_name']
+        else:
+            return "Error, homework_name is required"
+
+        if 'homework_info' in request.args:
+            homework_info = request.args['homework_info']
+        else:
+            return "Error, homework_info is required"
+
+        if 'upload_time' in request.args:
+            upload_time = request.args['upload_time']
+        else:
+            return "Error, upload_time is required"
+
+        if 'deadline' in request.args:
+            deadline = request.args['deadline']
+        else:
+            return "Error, deadline is required"
+        
+        if 'problem_set' in request.args:
+            problem_set = request.args['problem_set']
+        else:
+            return "Error, problem_set is required"
+
+        a_class = Class.query.filter_by(class_id=class_id).first()
+
+        if a_class == None:
+            return "class is not found",404
+
+        if user_id != a_class.teacher_id:
+            return "only teacher can create homework",500
+
+        for a_problem in problem_set:
+            problem = Problem.query.filter_by(problem_id=a_problem).first()
+            if problem == None:
+                return "problem id = " + str(a_problem) + " is not found",404
+
+        homework = Homework(class_id=class_id,name=homework_name,upload_time=upload_time,deadline=deadline,homework_info=homework_info)
+        from backend import db
+        
+        cnt = 1
+        for a_problem in problem_set:
+            new_homework_problem = Homework_problem(homework_id=homework.query.count()+1,problem_id=a_problem,sequence=cnt)
+            cnt+=1
+            db.session.add(new_homework_problem)
+            students = Class_user.filter_by(class_id=class_id).all()
+            for student in students:
+                new_homework_problem_status = Homework_problem_status(homework_id=Homework.query.count()+1,problem_id=a_problem,user_id=student.user_id,hand_in_status=0)
+                db.session.add(new_homework_problem_status)
+            
+        db.session.add(homework)
+        db.session.commit()
+        return "success to add exam",300
+
+class homework_status(Resource):
+    def get(self,homework_id):
+        homework = Homework.query.filter_by(homework_id=homework_id).first()
+        students = Class_user.filter_by(class_id=homework.class_id).all()
+        if homework == None:
+            return "homework is not found",404
+        homework_problem = Homework_problem.query.filter_by(homework_id=homework_id).all()
+        ret = {}
+        ret["class_id"]=homework.class_id
+        ret["name"]=homework.name
+        ret["status_table"]=[]
+        for a_problem in homework_problem:
+            ret["status_table"][str(a_problem.sequence)]=[]
+            for student in students:
+                home_work_problem_status = Homework_problem_status.query_filter_by(homework_id=homework.homework_id,problem_id=a_problem.problem_id,user_id=student.user_id).first()
+                ret["status_table"][str(a_problem.sequence)].append(home)
+                XD
+            
+
+        return jsonify(ret)
