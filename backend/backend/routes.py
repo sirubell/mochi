@@ -297,7 +297,7 @@ class problem_submission(Resource):
         problem = Problem.query.filter_by(problem_id=problem_id).first()
         if problem == None:
             return "problem does not exist", 400
-        # user = User.query.filter_by(user_id=user_id)
+        # user = User.query.filter_by(id=user_id)
         # if user == None:
         #     return "user does not exist", 400
         # if user_id != -1:
@@ -651,7 +651,7 @@ class class_all(Resource):
             ret = {}
             ret["returnset"] = []
             for a_class in classes:
-                user = User.query.filter_by(user_id=a_class.teacher_id).first()
+                user = User.query.filter_by(id=a_class.teacher_id).first()
                 ret["returnset"].append({
                     "id": a_class.id,
                     "name": a_class.name,
@@ -674,12 +674,13 @@ class class_all(Resource):
             if search == None:
                 break
 
-        user = User.query.filter_by(user_id=teacher_id).first()
-        new_class = Class(name=args.class_name, semester=args.semester, teacher_name=user.name,
-                          public=args.is_public, invite_code=s,teacher_id=teacher_id)
+        user = User.query.filter_by(id=teacher_id).first()
+        new_class = Class(class_name=args.class_name, semester=args.semester, teacher_name=user.name,
+                          is_public=args.is_public, invite_code=s,teacher_id=teacher_id)
         new_user_class = Class_user(class_id=Class.query.count()+1,user_id=teacher_id,student_id=-1,authority=1)
         from backend import db
         db.session.add(new_class)
+        db.session.add(new_user_class)
         db.session.commit()
         return "success, invite code = " + s , 200
 
@@ -689,7 +690,7 @@ class A_class(Resource):
         a_class = Class.query.filter_by(class_id=class_id).first()
         if a_class == None:
             return "class is not found", 404
-        user = User.query.filter_by(user_id=a_class.teacher_id).first()
+        user = User.query.filter_by(id=a_class.teacher_id).first()
         ret = {
             "id": a_class.id,
             "name": a_class.name,
@@ -728,7 +729,7 @@ class class_member(Resource):
             ret = {}
             ret["returnset"] = []
             for student in a_class:
-                user = User.query.filter_by(user_id=student.user_id)
+                user = User.query.filter_by(id=student.user_id)
                 ret["returnset"].append({
                     "id": user.id,
                     "name": user.name
@@ -849,7 +850,7 @@ class dashboard(Resource):
         ret = {}
         ret["return_set"]=[]
         for line in lines:
-            user = User.query.filter_by(user_id=line.user_id).first()
+            user = User.query.filter_by(id=line.user_id).first()
             a_student={}
             a_student["name"] = user.name
             a_student["solved"] = line.solved_count
