@@ -1,4 +1,4 @@
-from flask import jsonify, url_for, redirect, flash, render_template, request
+from flask import json, jsonify, url_for, redirect, flash, render_template, request
 from flask_login.utils import login_required
 from flask_restful import Api, Resource, abort
 from flask_mail import Message
@@ -328,7 +328,7 @@ class status(Resource):
         if 'page' in request.args:
             page = request.args['page']
         else:
-            return "Error, page is required"
+            return jsonify("message : Error, page is required")
 
         submissions = Submission.query.all()
         ret = {}
@@ -346,14 +346,9 @@ class status(Resource):
 
 
 class signup(Resource):
-    def get(self):
-        # return 'Signup'
-        return render_template("register.html")
-        # get 註冊畫面
-
     def post(self):
         if current_user.is_authenticated:
-            return redirect(url_for('home'))
+            return jsonify("message : Had logged in")
         args = signup_post_args.parse_args()
         if_username_has_existed(args.name)
         is_email_format(args.email)
@@ -363,11 +358,14 @@ class signup(Resource):
             args.password).decode('utf-8')
         new_user = User(name=args.name, email=args.email,
                         password=hashed_password, register_date=datetime.datetime.now())
-        # 時間這邊，我先將這個{+datetime.timedelta(hours = 8)}拿掉，用臺灣當伺服器好像就是這邊的標準時間了
         from backend import db
         db.session.add(new_user)
         db.session.commit()
+<<<<<<< HEAD
         return jsonify({"message":"post success,200"})
+=======
+        return jsonify("message : success to login")
+>>>>>>> 03a1aac0be3a5ab59982fde10004fa1602fdc7ab
 
 
 class login(Resource):
@@ -381,12 +379,9 @@ class login(Resource):
         user = User.query.filter_by(email=args.email).first()
         if user and bcrypt.check_password_hash(user.password, args.password):
             login_user(user, remember=args.remember)
-            flash('Logged in successfully.')
-            return redirect(url_for('home'))
+            return jsonify("message : Success to login.")
         elif user:
-            # return ('Password is wrong')
-            flash('Password is wrong')
-            return "wrong password"
+            return jsonify("message : wrong password")
         else:
             abort(404, message="Couldn't find the user")
 
