@@ -18,6 +18,8 @@ import Change_Password from './components/user/change_password.vue'
 
 import Homework from './components/class/homework.vue'
 import Exam from './components/class/exam.vue'
+import Exam_id from './components/class/exam_id.vue'
+import Exam_id_dashboard from './components/class/exam_id_dashboard.vue'
 
 const routes = [
   { path: '/test-problem', component: Problem },
@@ -107,6 +109,14 @@ const routes = [
       {
         path: 'exam',
         component: Exam
+      },
+      {
+        path: 'exam/:id',
+        component: Exam_id
+      },
+      {
+        path: 'exam/:id/dashboard',
+        component: Exam_id_dashboard
       }
     ]
   },

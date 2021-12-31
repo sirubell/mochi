@@ -1,11 +1,13 @@
 <template>
 <div>
     <h1>this is id dashboard page</h1>
-    <p>Problem id = {{ problemID }}</p>
+    <!-- <p>Problem id = {{ problemID }}</p> -->
     <ul v-for="item in problemTable" :key="item.id">
-      <!-- <p><em>題目敘述 : </em>{{ item.info }}</p>
-      <p><em>範例輸入 : </em>{{ item.sample_input }}</p>
-      <p><em>範例輸出 : </em>{{ item.sample_output }}</p> -->
+      <p>{{ item.status }}</p>
+      <p>{{ item.language }}</p>
+      <p>{{ item.submission_id }}</p>
+      <p>{{ item.upload_date }}</p>
+      <p>-----------------------------------------------------------------------------</p>
     </ul>
 
 </div>
@@ -23,11 +25,11 @@ export default {
   },
 
   created() {
-    axios.get('http://127.1.1.1:8000/'/*+current.substr(-11,1)*/)
+    axios.get('http://192.168.122.231:5000/problem/'+current.substr(9,1)+'/submission')
     .then( response => {
-      this.problemTable = response.data
-      this.problemID=current.substr(-11,1)
-      // console.log(current.substr(-1,1))
+      this.problemTable = response.data.returnset
+      this.problemID=current.substr(9,1)
+      console.log(response.data)
     })
     .catch( error => {
       this.error = error
