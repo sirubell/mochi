@@ -560,7 +560,7 @@ class dispatcher(Resource):
                 if data.exam_id:
                     status=submission["Status"]
                     upload_date=data.upload_date
-                    exam = Exam.query.filter_by(exam_id=exam_id).first()
+                    exam = Exam.query.filter_by(exam_id=data.exam_id).first()
                     dashboard = dashboard.query.filter_by(exam_id=data.exam_id,user_id=data.user_id).first()
                     dash = Dashboard_with_problem.query.filter_by(exam_id=data.exam_id,user_id=data.user_id,problem_id=data.problem_id).first()
                     from backend import db
@@ -572,7 +572,7 @@ class dispatcher(Resource):
                         if status == 0:
                             dash = Dashboard_with_problem(exam_id=data.exam_id,user_id=data.user_id,problem_id=data.problem_id,sequence=problem.sequence,try_count=1,current_status=0)
                         else:
-                            dash = Dashboard_with_problem(exam_id=data.exam_id,user_id=data.user_id,problem_id=data.problem_id,sequence=problem.sequence,try_count=1,solved_time=upload_time - exam.start_time,current_status=0)
+                            dash = Dashboard_with_problem(exam_id=data.exam_id,user_id=data.user_id,problem_id=data.problem_id,sequence=problem.sequence,try_count=1,solved_time=upload_date - exam.start_time,current_status=0)
                             dashboard.solved_count += 1
                             dashboard.total_time += dash.solved_time
                         db.session.add(dash)
@@ -581,7 +581,7 @@ class dispatcher(Resource):
                         if status == 1:
                             if dash.current_status == 0: 
                                 dash.current_status = 1
-                                dash.solved_time = upload_time - exam.start_time
+                                dash.solved_time = upload_date - exam.start_time
                                 dashboard.solved_count+=1
                                 dashboard.total_time += dash.solved_time + (dash.try_count - 1) * 20
                     db.session.commit()
@@ -632,7 +632,7 @@ class class_all(Resource):
                     "name": a_class.name,
                     "semester": a_class.semester,
                     "teacher_name": user.name,
-                    "public": is_public
+                    "public": a_class.is_public
                 })
             return jsonify(ret)
         return "don't have any class", 404
@@ -666,10 +666,10 @@ class class_all(Resource):
             if search == None:
                 break
 
-        user = User.query.filtyer_by(user_id=teacher_id)
-        new_class = Class(name=a_class.name, semester=a_class.semester, teacher_name=user.name,
+        user = User.query.filtyer_by(user_id=teacher_id).first()
+        new_class = Class(name=class_name, semester=semester, teacher_name=user.name,
                           public=is_public, invite_code=s,teacher_id=teacher_id)
-        new_user_class = User_class(class_id=Class.query.count()+1,user_id=teacher_id,student_id=-1,authority=1)
+        new_user_class = Class_user(class_id=Class.query.count()+1,user_id=teacher_id,student_id=-1,authority=1)
         from backend import db
         db.session.add(new_class)
         db.session.commit()
@@ -688,7 +688,7 @@ class A_class(Resource):
             "semester": a_class.semester,
             "teacher_name": user.name,
             "is_public": a_class.public,
-            "invite_code": a_calss.invite_code
+            "invite_code": a_class.invite_code
         }
         return jsonify(ret)
             
@@ -748,6 +748,11 @@ class add_member_to_class(Resource):
         else:
             return "Error, student_id is required"
 
+        if 'invite_code' in request.args:
+            invite_code = request.args['invite_code']
+        else:
+            return "Error, invite_code is required"
+
 
         the_class = Class.query.filter_by(class_id=class_id).first()
         if the_class == None:
@@ -755,7 +760,7 @@ class add_member_to_class(Resource):
         if the_class.invite_code != invite_code:
             return "invite code is wrong"
         
-        new_user_class = User_class(class_id=class_id,user_id=user_id,student_id=student_id,authority=0)
+        new_user_class = Class_user(class_id=class_id,user_id=user_id,student_id=student_id,authority=0)
         from backend import db
         db.session.add(new_user_class)
         db.session.commit()
@@ -810,7 +815,7 @@ class exam(Resource):
         else:
             return "Error, exam_end_time is required"
         
-        if 'problem_set' in requerst.args:
+        if 'problem_set' in request.args:
             problem_set = request.args['problem_set']
         else:
             return "Error, problem_set is required"
@@ -819,7 +824,7 @@ class exam(Resource):
         from backend import db
         
         cnt = 1
-        for a_problem in problemset:
+        for a_problem in problem_set:
             new_exam_problem = Exam_problem(exam_id=Exam.query.count()+1,problem_id=a_problem,sequence=cnt)
             cnt+=1
             db.session.add(new_exam_problem)
