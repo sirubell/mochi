@@ -4,7 +4,7 @@ from flask_restful import Api, Resource, abort
 from flask_mail import Message
 import datetime
 from backend.exception import *
-from backend.models import Homework, Problem, User, Submission, User_problem, Queue, Problem_Testcase
+from backend.models import *
 from backend import bcrypt, app, mail, BASE
 from backend.argument import *
 #from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
