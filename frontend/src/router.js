@@ -14,7 +14,6 @@ import NewProblem from './components/problem/new_problem.vue'
 import Forgot from './components/user/forgot.vue'
 import Reset from './components/user/reset.vue'
 import Change_Profile from './components/user/change_profile.vue'
-import Change_Password from './components/user/change_password.vue'
 
 import Homework from './components/class/homework.vue'
 import Exam from './components/class/exam.vue'
@@ -121,10 +120,6 @@ const routes = [
   {
     path: "/change_profile",
     component: Change_Profile,
-  },
-  {
-    path: "/change_password",
-    component: Change_Password,
   }
 ]
 

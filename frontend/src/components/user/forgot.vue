@@ -13,7 +13,10 @@
                 <input type="email" class="form-control" v-model="email" placeholder="Email"/>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block">Reset Password</button>
+            <button type="submit" variant="info" class="btn btn-primary btn-block" style="margin-top:10px">Reset Password</button>
+            <div id="result">
+                <p>{{ resetText }}</p>
+            </div>
         </form> 
     </div>
 </template>
@@ -38,7 +41,7 @@ export default {
             try{
                 await axios.post('forgot', {
                     email: this.email
-                }); // 資料由後方物件帶入
+                }); // 資料由後方物件帶入 
                 this.message = 'The email was sent!';
                 this.error = '';
             }
