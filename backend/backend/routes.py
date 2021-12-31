@@ -5,13 +5,16 @@ from flask_mail import Message
 import datetime
 from backend.exception import *
 from backend.models import *
-from backend import bcrypt, app, mail, BASE
+from backend import bcrypt, app, mail
+from backend.config import parentdir
 from backend.argument import *
 #from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
 # 8同理9
 from flask_login import login_user, current_user, logout_user, login_required
 import os
 
+buffer_dir = os.path.join(parentdir, 'buffer')
+problem_dir = os.path.join(parentdir, 'Problem')
 
 class lazy(Resource):
     def get(self):
@@ -40,11 +43,13 @@ class check(Resource):
 class delete_dir(Resource):
     def delete(self):
         import shutil
-        shutil.rmtree(BASE+'buffer')
-        os.mkdir(BASE+'buffer')
-        if os.path.isdir(BASE+"Problem"):
-            shutil.rmtree(BASE+'Problem')
-            os.mkdir(BASE+'Problem')
+        shutil.rmtree(buffer_dir)
+        os.mkdir(buffer_dir)
+
+        problem_dir = os.path.join(parentdir, 'Problem')
+        if os.path.isdir(parblem_dir):
+            shutil.rmtree(parblem_dir)
+            os.mkdir(parblem_dir)
         return "delete success"
 
 
@@ -113,15 +118,17 @@ class problem(Resource):
 
         if now.status == 0:
             return "not ok"
-        if not os.path.isdir(BASE+"buffer"):
-            os.mkdir(BASE+"buffer")
-        path = BASE+"buffer/"+str(now.user_id)
+
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
+        path = os.path.join(buffer_dir, str(now.user_id))
+
         import shutil
-        if not os.path.isdir(BASE+"Problem"):
-            os.mkdir(BASE+"Problem")
-        # os.rename(BASE+"buffer/"+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
-                #   BASE+"buffer/"+str(now.user_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
-        shutil.move(path, BASE+"Problem/"+str(Problem.query.count()+1))
+        if not os.path.isdir(problem_dir):
+            os.mkdir(problem_dir)
+        # os.rename(parentdir+"buffer/"+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
+                #   parentdir+"buffer/"+str(now.user_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
+        shutil.move(path, os.path.join(problem_dir, str(Problem.query.count()+1)))
         from backend import db
         for i in range(now.test_case_count):
             test_case = Problem_Testcase(problem_id=Problem.query.count(
@@ -147,9 +154,10 @@ class create_problem_test_run(Resource):
         now = Queue.query.filter_by(source_id=source_id).first()
         if now.status == 0:
             return "not ok"
-        if not os.path.isdir(BASE+"buffer"):
-            os.mkdir(BASE+"buffer")
-        path = BASE+"buffer/"+str(user_id)
+
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
+        path = os.path.join(buffer_dir, str(user_id))
         res = {}
         res["test_case_count"] = now.test_case_count
         res["return_set"] = []
@@ -162,9 +170,10 @@ class create_problem_test_run(Resource):
 
     def post(self):
         args = create_problem_test_run_args.parse_args()
-        if not os.path.isdir(BASE+"buffer"):
-            os.mkdir(BASE+"buffer")
-        path = BASE+"buffer/"+str(args.user_id)
+
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
+        path = os.path.join(buffer_dir, str(args.user_id))
         if not os.path.isdir(path):
             os.mkdir(path)
         else:
@@ -205,9 +214,9 @@ class test_run(Resource):
             return "not ok"
         # from backend.convert_file_to_json import convert_file_to_json as yea
         # res = yea("buffer/"+str(source_id)+'.ans')
-        if not os.path.isdir(BASE+"buffer"):
-            os.mkdir(BASE+"buffer")
-        with open(BASE+"buffer/"+str(source_id)+".ans", mode="r", encoding="utf-8") as file:
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
+        with open(os.paht.join(buffer_dir, str(source_id)+".ans"), mode="r", encoding="utf-8") as file:
             res = file.read()
         from backend import db
         db.session.delete(now)
@@ -217,14 +226,14 @@ class test_run(Resource):
     def post(self):
         from backend import db
         args = test_run_post_args.parse_args()
-        if not os.path.isdir(BASE+"buffer"):
-            os.mkdir(BASE+"buffer")
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
         new_queue = Queue(user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
             datetime.datetime.now()), code_content=args.code_content, test_case_count=1)
         source_id = Queue.query.count()+1
-        with open(BASE+"buffer/"+str(source_id)+".in", mode="w", encoding="utf-8") as file:
+        with open(os.path.join(buffer_dir, str(source_id) + ".in"), mode="w", encoding="utf-8") as file:
             file.write(args.test_case)
-        with open(BASE+"buffer/"+str(source_id)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+        with open(os.path.join(buffer_dir, str(source_id) + '.' + str(args.language)), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
         db.session.add(new_queue)
         db.session.commit()
@@ -460,10 +469,10 @@ class queue_new(Resource):
         new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
                           homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), code_content=args.code_content, test_case_count=problem.testcase_count)
 
-        if not os.path.isdir(BASE+"buffer/"):
-            os.mkdir(BASE+"buffer/")
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
 
-        with open(BASE+"buffer/"+str(Queue.query.count() + 1)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+        with open(os.path.join(buffer_dir, str(Queue.query.count() + 1) + '.' + str(args.language)), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
 
         db.session.add(new_queue)
@@ -598,18 +607,18 @@ class dispatcher(Resource):
                     source_id=submission["Source_id"]).delete()
             elif data.mode == 2:
                 data.status = 1
-                if not os.path.isdir(BASE+"buffer/"):
-                    os.mkdir(BASE+"buffer/")
-                with open(BASE+"buffer/"+str(data.source_id)+".ans", mode="w", encoding="utf-8") as file:
+                if not os.path.isdir(buffer_dir):
+                    os.mkdir(buffer_dir)
+                with open(os.path.join(buffer_dir, str(data.source_id) + ".ans"), mode="w", encoding="utf-8") as file:
                     file.write(submission["All_stander_out"]
                                [str(data.source_id)])
             else:
                 data.status = 1
-                if not os.path.isdir(BASE+"buffer/"+str(data.user_id)+"/"):
-                    os.mkdir(BASE+"buffer/"+str(data.user_id)+"/")
+                if not os.path.isdir(os.path.join(buffer_dir, str(data.user_id))):
+                    os.mkdir(os.path.join(buffer_dir, str(data.user_id)))
                 cnt = 1
                 for i in range(len(submission["All_stander_out"])):
-                    with open(BASE+"buffer/"+str(data.user_id)+"/"+str(cnt)+".ans", mode="w", encoding="utf-8") as file:
+                    with open(os.path.join(os.path.join(buffer_dir, str(data.user_id)), str(cnt)+".ans"), mode="w", encoding="utf-8") as file:
                         file.write(submission["All_stander_out"][str(i+1)])
                     cnt += 1
         db.session.commit()
