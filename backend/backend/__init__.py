@@ -21,7 +21,6 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 login_manager.login_message = '該網頁需要登入才能瀏覽'
-BASE = 'C:/Users/a2320/Desktop/coding/mochi/backend/'
 mail = Mail(app)
 
 app.permanent_session_lifetime
@@ -76,7 +75,7 @@ from backend.routes import problem_solution
 api.add_resource(problem_solution,"/problem/<int:problem_id>/solution")
 
 from backend.routes import problem_submission
-api.add_resource(problem_submission, "/problem/<int:problem_id>/submission/<int:user_id>")
+api.add_resource(problem_submission, "/problem/<int:problem_id>/submission")
 
 from backend.routes import test_run
 api.add_resource(test_run,"/problem/test_run")

@@ -5,13 +5,16 @@ from flask_mail import Message
 import datetime
 from backend.exception import *
 from backend.models import *
-from backend import bcrypt, app, mail, BASE
+from backend import bcrypt, app, mail
+from backend.config import parentdir
 from backend.argument import *
 #from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
 # 8同理9
 from flask_login import login_user, current_user, logout_user, login_required
 import os
 
+buffer_dir = os.path.join(parentdir, 'buffer')
+problem_dir = os.path.join(parentdir, 'Problem')
 
 class lazy(Resource):
     def get(self):
@@ -40,11 +43,13 @@ class check(Resource):
 class delete_dir(Resource):
     def delete(self):
         import shutil
-        shutil.rmtree(BASE+'buffer')
-        os.mkdir(BASE+'buffer')
-        if os.path.isdir(BASE+"Problem"):
-            shutil.rmtree(BASE+'Problem')
-            os.mkdir(BASE+'Problem')
+        shutil.rmtree(buffer_dir)
+        os.mkdir(buffer_dir)
+
+        problem_dir = os.path.join(parentdir, 'Problem')
+        if os.path.isdir(problem_dir):
+            shutil.rmtree(problem_dir)
+            os.mkdir(problem_dir)
         return "delete success"
 
 
@@ -60,7 +65,7 @@ class reset_database(Resource):
 class problem(Resource):
     def get(self):
         if 'page' in request.args:
-            page = request.args['page']
+            page = int(request.args['page'])
         else:
             return "Error, page is required"
         topic = None
@@ -73,7 +78,7 @@ class problem(Resource):
         if 'name' in request.args:
             name = request.args['name']
 
-        problems = Problem.query.all()
+        problems = Problem.query.paginate(per_page=20,page=page)
         ''' if topic and difficulty and name:
             from backend import db
             problems = Problem.query.filter(db.and_(db.and_(Problem.topic==topic,Problem.difficulty==difficulty),Problem.name.like(name))).all()
@@ -82,20 +87,20 @@ class problem(Resource):
         elif topic and difficulty:
             problems = Problem.query.filter(db.and_(Problem.difficulty==difficulty,Problem.topic==topic)).all()'''
 
-        if difficulty and name:
-            from backend import db
-            problems = Problem.query.filter(
-                db.and_(Problem.difficulty == difficulty, Problem.name.like(name))).all()
-        elif difficulty:
-            problems = Problem.query.filter(
-                Problem.difficulty == difficulty).all()
-        elif name:
-            problems = Problem.query.filter(Problem.name.like(name)).all()
+        # if difficulty and name:
+        #     from backend import db
+        #     problems = Problem.query.filter(
+        #         db.and_(Problem.difficulty == difficulty, Problem.name.like(name))).all()
+        # elif difficulty:
+        #     problems = Problem.query.filter(
+        #         Problem.difficulty == difficulty).all()
+        # elif name:
+        #     problems = Problem.query.filter(Problem.name.like(name)).all()
 
         if problems:
             ret = {}
             ret["returnset"] = []
-            for problem in problems:
+            for problem in problems.items:
                 ret["returnset"].append({
                     "id": problem.problem_id,
                     "name": problem.name,
@@ -113,15 +118,17 @@ class problem(Resource):
 
         if now.status == 0:
             return "not ok"
-        if not os.path.isdir(BASE+"buffer"):
-            os.mkdir(BASE+"buffer")
-        path = BASE+"buffer/"+str(now.user_id)
+
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
+        path = os.path.join(buffer_dir, str(now.user_id))
+
         import shutil
-        if not os.path.isdir(BASE+"Problem"):
-            os.mkdir(BASE+"Problem")
-        # os.rename(BASE+"buffer/"+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
-                #   BASE+"buffer/"+str(now.user_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
-        shutil.move(path, BASE+"Problem/"+str(Problem.query.count()+1))
+        if not os.path.isdir(problem_dir):
+            os.mkdir(problem_dir)
+        # os.rename(parentdir+"buffer/"+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
+                #   parentdir+"buffer/"+str(now.user_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
+        shutil.move(path, os.path.join(problem_dir, str(Problem.query.count()+1)))
         from backend import db
         for i in range(now.test_case_count):
             test_case = Problem_Testcase(problem_id=Problem.query.count(
@@ -147,9 +154,10 @@ class create_problem_test_run(Resource):
         now = Queue.query.filter_by(source_id=source_id).first()
         if now.status == 0:
             return "not ok"
-        if not os.path.isdir(BASE+"buffer"):
-            os.mkdir(BASE+"buffer")
-        path = BASE+"buffer/"+str(user_id)
+
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
+        path = os.path.join(buffer_dir, str(user_id))
         res = {}
         res["test_case_count"] = now.test_case_count
         res["return_set"] = []
@@ -162,14 +170,17 @@ class create_problem_test_run(Resource):
 
     def post(self):
         args = create_problem_test_run_args.parse_args()
-        if not os.path.isdir(BASE+"buffer"):
-            os.mkdir(BASE+"buffer")
-        path = BASE+"buffer/"+str(args.user_id)
+
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
+        path = os.path.join(buffer_dir, str(args.user_id))
         if not os.path.isdir(path):
             os.mkdir(path)
         else:
             return "Error, XD"
         input_set = args["test_case"]
+        if len(input_set) == 0:
+            return "test_case can't be empty!",500
         new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
             datetime.datetime.now()), code_content=args.code_content)
         from backend import db
@@ -203,9 +214,9 @@ class test_run(Resource):
             return "not ok"
         # from backend.convert_file_to_json import convert_file_to_json as yea
         # res = yea("buffer/"+str(source_id)+'.ans')
-        if not os.path.isdir(BASE+"buffer"):
-            os.mkdir(BASE+"buffer")
-        with open(BASE+"buffer/"+str(source_id)+".ans", mode="r", encoding="utf-8") as file:
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
+        with open(os.paht.join(buffer_dir, str(source_id)+".ans"), mode="r", encoding="utf-8") as file:
             res = file.read()
         from backend import db
         db.session.delete(now)
@@ -215,14 +226,14 @@ class test_run(Resource):
     def post(self):
         from backend import db
         args = test_run_post_args.parse_args()
-        if not os.path.isdir(BASE+"buffer"):
-            os.mkdir(BASE+"buffer")
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
         new_queue = Queue(user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language, upload_date=str(
             datetime.datetime.now()), code_content=args.code_content, test_case_count=1)
         source_id = Queue.query.count()+1
-        with open(BASE+"buffer/"+str(source_id)+".in", mode="w", encoding="utf-8") as file:
+        with open(os.path.join(buffer_dir, str(source_id) + ".in"), mode="w", encoding="utf-8") as file:
             file.write(args.test_case)
-        with open(BASE+"buffer/"+str(source_id)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+        with open(os.path.join(buffer_dir, str(source_id) + '.' + str(args.language)), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
         db.session.add(new_queue)
         db.session.commit()
@@ -282,19 +293,19 @@ class problem_solution(Resource):
 
 
 class problem_submission(Resource):
-    def get(self, problem_id, user_id=-1):
-        problem = Problem.query.filter_by(problem_id=problem_id)
+    def get(self, problem_id):
+        problem = Problem.query.filter_by(problem_id=problem_id).first()
         if problem == None:
             return "problem does not exist", 400
-        user = User.query.filter_by(user_id=user_id)
-        if user == None:
-            return "user does not exist", 400
-        if user_id != -1:
-            submissions = Submission.query.filter_by(
-                **{"user_id": user_id, "problem_id": problem.problem_id}).all()
-        else:
-            submissions = Submission.query.filter_by(
-                problem_id=problem.problem_id).all()
+        # user = User.query.filter_by(user_id=user_id)
+        # if user == None:
+        #     return "user does not exist", 400
+        # if user_id != -1:
+        #     submissions = Submission.query.filter_by(
+        #         **{"user_id": user_id, "problem_id": problem.problem_id}).all()
+        # else:
+        submissions = Submission.query.filter_by(
+            problem_id=problem.problem_id).all()
 
         if submissions:
             ret = {}
@@ -303,13 +314,13 @@ class problem_submission(Resource):
                 ret["returnset"].append({
                     "submission_id": submission.submission_id,
                     "problem_id": problem.problem_id,
-                    "name": user.name,
+                    # "name": user.name,
                     "status": submission.status,
                     "language": submission.language,
                     "upload_date": submission.upload_date
                 })
             return jsonify(ret)
-        return "you have not tried this problem"
+        return jsonify([])
 
 
 class status(Resource):
@@ -448,10 +459,10 @@ class queue_new(Resource):
         new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
                           homework_id=args.homework_id, language=args.language, upload_date=str(datetime.datetime.now()), code_content=args.code_content, test_case_count=problem.testcase_count)
 
-        if not os.path.isdir(BASE+"buffer/"):
-            os.mkdir(BASE+"buffer/")
+        if not os.path.isdir(buffer_dir):
+            os.mkdir(buffer_dir)
 
-        with open(BASE+"buffer/"+str(Queue.query.count() + 1)+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+        with open(os.path.join(buffer_dir, str(Queue.query.count() + 1) + '.' + str(args.language)), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
 
         db.session.add(new_queue)
@@ -550,8 +561,8 @@ class dispatcher(Resource):
                 if data.exam_id:
                     status=submission["Status"]
                     upload_date=data.upload_date
-                    exam = Exam.query.filter_by(exam_id=exam_id).first()
-                    dashboard = dashboard.query.filter_by(exam_id=data.exam_id,user_id=data.user_id).first()
+                    exam = Exam.query.filter_by(exam_id=data.exam_id).first()
+                    dashboard = Dashboard.query.filter_by(exam_id=data.exam_id,user_id=data.user_id).first()
                     dash = Dashboard_with_problem.query.filter_by(exam_id=data.exam_id,user_id=data.user_id,problem_id=data.problem_id).first()
                     from backend import db
                     if dashboard == None:
@@ -562,7 +573,7 @@ class dispatcher(Resource):
                         if status == 0:
                             dash = Dashboard_with_problem(exam_id=data.exam_id,user_id=data.user_id,problem_id=data.problem_id,sequence=problem.sequence,try_count=1,current_status=0)
                         else:
-                            dash = Dashboard_with_problem(exam_id=data.exam_id,user_id=data.user_id,problem_id=data.problem_id,sequence=problem.sequence,try_count=1,solved_time=upload_time - exam.start_time,current_status=0)
+                            dash = Dashboard_with_problem(exam_id=data.exam_id,user_id=data.user_id,problem_id=data.problem_id,sequence=problem.sequence,try_count=1,solved_time=upload_date - exam.start_time,current_status=0)
                             dashboard.solved_count += 1
                             dashboard.total_time += dash.solved_time
                         db.session.add(dash)
@@ -571,14 +582,38 @@ class dispatcher(Resource):
                         if status == 1:
                             if dash.current_status == 0: 
                                 dash.current_status = 1
-                                dash.solved_time = upload_time - exam.start_time
+                                dash.solved_time = upload_date - exam.start_time
                                 dashboard.solved_count+=1
                                 dashboard.total_time += dash.solved_time + (dash.try_count - 1) * 20
                     db.session.commit()
 
                         
                 elif data.homework_id:
-                    XD
+                    status=submission["Status"]
+                    upload_date=data.upload_date
+                    homework = Homework.query.filter_by(homework_id=data.homework_id).first()
+                    student = Class_user.filter_by(class_id=homework.class_id,user_id=data.user_id).first()
+                    homework_problem = Homework_problem.query.filter_by(homework_id=data.homework_id).all()
+                    homework_problem_status = Homework_problem_status.query.filter_by(homework_id=data.homework_id,problem_id=data.problem_id,user_id=data.user_id).first()
+                    if homework == None:
+                        return "homework is not found"
+                    if homework_problem == None:
+                        return "homework don't have this problem"
+                    if student == None:
+                        return "user is not in the class"
+                    if homework_problem_status == None:
+                        if status:
+                            new_homework_problem_status = Homework_problem_status(homework_id=data.homework_id,problem_id=data.problem_id,user_id=data.user_id,hand_in_status=1)
+                        else:
+                            new_homework_problem_status = Homework_problem_status(homework_id=data.homework_id,problem_id=data.problem_id,user_id=data.user_id,hand_in_status=2)
+                        db.session.add(new_homework_problem_status)
+                    else:
+                        if status:
+                            homework_problem_status.hand_in_status = 1
+                        else:
+                            homework_problem_status.hand_in_status = 2
+                    db.session.commit()
+
                 new_submission = Submission(user_id=data.user_id, problem_id=data.problem_id, source_id=submission["Source_id"], status=submission["Status"], code_content=data.code_content, exam_id=data.exam_id, homework_id=data.homework_id, error_hint=submission[
                     "Compile_error_out"], error_line=0, language=data.language, time_used=submission["Time"], memory_used=submission["Memory"], upload_date=data.upload_date)
                 db.session.add(new_submission)
@@ -586,18 +621,18 @@ class dispatcher(Resource):
                     source_id=submission["Source_id"]).delete()
             elif data.mode == 2:
                 data.status = 1
-                if not os.path.isdir(BASE+"buffer/"):
-                    os.mkdir(BASE+"buffer/")
-                with open(BASE+"buffer/"+str(data.source_id)+".ans", mode="w", encoding="utf-8") as file:
+                if not os.path.isdir(buffer_dir):
+                    os.mkdir(buffer_dir)
+                with open(os.path.join(buffer_dir, str(data.source_id) + ".ans"), mode="w", encoding="utf-8") as file:
                     file.write(submission["All_stander_out"]
                                [str(data.source_id)])
             else:
                 data.status = 1
-                if not os.path.isdir(BASE+"buffer/"+str(data.user_id)+"/"):
-                    os.mkdir(BASE+"buffer/"+str(data.user_id)+"/")
+                if not os.path.isdir(os.path.join(buffer_dir, str(data.user_id))):
+                    os.mkdir(os.path.join(buffer_dir, str(data.user_id)))
                 cnt = 1
                 for i in range(len(submission["All_stander_out"])):
-                    with open(BASE+"buffer/"+str(data.user_id)+"/"+str(cnt)+".ans", mode="w", encoding="utf-8") as file:
+                    with open(os.path.join(os.path.join(buffer_dir, str(data.user_id)), str(cnt)+".ans"), mode="w", encoding="utf-8") as file:
                         file.write(submission["All_stander_out"][str(i+1)])
                     cnt += 1
         db.session.commit()
@@ -622,32 +657,15 @@ class class_all(Resource):
                     "name": a_class.name,
                     "semester": a_class.semester,
                     "teacher_name": user.name,
-                    "public": is_public
+                    "public": a_class.is_public
                 })
             return jsonify(ret)
         return "don't have any class", 404
 
     def post(self):    #新增班級，需要teacher的user_id,class_name,semester,is_public
-        if 'user_id' in request.args:
-            teacher_id = request.args['user_id']
-        else:
-            return "Error, user_id is required"
-
-        if 'class_name' in request.args:
-            class_name = request.args['class_name']
-        else:
-            return "Error, class_name is required"
-
-        if 'semester' in request.args:
-            semester = request.args['semester']
-        else:
-            return "Error, semester is required"
-
-        if 'is_public' in request.args:
-            is_public = request.args['is_public']
-        else:
-            return "Error, is_public is required"
-
+        args = class_post_args()
+        teacher_id = args.user_id
+    
         import random
         import string
         while 1:
@@ -656,10 +674,10 @@ class class_all(Resource):
             if search == None:
                 break
 
-        user = User.query.filtyer_by(user_id=teacher_id)
-        new_class = Class(name=a_class.name, semester=a_class.semester, teacher_name=user.name,
-                          public=is_public, invite_code=s,teacher_id=teacher_id)
-        new_user_class = User_class(class_id=Class.query.count()+1,user_id=teacher_id,student_id=-1,authority=1)
+        user = User.query.filtyer_by(user_id=teacher_id).first()
+        new_class = Class(name=args.class_name, semester=args.semester, teacher_name=user.name,
+                          public=args.is_public, invite_code=s,teacher_id=teacher_id)
+        new_user_class = Class_user(class_id=Class.query.count()+1,user_id=teacher_id,student_id=-1,authority=1)
         from backend import db
         db.session.add(new_class)
         db.session.commit()
@@ -678,13 +696,28 @@ class A_class(Resource):
             "semester": a_class.semester,
             "teacher_name": user.name,
             "is_public": a_class.public,
-            "invite_code": a_calss.invite_code
+            "invite_code": a_class.invite_code
         }
         return jsonify(ret)
             
 
-    def put(): # 更新教室相關資訊
-        XD
+    def put(self): # 更新教室相關資訊
+        args = class_put_args()
+        a_class = Class.query.filter_by(class_id=args.class_id).first()
+        if a_class == None:
+            return "class is not found",404
+        if args.name:
+            a_class.name=args.name
+        if args.semester:
+            a_class.semester=args.semester
+        if args.teacher_name:
+            a_class.teacher_name=args.teacher_name
+        if args.is_public:
+            a_class.is_public=args.is_public
+        if args.invite_code:
+            a_class.invite_code=args.invite_code
+        return "success",200
+
 
 class class_member(Resource):
     def get(self,class_id): #get教室成員
@@ -702,6 +735,7 @@ class class_member(Resource):
                 })
             return jsonify(ret)
         return jsonify({})
+
 
 class add_member_to_class(Resource):
     def get(self):    #確認邀請碼是否正確
@@ -738,6 +772,11 @@ class add_member_to_class(Resource):
         else:
             return "Error, student_id is required"
 
+        if 'invite_code' in request.args:
+            invite_code = request.args['invite_code']
+        else:
+            return "Error, invite_code is required"
+
 
         the_class = Class.query.filter_by(class_id=class_id).first()
         if the_class == None:
@@ -745,12 +784,11 @@ class add_member_to_class(Resource):
         if the_class.invite_code != invite_code:
             return "invite code is wrong"
         
-        new_user_class = User_class(class_id=class_id,user_id=user_id,student_id=student_id,authority=0)
+        new_user_class = Class_user(class_id=class_id,user_id=user_id,student_id=student_id,authority=0)
         from backend import db
         db.session.add(new_user_class)
         db.session.commit()
         return "add member success",200
-
 
 
 class exam(Resource):
@@ -770,46 +808,26 @@ class exam(Resource):
         return "OK",200
 
     def post(self): #新增考試
-        if 'class_id' in request.args:
-            class_id = request.args['class_id']
-        else:
-            return "Error, class_id is required"
+        args = exam_post_args()
+        problem_set = args.problem_set
+
+        a_class = Class.query.filter_by(user_id=args.user_id).first()
+        if a_class == None:
+            return "class is not found",404
+        if a_class.teacher_id != args.user_id:
+            return "only teacher can create exam",403
+
+        for a_problem in problem_set:
+            problem = Problem.query.filter_by(problem_id=a_problem).first()
+            if problem == None:
+                return "problem id = " + str(a_problem) + " is not found",404
         
-        if 'user_id' in request.args:
-            user_id = request.args['user_id']
-        else:
-            return "Error, user_id is required"
 
-        if 'exam_name' in request.args:
-            exam_name = request.args['exam_name']
-        else:
-            return "Error, exam_name is required"
-
-        if 'exam_info' in request.args:
-            exam_info = request.args['exam_info']
-        else:
-            return "Error, exam_info is required"
-
-        if 'exam_start_time' in request.args:
-            exam_start_time = request.args['exam_start_time']
-        else:
-            return "Error, exam_name is required"
-
-        if 'exam_end_time' in request.args:
-            exam_end_time = request.args['exam_end_time']
-        else:
-            return "Error, exam_end_time is required"
-        
-        if 'problem_set' in requerst.args:
-            problem_set = request.args['problem_set']
-        else:
-            return "Error, problem_set is required"
-
-        exam = Exam(class_id=class_id,name=exam_name,start_time=exam_start_time,end_time=exam_end_time,exam_info=exam_info)
+        exam = Exam(class_id=args.class_id,name=args.exam_name,start_time=args.exam_start_time,end_time=args.exam_end_time,exam_info=args.exam_info)
         from backend import db
         
         cnt = 1
-        for a_problem in problemset:
+        for a_problem in problem_set:
             new_exam_problem = Exam_problem(exam_id=Exam.query.count()+1,problem_id=a_problem,sequence=cnt)
             cnt+=1
             db.session.add(new_exam_problem)
@@ -864,3 +882,73 @@ class dashboard(Resource):
                 db.session.add(dash)
         db.session.commit()
         return "create_succes",200
+
+class homework(Resource):
+    def get(self,homework_id):
+        homework = Homework.query.filter_by(homework_id=homework_id).first()
+        if homework == None:
+            return "homework is not found",404
+        homework_problem = Homework_problem.query.filter_by(homework_id=homework_id).all()
+        ret = {}
+        ret["class_id"]=homework.class_id
+        ret["name"]=homework.name
+        ret["upload_time"]=homework.upload_time
+        ret["deadline"]=homework.deadline
+        ret["homework_info"]=homework.homework_info
+        ret["problem_set"]=[]
+        for a_problem in homework_problem:
+            problem = Problem.query.filter_by(problem_id=a_problem.problem_id).first()
+            ret["problem_set"].append(problem.as_dict)
+        return jsonify(ret)
+
+    def post(self):
+        args = homework_post_args()
+        problem_set = args.problem_set
+
+        a_class = Class.query.filter_by(class_id=args.class_id).first()
+
+        if a_class == None:
+            return "class is not found",404
+
+        if args.user_id != a_class.teacher_id:
+            return "only teacher can create homework",500
+
+        for a_problem in problem_set:
+            problem = Problem.query.filter_by(problem_id=a_problem).first()
+            if problem == None:
+                return "problem id = " + str(a_problem) + " is not found",404
+
+        homework = Homework(class_id=args.class_id,name=args.homework_name,upload_time=args.upload_time,deadline=args.deadline,homework_info=args.homework_info)
+        from backend import db
+        
+        cnt = 1
+        for a_problem in problem_set:
+            new_homework_problem = Homework_problem(homework_id=homework.query.count()+1,problem_id=a_problem,sequence=cnt)
+            cnt+=1
+            db.session.add(new_homework_problem)
+            students = Class_user.filter_by(class_id=args.class_id).all()
+            for student in students:
+                new_homework_problem_status = Homework_problem_status(homework_id=Homework.query.count()+1,problem_id=a_problem,user_id=student.user_id,hand_in_status=0)
+                db.session.add(new_homework_problem_status)
+            
+        db.session.add(homework)
+        db.session.commit()
+        return "success to add exam",300
+
+class homework_status(Resource):
+    def get(self,homework_id):
+        homework = Homework.query.filter_by(homework_id=homework_id).first()
+        students = Class_user.filter_by(class_id=homework.class_id).all()
+        if homework == None:
+            return "homework is not found",404
+        homework_problem = Homework_problem.query.filter_by(homework_id=homework_id).all()
+        ret = {}
+        ret["class_id"]=homework.class_id
+        ret["name"]=homework.name
+        ret["status_table"]=[]
+        for a_problem in homework_problem:
+            ret["status_table"][str(a_problem.sequence)]=[]
+            for student in students:
+                homework_problem_status = Homework_problem_status.query_filter_by(homework_id=homework.homework_id,problem_id=a_problem.problem_id,user_id=student.user_id).first()
+                ret["status_table"][str(a_problem.sequence)].append(homework_problem_status)
+        return jsonify(ret)

@@ -1,3 +1,4 @@
+from typing import Sequence
 from flask.json import jsonify, dumps
 from backend import db, app
 from flask_sqlalchemy import SQLAlchemy
@@ -175,7 +176,7 @@ class Class(db.Model):
     class_name = db.Column(db.String(100), nullable=False)
     semester = db.Column(db.String(30), nullable=False)
     is_public = db.Column(db.Integer, default=0, nullable=False)
-    invite_code = db.Column(db.Integer, nullable=False)
+    invite_code = db.Column(db.String(30), nullable=False)
     #可用以下方是產生邀請碼
     # import random, string
     # s = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(10))
@@ -198,11 +199,20 @@ class Homework(db.Model):
     homework_id = db.Column(db.Integer, primary_key=True)
     class_id = db.Column(db.Integer, db.ForeignKey(Class.class_id), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    uploadtime = db.Column(db.DateTime, nullable=False)
+    upload_time = db.Column(db.DateTime, nullable=False)
     deadline = db.Column(db.DateTime, nullable=False)
+    homework_info = db.Column(db.String(3000))
+    
     
 class Homework_problem(db.Model):
     __tablename__ = "homework_problem"
+    id = db.Column(db.Integer, primary_key=True)
+    homework_id = db.Column(db.Integer, db.ForeignKey(Homework.homework_id), nullable=False)
+    problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
+    sequence = db.Column(db.Integer, nullable=False)
+
+class Homework_problem_status(db.Model):
+    __tablename__ = "homework_problem_status"
     id = db.Column(db.Integer, primary_key=True)
     homework_id = db.Column(db.Integer, db.ForeignKey(Homework.homework_id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
