@@ -46,6 +46,7 @@ class delete_dir(Resource):
         shutil.rmtree(buffer_dir)
         os.mkdir(buffer_dir)
 
+        problem_dir = os.path.join(parentdir, 'Problem')
         if os.path.isdir(problem_dir):
             shutil.rmtree(problem_dir)
             os.mkdir(problem_dir)
