@@ -616,7 +616,7 @@ class dispatcher(Resource):
                     os.mkdir(os.path.join(buffer_dir, str(data.user_id)))
                 cnt = 1
                 for i in range(len(submission["All_stander_out"])):
-                    with open(os.path.join(os.path.join(buffer_dir, str(data.user_id)) str(cnt)+".ans"), mode="w", encoding="utf-8") as file:
+                    with open(os.path.join(os.path.join(buffer_dir, str(data.user_id)), str(cnt)+".ans"), mode="w", encoding="utf-8") as file:
                         file.write(submission["All_stander_out"][str(i+1)])
                     cnt += 1
         db.session.commit()
