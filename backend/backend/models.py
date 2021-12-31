@@ -17,7 +17,7 @@ relations = db.Table(
 
 class User(db.Model, UserMixin):
     __tablename__ = "user"
-    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
@@ -59,7 +59,7 @@ class Problem(db.Model):
     __tablename__ = "problem"
     problem_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), unique=True, nullable=False)
-    questioner_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    questioner_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
     difficulty = db.Column(db.Integer, nullable=False)
     content = db.Column(db.String(524288), nullable=False)
     time_limit = db.Column(db.Integer, nullable = False)
@@ -97,7 +97,7 @@ class Problem_Testcase(db.Model):
 class User_problem(db.Model):
     __tablename__ = "user_problem"
     user_problem_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id))
+    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id))
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id))
     status = db.Column(db.Integer, nullable=False, default=0)
 
@@ -123,7 +123,7 @@ class Topic(db.Model):
 class Submission(db.Model):
     __tablename__ = "submission"
     submission_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
     source_id = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Integer, nullable=False)
@@ -148,7 +148,7 @@ class Queue(db.Model):
     __tablename__ = "queue"
     source_id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Integer, default=0)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), default=0)
     mode = db.Column(db.Integer, nullable=False, default=0)
     exam_id = db.Column(db.Integer,default=0)
@@ -189,7 +189,7 @@ class Class_user(db.Model):
     class_id = db.Column(db.Integer, db.ForeignKey(Class.class_id), nullable=False)
     student_id = db.Column(db.Integer, nullable=False)
     #這邊的student_id是否有與id重複之嫌
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
     authority = db.Column(db.Integer, nullable=False, default=0)
     
 class Homework(db.Model):
@@ -214,7 +214,7 @@ class Homework_problem_status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     homework_id = db.Column(db.Integer, db.ForeignKey(Homework.homework_id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
     hand_in_status = db.Column(db.Integer, nullable=False, default=0)
     
 class Exam(db.Model):
@@ -238,7 +238,7 @@ class Dashboard(db.Model):
     __tablename__ = "dashboard"
     id = db.Column(db.Integer, primary_key=True)
     exam_id = db.Column(db.Integer, db.ForeignKey(Exam.exam_id), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
     solved_count = db.Column(db.Integer, default=0)
     total_time = db.Column(db.Integer, default=0)
 
@@ -246,7 +246,7 @@ class Dashboard_with_problem(db.Model):
     __tablename__ = "dashboard_with_problem"
     id = db.Column(db.Integer, primary_key=True)
     exam_id = db.Column(db.Integer, db.ForeignKey(Exam.exam_id), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
     # penalty_time = db.Column(db.Integer, default=0)
     sequence = db.Column(db.Integer, nullable=False)
