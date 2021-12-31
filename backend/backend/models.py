@@ -52,6 +52,8 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return jsonify({"name":self.name, "email":self.email, "register_date":str(self.register_date), "user_problem":dumps(self.user_to_problem.problem_id)})
+    def auth_return(self):
+        return self.authority
 #✔
 
 class Problem(db.Model):
