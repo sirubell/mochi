@@ -14,6 +14,7 @@
 </template>
 
 <script>
+var current = window.location.pathname;
 import axios from 'axios'
 
 export default {
