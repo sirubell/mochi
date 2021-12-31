@@ -1,6 +1,8 @@
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+parentdir = os.path.join(basedir, os.pardir)
+parentdir = os.path.abspath(parentdir)
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'A-VERY_LONG_SECRET-KEY'
