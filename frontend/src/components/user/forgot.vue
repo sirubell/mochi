@@ -1,6 +1,6 @@
 <template>
     <div class="auth-inner">
-        <form @submit.prevent="handleSubmit">
+        <form @submit.prevent="forgotPassword">
             <div v-if="message" class="alert alert-success" role="alert">
                 {{message}}
             </div>
@@ -13,8 +13,8 @@
                 <input type="email" class="form-control" v-model="email" placeholder="Email"/>
             </div>
 
-            <button class="btn btn-primary btn-block">Submit</button>
-        </form>
+            <button type="submit" class="btn btn-primary btn-block">Reset Password</button>
+        </form> 
     </div>
 </template>
 
@@ -34,15 +34,15 @@ export default {
         }
     },
     methods: {
-        async handleSubmit(){
+        async forgotPassword(){ //利用 try catch 作錯誤偵測
             try{
                 await axios.post('forgot', {
                     email: this.email
-                });
-
+                }); // 資料由後方物件帶入
                 this.message = 'The email was sent!';
                 this.error = '';
-            }catch(e){
+            }
+            catch(e){
                 this.error = 'Error occurred!';
                 this.message = '';
             }
