@@ -174,7 +174,7 @@ class Class(db.Model):
     class_name = db.Column(db.String(100), nullable=False)
     semester = db.Column(db.String(30), nullable=False)
     is_public = db.Column(db.Integer, default=0, nullable=False)
-    invite_code = db.Column(db.Integer, nullable=False)
+    invite_code = db.Column(db.String(30), nullable=False)
     #可用以下方是產生邀請碼
     # import random, string
     # s = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(10))
