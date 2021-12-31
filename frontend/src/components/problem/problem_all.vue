@@ -4,7 +4,7 @@
     <th>#</th>
     <th>Problem name</th>
     <th>Difficulty</th>
-    <tr v-for="item in problemTable" :key="item.title" >
+    <tr v-for="item in problemTable" :key="item.id" >
       <td><a v-bind:href="item.id">{{ item.id }}</a></td>
       <td>{{ item.name }}</td>
       <td>{{ item.username }}</td>

@@ -96,7 +96,12 @@ const routes = [
         component: ClassAll
       },
       {
-        path: 'homework',
+        path: 'homework/all',
+        component: Homework
+      },
+      {
+        path: 'homework/:id',
+        redirect: '/problem/:id',
         component: Homework
       },
       {

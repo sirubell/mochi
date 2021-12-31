@@ -2,6 +2,7 @@
 <div>
     <h1>this is problem id page</h1>
     <p>Problem id = {{ problemID }}</p>
+      
     <button ><a v-bind:href="problemID+'/dashboard'">通過紀錄</a></button>
     <ul v-for="item in problemTable" :key="item.id">
       <p><em>題目敘述 : </em>{{ item.info }}</p>
@@ -24,11 +25,11 @@ export default {
   },
 
   created() {
-    axios.get('http://127.1.1.1:8000/')
+    axios.get('http://127.1.1.1:8000/'/*+current.substr(-1,1)*/)
     .then( response => {
       this.problemTable = response.data
-      this.problemID=current.substr(-1,1)
-      // console.log(current.substr(-1,1))
+      this.problemID = current.substr(9)
+      console.log(current.substr(9))
     })
     .catch( error => {
       this.error = error
