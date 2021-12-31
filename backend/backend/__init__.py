@@ -6,7 +6,7 @@ from flask_restful import Api, Resource, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from backend.config import Config
 from flask_login import LoginManager
-#from flask_cors import CORS
+# from flask_cors import CORS
 import os
 from flask_mail import Mail
 
@@ -14,14 +14,14 @@ app = Flask(__name__, template_folder='../templates')
 api = Api(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
-#CORS(app)
+# CORS(app)
 app.config.from_object(Config)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 login_manager.login_message = '該網頁需要登入才能瀏覽'
-BASE = 'c/Users/a2320/Desktop/coding/mochi/backend/'
+BASE = 'C:/Users/a2320/Desktop/coding/mochi/backend/'
 mail = Mail(app)
 
 app.permanent_session_lifetime
@@ -57,6 +57,9 @@ api.add_resource(check, "/check")
 from backend.routes import delete_dir
 api.add_resource(delete_dir, "/delete_dir")
 
+from backend.routes import lazy
+api.add_resource(lazy, "/lazy")
+
 from backend.routes import reset_database
 api.add_resource(reset_database, "/reset_database")
 
@@ -79,7 +82,7 @@ from backend.routes import test_run
 api.add_resource(test_run,"/problem/test_run")
 
 from backend.routes import status
-api.add_resource(status, "/status/<int:page>")
+api.add_resource(status, "/status")
 
 from backend.routes import login
 api.add_resource(login, "/login")
@@ -110,6 +113,20 @@ api.add_resource(queue_new, "/submission/new")
 from backend.routes import dispatcher
 api.add_resource(dispatcher,"/dispatcher")
 
+from backend.routes import class_all
+api.add_resource(class_all,"/class")
 
-# from backend.routes import problem, problem_post_args
-# api.add_resource(problem, "/problem/<int:problem_id>")
+from backend.routes import A_class
+api.add_resource(A_class,"/class/<int:class_id>")
+
+from backend.routes import class_member
+api.add_resource(class_member,"/class/<int:class_id>/member")
+
+from backend.routes import add_member_to_class
+api.add_resource(add_member_to_class,"/class/<int:class_id>/add_member")
+
+from backend.routes import exam
+api.add_resource(exam,"/exam")
+
+from backend.routes import dashboard
+api.add_resource(dashboard,"/exam/<int:exam_id>/dashboard")
