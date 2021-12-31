@@ -18,6 +18,9 @@
         <p class="forgot-password text-right">
             <router-link to="/forgot">Forgot password?</router-link>
         </p>
+        <p class="forgot-password text-right">
+            <router-link to="/signup">Register an account?</router-link>
+        </p>
     </form>
   </div>
 </template>
@@ -34,7 +37,7 @@ export default {
         return{
             email: '',
             password: '',
-            error: '',
+            // error: '',
         }
     },
     methods: {
@@ -47,7 +50,7 @@ export default {
 
                 localStorage.setItem('token', response.data.token);
                 this.$store.dispatch('loginStatus', response.data.loginStatus);
-                this.$router.push('/');
+                this.$router.push('/home');
             }catch (e) {
                 this.error = 'Invalid username/password!'
             }
