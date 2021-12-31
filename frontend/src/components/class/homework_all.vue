@@ -14,7 +14,6 @@
 </template>
 
 <script>
-var current = window.location.pathname;
 import axios from 'axios'
 
 export default {
@@ -26,7 +25,7 @@ export default {
   },
 
   created() {
-    axios.get('http://192.168.122.231:5000/'+current.substr(9))
+    axios.get('http://192.168.122.231:5000/'+'1/homework')
     .then( response => {
       this.HomeworkTable = response.data
       console.log(this.HomeworkTable)

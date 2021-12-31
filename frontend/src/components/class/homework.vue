@@ -26,7 +26,7 @@ export default {
   },
 
   created() {
-    axios.get('http://192.168.122.231:5000/'+current.substr(9))
+    axios.get('http://192.168.122.231:5000/'+'1/homework/'+current)
     .then( response => {
       this.HomeworkTable = response.data
       console.log(this.HomeworkTable)

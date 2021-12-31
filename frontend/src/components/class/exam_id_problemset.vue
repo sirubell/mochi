@@ -30,7 +30,7 @@ export default {
     }
   },
   created() {
-    axios.get('http://192.168.122.231:5000/')
+    axios.get('http://192.168.122.231:5000/'+current)
     .then( response => {
       this.ExamTable = response.data
       this.ExamID=current.substr(9,1)

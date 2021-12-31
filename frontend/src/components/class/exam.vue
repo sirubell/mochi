@@ -30,7 +30,7 @@ export default {
     }
   },
   created() {
-    axios.get('http://192.168.122.231:5000/')
+    axios.get('http://192.168.122.231:5000/'+'1/exam')
     .then( response => {
       this.ExamTable = response.data
       console.log(response.data)
