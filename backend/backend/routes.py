@@ -328,7 +328,7 @@ class status(Resource):
         if 'page' in request.args:
             page = request.args['page']
         else:
-            return jsonify("message : Error, page is required")
+            return jsonify({"message ":" Error, page is required"})
 
         submissions = Submission.query.all()
         ret = {}
@@ -348,7 +348,7 @@ class status(Resource):
 class signup(Resource):
     def post(self):
         if current_user.is_authenticated:
-            return jsonify("message : Had logged in")
+            return jsonify({"message ":" Had logged in"})
         args = signup_post_args.parse_args()
         if_username_has_existed(args.name)
         is_email_format(args.email)
@@ -361,23 +361,20 @@ class signup(Resource):
         from backend import db
         db.session.add(new_user)
         db.session.commit()
-        return jsonify("message : success to login")
+        return jsonify({"message ":" success to sigup"})
 
 
 class login(Resource):
-    def get(self):
-        return render_template('login.html')
-
     def post(self):
         if current_user.is_authenticated:
-            return redirect(url_for('home'))
+            return jsonify({"message ":" Had login"})
         args = login_post_args.parse_args()
         user = User.query.filter_by(email=args.email).first()
         if user and bcrypt.check_password_hash(user.password, args.password):
             login_user(user, remember=args.remember)
-            return jsonify("message : Success to login.")
+            return jsonify({"message ":" Success to login."})
         elif user:
-            return jsonify("message : wrong password")
+            return jsonify({"message ":" wrong password"})
         else:
             abort(404, message="Couldn't find the user")
 
@@ -393,9 +390,9 @@ class reset_sent_email(Resource):
         recipient = args.email
         title = "Reset your password."
         msg = Message(title, recipients=[recipient])
-        msg.body = token
+        msg.body = "This is a email to change your password in mochi, please paste it to the validated page.\nToken is : "+token
         mail.send(msg)
-        return
+        return jsonify({"message":"success to send a mail"})
 
 
 class reset_password(Resource):
@@ -418,9 +415,8 @@ class reset_password(Resource):
 class logout(Resource):
     def logout():
         logout_user()
-        return redirect(url_for('home'))
+        return jsonify({"message" : "success to logout"})
 
-# if no login 401
 
 
 class user_profile(Resource):
