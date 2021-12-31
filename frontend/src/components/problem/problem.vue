@@ -1,4 +1,5 @@
 <template>
+<div>
   <h1>Problem is not implemented.</h1>
   <div class="container-fluid">
     <div class="row">
@@ -54,6 +55,7 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script>
