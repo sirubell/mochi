@@ -28,6 +28,8 @@
 <script>
 import axios from 'axios'
 import Error from './error.vue'
+import { mapGetters } from 'vuex'
+
 export default {
     name: 'Login',
     components: {
@@ -37,7 +39,7 @@ export default {
         return{
             email: '',
             password: '',
-            // error: '',
+            error: ''
         }
     },
     methods: {
@@ -49,12 +51,17 @@ export default {
                 });
 
                 localStorage.setItem('token', response.data.token);
-                this.$store.dispatch('loginStatus', response.data.loginStatus);
+                this.$store.dispatch('login', response.data.userId);
                 this.$router.push('/home');
             }catch (e) {
                 this.error = 'Invalid username/password!'
             }
         }
+    },
+    computed: {
+      ...mapGetters([
+        'userId'
+      ])
     }
 }
 </script>

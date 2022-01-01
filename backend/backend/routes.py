@@ -367,12 +367,12 @@ class signup(Resource):
 class login(Resource):
     def post(self):
         if current_user.is_authenticated:
-            return jsonify({"message ":" Had login"})
+            return jsonify({"message ":" Had login", "userId": current_user.id})
         args = login_post_args.parse_args()
         user = User.query.filter_by(email=args.email).first()
         if user and bcrypt.check_password_hash(user.password, args.password):
             login_user(user, remember=args.remember)
-            return jsonify({"message ":" Success to login."})
+            return jsonify({"message ":" Success to login.", "userId": user.id})
         elif user:
             return jsonify({"message ":" wrong password"})
         else:

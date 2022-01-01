@@ -1,7 +1,10 @@
 <template>
   <div>
-    <h3 v-if="user">Hi, {{user.email}}</h3>
-    <h3 v-if="!user">You are not logged in!</h3>
+    <h3 v-if="userId">Hi, userId = {{userId}}</h3>
+    <h3 v-if="!userId">You are not logged in!</h3>
+
+    <h3>Hello, this is mochi online judge!</h3>
+    
     <img alt="Vue logo" src="../assets/logo.png">
     <HelloWorld msg="Welcome to Your Vue.js App"/>
   </div>
@@ -18,7 +21,7 @@ export default {
     HelloWorld
   },
   computed: {
-    ...mapGetters(['user'])
+    ...mapGetters(['userId'])
   }
 }
 </script>
