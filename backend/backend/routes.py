@@ -401,7 +401,7 @@ class login(Resource):
             login_user(user, remember=args.remember)
             return jsonify({"message ":" Success to login.", "userId": user.id})
         elif user:
-            return jsonify({"message ":" wrong password"})
+            abort(400, message=" wrong password")
         else:
             abort(404, message="Couldn't find the user")
 
@@ -409,7 +409,7 @@ class login(Resource):
 class reset_sent_email(Resource):
     def post(self):
         if current_user.is_authenticated:
-            return redirect(url_for('home'))
+            return jsonify({"message ":" Had login", "userId": current_user.id})
         args = request_reset_post_args.parse_args()
         reset_check_email(args.email)
         user = User.query.filter_by(email=args.email).first()
@@ -421,16 +421,21 @@ class reset_sent_email(Resource):
         mail.send(msg)
         return jsonify({"message":"success to send a mail"})
 
+class confirm_token(Resource):
+    def post(self):
+        if current_user.is_authenticated:
+            return jsonify({"message ":" Had login", "userId": current_user.id})
+        args = confirm_token_post_args.parse_args()
+        user = User.verify_reset_token(args.token)
+        if user is None:
+            abort(404)
 
 class reset_password(Resource):
-    def put(self, token):
+    def put(self):
         if current_user.is_authenticated:
-            return redirect(url_for('home'))
-        user = User.verify_reset_token(token)
-        if user is None:
-            flash('This is an invalid or expired token', 'warning')
-            return "Invalid"
+            return jsonify({"message ":" Had login", "userId": current_user.id})
         args = reset_password_put_args.parse_args()
+        user = User.verify_reset_token(args.token)
         confirm_password_equal_password(args.password, args.confirm_password)
         hashed_password = bcrypt.generate_password_hash(
             args.password).decode('utf-8')
