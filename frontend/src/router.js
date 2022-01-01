@@ -16,7 +16,7 @@ import Reset from './components/user/reset.vue'
 import Change_Profile from './components/user/change_profile.vue'
 import Change_Password from './components/user/change_password.vue'
 
-import Homework from './components/class/homework.vue'
+import Homework from './components/class/test.vue'
 import Exam from './components/class/exam.vue'
 import Exam_id_problem from './components/class/exam_id_problem.vue'
 import Exam_id_problemset from './components/class/exam_id_problemset.vue'
