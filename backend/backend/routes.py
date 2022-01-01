@@ -141,6 +141,11 @@ class problem(Resource):
         db.session.add(new_problem)
         db.session.delete(now)
         db.session.commit()
+        users = User.query.all()
+        for user in users:
+            new_user_problem = User_problem(user_id=user.id,problem_id=new_problem.problem_id,status=0)
+            db.session.add(new_user_problem)
+        db.session.commit()
         return "Success to add problem", 200
 
 
@@ -364,6 +369,11 @@ class signup(Resource):
                         password=hashed_password, register_date=datetime.datetime.now())
         from backend import db
         db.session.add(new_user)
+        db.session.commit()
+        problems = Problem.query.all()
+        for problem in problems:
+            new_user_problem = User_problem(user_id=new_user.id,problem_id=problem.problem_id,status=0)
+            db.session.add(new_user_problem)
         db.session.commit()
         return jsonify({"message ":" success to sigup"})
 
@@ -627,10 +637,20 @@ class dispatcher(Resource):
 
                 new_submission = Submission(user_id=data.user_id, problem_id=data.problem_id, source_id=submission["Source_id"], status=submission["Status"], code_content=data.code_content, exam_id=data.exam_id, homework_id=data.homework_id, error_hint=submission[
                     "Compile_error_out"], error_line=0, language=data.language, time_used=submission["Time"], memory_used=submission["Memory"], upload_date=data.upload_date)
+                    
                 db.session.add(new_submission)
                 Queue.query.filter_by(
                     source_id=submission["Source_id"]).delete()
+                # status 的定義
+                XD
+                user_problem = User_problem.query.filter_by(user_id=data.user_id,problem_id=data.problem_id).first()
+                if user_problem.status < status:
+                    user_problem.status = status
+                db.session.commit()
+                
+                
             elif data.mode == 2:
+                XD # compile_error_out 的 status
                 data.status = 1
                 if not os.path.isdir(buffer_dir):
                     os.mkdir(buffer_dir)
@@ -640,6 +660,7 @@ class dispatcher(Resource):
                 error_hint=submission[
                     "Compile_error_out"]
             else:
+                XD # compile_error_out 的 status
                 data.status = 1
                 if not os.path.isdir(os.path.join(buffer_dir, str(data.user_id))):
                     os.mkdir(os.path.join(buffer_dir, str(data.user_id)))
@@ -775,15 +796,15 @@ class exam(Resource):
         if 'class_id' in request.args:
             class_id = request.args['class_id']
         else:
-            return "Error, class_id is required"
+            return jsonify({'message':"Error, class_id is required"})
         
         if 'user_id' in request.args:
             user_id = request.args['user_id']
         else:
-            return "Error, user_id is required"
+            return jsonify({'message':"Error, user_id is required"})
         exam_class = Class.query.filter_by(class_id=class_id).first()
         if exam_class.teacher_id != user_id:
-            return "only teacher can create exam",403
+            return jsonify({'message':"only teacher can create exam",'status':403})
         return "OK",200
 
     def post(self): #新增考試
