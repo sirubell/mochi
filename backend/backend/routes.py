@@ -8,6 +8,7 @@ from backend.models import *
 from backend import bcrypt, app, mail
 from backend.config import parentdir
 from backend.argument import *
+import shutil
 #from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
 # 8同理9
 from flask_login import login_user, current_user, logout_user, login_required
@@ -42,7 +43,6 @@ class check(Resource):
 
 class delete_dir(Resource):
     def delete(self):
-        import shutil
         shutil.rmtree(buffer_dir)
         os.mkdir(buffer_dir)
 
@@ -127,7 +127,6 @@ class problem(Resource):
         new_problem = Problem(questioner_id=problem.questioner_id, name=problem.name, difficulty=problem.difficulty, content=problem.content, time_limit=problem.time_limit, memory_limit=problem.memory_limit,
                               testcase_count=now.test_case_count, sample_input=sample_input, is_hidden=problem.is_hidden, upload_date=datetime.datetime.now(), correct_source_code=now.code_content, correct_answer_language=now.language)
 
-        import shutil
         if not os.path.isdir(problem_dir):
             os.mkdir(problem_dir)
         # os.rename(parentdir+"buffer/"+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
@@ -163,21 +162,31 @@ class create_problem_test_run(Resource):
         now = Queue.query.filter_by(source_id=source_id).first()
         if now == None:
             return jsonify({'message':'source_id is not found','status':404})
-        if now.status == 0:
+        if now.status == None:
             return jsonify({'message':"not ok"})
-
-        if not os.path.isdir(buffer_dir):
-            os.mkdir(buffer_dir)
-        path = os.path.join(buffer_dir, str(user_id))
-        res = {}
-        res["test_case_count"] = now.test_case_count
-        res["return_set"] = []
-        for i in range(now.test_case_count):
-            with open(path+"/"+str(i+1)+'.ans', mode="r", encoding="utf-8") as file:
-                temp = file.read()
-                res["return_set"].append(temp)
-
-        return jsonify(res)
+        if now.status == "AC":
+            if not os.path.isdir(buffer_dir):
+                os.mkdir(buffer_dir)
+            path = os.path.join(buffer_dir, str(user_id))
+            res = {}
+            res["test_case_count"] = now.test_case_count
+            res["return_set"] = []
+            for i in range(now.test_case_count):
+                with open(path+"/"+str(i+1)+'.ans', mode="r", encoding="utf-8") as file:
+                    temp = file.read()
+                    res["return_set"].append(temp)
+            return jsonify(res)
+        else:
+            
+            if not os.path.isdir(buffer_dir):
+                os.mkdir(buffer_dir)
+            path = os.path.join(buffer_dir, str(user_id))
+            shutil.rmtree(path)
+            status = now.status
+            error_message = now.error_message
+            db.session.delete(now)
+            db.session.commit()
+            return jsonify({'status':status,'error_message':error_message})
 
     def post(self):
         args = create_problem_test_run_args.parse_args()
@@ -188,10 +197,10 @@ class create_problem_test_run(Resource):
         if not os.path.isdir(path):
             os.mkdir(path)
         else:
-            return "Error, XD"
+            return jsonify({'message':"you have another problem creating"})
         input_set = args["test_case"]
         if len(input_set) == 0:
-            return "test_case can't be empty!",500
+            return jsonify({'message':"test_case can't be empty!",'status':500})
         new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
             datetime.datetime.now()), code_content=args.code_content)
         from backend import db
@@ -215,14 +224,14 @@ class test_run(Resource):
         if 'source_id' in request.args:
             source_id = request.args['source_id']
         else:
-            return "Error, source_id is required"
+            return jsonify({'message':"Error, source_id is required"})
         if 'user_id' in request.args:
             user_id = request.args['user_id']
         else:
-            return "Error, user_id is required"
+            return jsonify({'message':"Error, user_id is required"})
         now = Queue.query.filter_by(source_id=source_id).first()
         if now.status == 0:
-            return "not ok"
+            return jsonify({'message':"not ok"})
         # from backend.convert_file_to_json import convert_file_to_json as yea
         # res = yea("buffer/"+str(source_id)+'.ans')
         if not os.path.isdir(buffer_dir):
@@ -261,7 +270,7 @@ class problem_id(Resource):
         args = problem_put_args.parse_args()
         problem = Problem.query.filter_by(problem_id=problem_id).first()
         if problem == None:
-            return "problem_id does not exist", 500
+            return jsonify({'message':"problem_id does not exist", 'status':500})
         if args.name:
             if_problemname_has_existed(args.name, problem_id)
             problem.name = args.name
@@ -284,21 +293,21 @@ class problem_id(Resource):
 
         from backend import db
         db.session.commit()
-        return "Success to put problem", 200
+        return jsonify({'message':"Success to put problem", 'status':200})
 
     #!!
     def delete(self, problem_id):
         problem = Problem.query.filter_by(problem_id=problem_id).delete()
         from backend import db
         db.session.commit()
-        return "Success to delete problem", 200
+        return jsonify({'message':"Success to delete problem", 'status':200})
 
 
 class problem_solution(Resource):
     def get(self, problem_id):
         problem = Problem.query.filter_by(problem_id=problem_id)
         if problem == None:
-            return "problem does not exist", 404
+            return jsonify({'message':"problem does not exist", 'status':404})
 
         return problem.correct_source_code
 
@@ -644,7 +653,7 @@ class dispatcher(Resource):
                 Queue.query.filter_by(
                     source_id=submission["Source_id"]).delete()
                 # status 的定義
-                XD
+                # XD
                 user_problem = User_problem.query.filter_by(user_id=data.user_id,problem_id=data.problem_id).first()
                 if user_problem.status < status:
                     user_problem.status = status
@@ -652,25 +661,30 @@ class dispatcher(Resource):
                 
                 
             elif data.mode == 2:
-                XD # compile_error_out 的 status
-                data.status = 1
-                if not os.path.isdir(buffer_dir):
-                    os.mkdir(buffer_dir)
-                with open(os.path.join(buffer_dir, str(data.source_id) + ".ans"), mode="w", encoding="utf-8") as file:
-                    file.write(submission["All_stander_out"]
-                               [str(data.source_id)])
-                error_hint=submission[
-                    "Compile_error_out"]
+                # XD # compile_error_out 的 status
+                data.status = submission["Status"]
+                if data.status == "AC":
+                    if not os.path.isdir(buffer_dir):
+                        os.mkdir(buffer_dir)
+                    with open(os.path.join(buffer_dir, str(data.source_id) + ".ans"), mode="w", encoding="utf-8") as file:
+                        file.write(submission["All_stander_out"]
+                                [str(data.source_id)])
+                else:
+                    data.error_message = submission["Compile_error_out"]
+                    
             else:
-                #XD # compile_error_out 的 status
-                data.status = 1
-                if not os.path.isdir(os.path.join(buffer_dir, str(data.user_id))):
-                    os.mkdir(os.path.join(buffer_dir, str(data.user_id)))
-                cnt = 1
-                for i in range(len(submission["All_stander_out"])):
-                    with open(os.path.join(os.path.join(buffer_dir, str(data.user_id)), str(cnt)+".ans"), mode="w", encoding="utf-8") as file:
-                        file.write(submission["All_stander_out"][str(i+1)])
-                    cnt += 1
+                # XD # compile_error_out 的 status
+                data.status = submission["Status"]
+                if data.status == "AC":
+                    if not os.path.isdir(os.path.join(buffer_dir, str(data.user_id))):
+                        os.mkdir(os.path.join(buffer_dir, str(data.user_id)))
+                    cnt = 1
+                    for i in range(len(submission["All_stander_out"])):
+                        with open(os.path.join(os.path.join(buffer_dir, str(data.user_id)), str(cnt)+".ans"), mode="w", encoding="utf-8") as file:
+                            file.write(submission["All_stander_out"][str(i+1)])
+                        cnt += 1
+                else:
+                    data.error_message = submission["Compile_error_out"]
         db.session.commit()
         return "success to return", 200
 

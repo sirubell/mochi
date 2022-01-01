@@ -149,7 +149,8 @@ class Submission(db.Model):
 class Queue(db.Model):
     __tablename__ = "queue"
     source_id = db.Column(db.Integer, primary_key=True)
-    status = db.Column(db.Integer, default=0)
+    status = db.Column(db.String(20))
+    error_message = db.Column(db.String(30))
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), default=0)
     mode = db.Column(db.Integer, nullable=False, default=0)
