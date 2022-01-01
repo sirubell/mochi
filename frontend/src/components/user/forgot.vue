@@ -23,7 +23,7 @@
 
 <script>
 import axios from 'axios'
-import Error from './error.vue'
+import Error from '../error.vue'
 
 export default {
     name: 'Forgot',

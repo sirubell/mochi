@@ -56,6 +56,12 @@
 <script>
 export default {
     name: 'Change_Profile',
+    data() {
+      return {
+        email: "",
+        password: ""
+      }
+    }
 }
 </script>
 
