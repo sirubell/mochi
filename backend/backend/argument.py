@@ -1,3 +1,4 @@
+from typing_extensions import Required
 from flask_restful import reqparse
 import datetime
 
@@ -66,7 +67,11 @@ user_profile_put_args.add_argument("password", type=str)
 request_reset_post_args = reqparse.RequestParser()
 request_reset_post_args.add_argument("email", type=str, required=True, help='Email is required!')
 
+confirm_token_post_args = reqparse.RequestParser()
+confirm_token_post_args.add_argument("token", type=str, Required=True, help="Token is required!")
+
 reset_password_put_args = reqparse.RequestParser()
+reset_password_put_args.add_argument("token", type=str, required=True, help='Token is required!')
 reset_password_put_args.add_argument("password", type=str, required=True, help='Password is required!')
 reset_password_put_args.add_argument("confirm_password", type=str, required=True, help='Confirm_password is required!')
 

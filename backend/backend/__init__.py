@@ -95,8 +95,11 @@ api.add_resource(signup, "/signup")
 from backend.routes import reset_sent_email
 api.add_resource(reset_sent_email, "/forgot_password/email")
 
+from backend.routes import confirm_token
+api.add_resource(confirm_token, "/forgot_password/confirm_token")
+
 from backend.routes import reset_password
-api.add_resource(reset_password, "/forgot_password/<token>/new_password")
+api.add_resource(reset_password, "/forgot_password/new_password")
 
 from backend.routes import user_profile
 api.add_resource(user_profile, "/user/<int:user_id>/profile")
