@@ -1,39 +1,19 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
- 
 int main()
 {
-    int number;
-    int x1, y1, x2, y2, x3, y3;
-    scanf("%d", &number);
-    while (number > 0) {
-        scanf("%d%d%d%d%d%d", &x1, &y1, &x2, &y2, &x3, &y3);
-        int a, b, c;
-        a = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
-        b = (x3 - x2) * (x3 - x2) + (y3 - y2) * (y3 - y2);
-        c = (x1 - x3) * (x1 - x3) + (y1 - y3) * (y1 - y3);
-        if ((a == b) || (b == c) || (a == c))
-            printf("isosceles\n");
-        else if ((a + b == c) || (b + c == a) || (a + c == b))
-            printf("right\n");
-        else if (a > b && a > c) {
-            if ((x2 - x3) * (x1 - x3) + (y2 - y3) * (y1 - y3) > 0)
-                printf("acute\n");
-            else
-                printf("obtuse\n");
-        }
-        else if (b > a && b > c) {
-            if ((x2 - x1) * (x3 - x1) + (y2 - y1) * (y3 - y1) > 0)
-                printf("acute\n");
-            else
-                printf("obtuse\n");
-        }
-        else if (c > a && c > b) {
-            if ((x1 - x2) *(x3 - x2) + (y1 - y2) * (y3 - y2) > 0)
-                printf("acute\n");
-            else
-                printf("obtuse\n");
-        }
-        number--;
-    }
+    int x, y;
+    scanf("%d%d", &x, &y);
+    int a = x / 1000, b = (x % 1000) / 100, c = (x % 100) / 10, d = (x % 10);
+    int e = y / 1000, f = (y % 1000) / 100, g = (y % 100) / 10, h = (y % 10);
+    int A = 0, B = 0;
+    if (a == e)     A++;
+    if (b == f)     A++;
+    if (c == g)     A++;
+    if (d == h)     A++;
+    if ((e == b) || (e == c) || (e == d))   B++;
+    if ((f == a) || (f == c) || (f == d))   B++;
+    if ((g == b) || (g == a) || (g == d))   B++;
+    if ((h == b) || (h == c) || (h == a))   B++;
+    printf("%dA%dB", A, B);
 }

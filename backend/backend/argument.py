@@ -110,7 +110,7 @@ class_post_args.add_argument('semester',type=str,required=True,help="semester is
 class_post_args.add_argument('is_public',type=int,required=True,help="is_public is required!")
 
 class_put_args = reqparse.RequestParser()
-class_put_args.add_argument('class_id',type=int,required=True,help="class_id is required!")
+class_post_args.add_argument('user_id',type=int,required=True,help="user_id is required!")
 class_put_args.add_argument('name',type=str)
 class_put_args.add_argument('semester',type=str)
 class_put_args.add_argument('teacher_name',type=str)

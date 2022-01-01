@@ -161,6 +161,8 @@ class create_problem_test_run(Resource):
         else:
             return "Error, user_id is required"
         now = Queue.query.filter_by(source_id=source_id).first()
+        if now == None:
+            return jsonify({'message':'source_id is not found','status':404})
         if now.status == 0:
             return jsonify({'message':"not ok"})
 
@@ -660,7 +662,7 @@ class dispatcher(Resource):
                 error_hint=submission[
                     "Compile_error_out"]
             else:
-                XD # compile_error_out 的 status
+                #XD # compile_error_out 的 status
                 data.status = 1
                 if not os.path.isdir(os.path.join(buffer_dir, str(data.user_id))):
                     os.mkdir(os.path.join(buffer_dir, str(data.user_id)))
@@ -773,11 +775,14 @@ class class_member(Resource):
 
     def post(self,class_id):  #新增同學到教室，給我user_id和student_id(學號)更新table
         args = class_member_post_args.parse_args()
+        user = User.query.filter_by(id=args.user_id).first()
+        if user == None:
+            return jsonify({'message':'the user is not found','status':404})
         the_class = Class.query.filter_by(class_id=class_id).first()
         if the_class == None:
-            return "class is not found",404
+            return jsonify({'message':"class is not found",'status':404})
         if the_class.invite_code != args.invite_code:
-            return "invite code is wrong"
+            return jsonify({'message':"invite code is wrong"})
         check = Class_user.query.filter_by(class_id=class_id,user_id=args.user_id,student_id=args.student_id).first()
         if check:
             return jsonify({'message':'the student is already in the class'})
@@ -788,7 +793,11 @@ class class_member(Resource):
         return jsonify({'message':'add member success','status':200})
 
     def put(self,class_id):
-        XD
+        args = class_put_args.parse_args()
+        a_class = Class(class_id=class_id).first()
+        if args.user_id != a_class.teacher_id:
+            return jsonify({'message':'only teacher can refresh class infomation'})
+        
 
 
 class exam(Resource):
