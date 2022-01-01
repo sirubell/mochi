@@ -113,8 +113,10 @@ class problem(Resource):
         problem = problem_post_args.parse_args()
         if_problemname_has_existed(problem.name)
         now = Queue.query.filter_by(source_id=problem.source_id).first()
+        if now == None:
+            return jsonify({'message':'source_id is not found','status':404})
 
-        if now.status == 0:
+        if now.status == None:
             return jsonify({'message':"not ok"})
 
 
@@ -197,7 +199,8 @@ class create_problem_test_run(Resource):
         if not os.path.isdir(path):
             os.mkdir(path)
         else:
-            return jsonify({'message':"you have another problem creating"})
+            shutil.rmtree(path)
+            os.mkdir(path)
         input_set = args["test_case"]
         if len(input_set) == 0:
             return jsonify({'message':"test_case can't be empty!",'status':500})
@@ -511,7 +514,7 @@ class dispatcher(Resource):
         datas["Submission_Set"] = []
         cnt = 0
         for queue in queues:
-            if queue.status == 1:
+            if queue.status != None:
                 continue
             if cnt > 10:
                 break
@@ -725,6 +728,8 @@ class class_all(Resource):
                 break
 
         user = User.query.filter_by(id=teacher_id).first()
+        if user == None:
+            return jsonify({'message':'user is not exist','status':404})
         new_class = Class(class_name=args.class_name, semester=args.semester, teacher_name=user.name,
                           is_public=args.is_public, invite_code=s,teacher_id=teacher_id)
         new_user_class = Class_user(class_id=Class.query.count()+1,user_id=teacher_id,student_id=-1,authority=1)

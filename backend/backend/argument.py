@@ -5,7 +5,7 @@ problem_post_args = reqparse.RequestParser()
 problem_post_args.add_argument("name",type=str,required=True,help='name is required!')
 problem_post_args.add_argument("questioner_id",type=int,required=True,help='questioner_id is required!')
 problem_post_args.add_argument("source_id",type=int,required=True,help='source_id is required!')
-problem_post_args.add_argument("difficulty",type=int,required=True,help='difficulty is required!')
+problem_post_args.add_argument("difficulty",type=str,required=True,help='difficulty is required!')
 problem_post_args.add_argument("content",type=str,required=True,help='content is required!')
 problem_post_args.add_argument("time_limit",type=int,required=True,help='time_limit is required!')
 problem_post_args.add_argument("memory_limit",type=int,required=True,help='memory_limit is required!')
@@ -13,7 +13,7 @@ problem_post_args.add_argument("is_hidden",type=int,required=True,help='is_hidde
 
 problem_get_args = reqparse.RequestParser()
 problem_get_args.add_argument("page",type=int)
-problem_get_args.add_argument("difficulty",type=int)
+problem_get_args.add_argument("difficulty",type=str)
 problem_get_args.add_argument("name",type=str)
 
 
