@@ -121,9 +121,6 @@ api.add_resource(A_class,"/class/<int:class_id>")
 from backend.routes import class_member
 api.add_resource(class_member,"/class/<int:class_id>/member")
 
-from backend.routes import add_member_to_class
-api.add_resource(add_member_to_class,"/class/<int:class_id>/add_member")
-
 from backend.routes import exam
 api.add_resource(exam,"/exam")
 

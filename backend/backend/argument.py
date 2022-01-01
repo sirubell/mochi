@@ -9,10 +9,7 @@ problem_post_args.add_argument("difficulty",type=int,required=True,help='difficu
 problem_post_args.add_argument("content",type=str,required=True,help='content is required!')
 problem_post_args.add_argument("time_limit",type=int,required=True,help='time_limit is required!')
 problem_post_args.add_argument("memory_limit",type=int,required=True,help='memory_limit is required!')
-problem_post_args.add_argument("sample_input",type=str,required=True,help='sample_input is required!')
 problem_post_args.add_argument("is_hidden",type=int,required=True,help='is_hidden is required!')
-problem_post_args.add_argument("correct_source_code",type=str,required=True,help='correct_source_code is required!')
-problem_post_args.add_argument("correct_answer_language",type=str,required=True,help='correct_answer_language is required!')
 
 problem_get_args = reqparse.RequestParser()
 problem_get_args.add_argument("page",type=int)
@@ -103,8 +100,8 @@ exam_post_args.add_argument('user_id',type=int,required=True,help="user_id is re
 exam_post_args.add_argument('exam_name',type=str,required=True,help="exam_name is required!")
 exam_post_args.add_argument('exam_info',type=str,required=True,help="exam_info is required!")
 exam_post_args.add_argument('exam_start_time',type=str,required=True,help="exam_start_time is required!")
-exam_post_args.add_argument('exam_endtime',type=str,required=True,help="exam_endtime is required!")
-exam_post_args.add_argument('problem_set',type=int,required=True,help="problem_set is required!")
+exam_post_args.add_argument('exam_end_time',type=str,required=True,help="exam_endtime is required!")
+exam_post_args.add_argument('problem_set',type=int,required=True,help="problem_set is required!", action="append")
 
 class_post_args = reqparse.RequestParser()
 class_post_args.add_argument('user_id',type=int,required=True,help="user_id is required!")
@@ -120,6 +117,11 @@ class_put_args.add_argument('teacher_name',type=str)
 class_put_args.add_argument('is_public',type=int)
 class_put_args.add_argument('invite_code',type=str)
 
+class_member_post_args = reqparse.RequestParser()
+class_member_post_args.add_argument('user_id',type=int,required=True,help="user_id is required!")
+class_member_post_args.add_argument('student_id',type=int,required=True,help="student_id is required!")
+class_member_post_args.add_argument('invite_code',type=str,required=True,help="invite_code is required!")
+
 homework_post_args = reqparse.RequestParser()
 homework_post_args.add_argument('class_id',type=int,required=True,help="class_id is required!")
 homework_post_args.add_argument('user_id',type=int,required=True,help="user_id is required!")
@@ -127,5 +129,5 @@ homework_post_args.add_argument('homework_name',type=str,required=True,help="hom
 homework_post_args.add_argument('homework_info',type=str,required=True,help="homework_info is required!")
 homework_post_args.add_argument('upload_time',type=str,required=True,help="upload_time is required!")
 homework_post_args.add_argument('deadline',type=str,required=True,help="deadline is required!")
-homework_post_args.add_argument('problem_set',type=int,required=True,help="problem_set is required!")
+homework_post_args.add_argument('problem_set',type=int,required=True,help="problem_set is required!", action="append")
 
