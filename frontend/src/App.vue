@@ -11,6 +11,11 @@ import axios from 'axios'
 
 export default {
   name: 'App',
+  data() {
+    return {
+      error: null
+    }
+  },
   components: {
     NavBar
   },
@@ -18,6 +23,10 @@ export default {
     axios.get('/user/myprofile')
     .then(res => {
       this.$store.dispatch('login', res.data.user_id)
+    })
+    .catch(error => {
+      this.$store.dispatch('login', null)
+      this.error = error
     })
   }
 }
