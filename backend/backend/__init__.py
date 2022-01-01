@@ -6,7 +6,7 @@ from flask_restful import Api, Resource, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from backend.config import Config
 from flask_login import LoginManager
-# from flask_cors import CORS
+from flask_cors import CORS
 import os
 from flask_mail import Mail
 
@@ -14,7 +14,7 @@ app = Flask(__name__, template_folder='../templates')
 api = Api(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
-# CORS(app)
+CORS(app, supports_credentials = True)
 app.config.from_object(Config)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -75,7 +75,7 @@ from backend.routes import problem_solution
 api.add_resource(problem_solution,"/problem/<int:problem_id>/solution")
 
 from backend.routes import problem_submission
-api.add_resource(problem_submission, "/problem/<int:problem_id>/submission/<int:user_id>")
+api.add_resource(problem_submission, "/problem/<int:problem_id>/submission")
 
 from backend.routes import test_run
 api.add_resource(test_run,"/problem/test_run")
@@ -101,6 +101,8 @@ api.add_resource(reset_password, "/forgot_password/<token>/new_password")
 from backend.routes import user_profile
 api.add_resource(user_profile, "/user/<int:user_id>/profile")
 
+from backend.routes import user_myprofile
+api.add_resource(user_myprofile, "/user/myprofile")
 
 
 from backend.routes import submission_data

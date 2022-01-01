@@ -2,21 +2,21 @@ import { createStore } from 'vuex'
 
 const store = createStore({
   state: {
-    loginStatus: false 
+    userId: null 
   },
   getters: {
-    loginStatus(state) {
-      return state.loginStatus
+    userId(state) {
+      return state.userId
     }
   },
   actions: {
-    login({ commit }, loginStatus) {
-      commit('login', loginStatus)
+    login({ commit }, userId) {
+      commit('login', userId)
     }
   },
   mutations: {
-    login(state, loginStatus) {
-      state.loginStatus = loginStatus
+    login(state, userId) {
+      state.userId = userId
     }
   }
 })

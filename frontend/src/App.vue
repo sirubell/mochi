@@ -1,6 +1,5 @@
 <template>
   <NavBar/>
-  <button class="btn btn-primary" @click="changeLoginStatus">change login status</button>
   <div class="auth-wrapper">
     <router-view/>
   </div>
@@ -8,22 +7,27 @@
 
 <script>
 import NavBar from './components/navbar.vue'
+import axios from 'axios'
 
 export default {
   name: 'App',
   data() {
     return {
-      loginStatus: null
-    }
-  },
-  methods: {
-    changeLoginStatus() {
-      console.log(this.$store.getters.loginStatus)
-      this.$store.dispatch('login', true)
+      error: null
     }
   },
   components: {
     NavBar
+  },
+  created() {
+    axios.get('/user/myprofile')
+    .then(res => {
+      this.$store.dispatch('login', res.data.user_id)
+    })
+    .catch(error => {
+      this.$store.dispatch('login', null)
+      this.error = error
+    })
   }
 }
 </script>

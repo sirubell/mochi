@@ -11,12 +11,11 @@
         <li><router-link to="/status" class="nav-link px-2 link-dark">Status</router-link></li>
         <li><router-link to="/class/homework/all" class="nav-link px-2 link-dark">Homework</router-link></li>
         <li><router-link to="/class/exam" class="nav-link px-2 link-dark">Exam</router-link></li>
-        <li><router-link to="/test-problem" class="nav-link px-2 link-dark">Test 1</router-link></li>
-        <li><router-link to="/test-new-problem" class="nav-link px-2 link-dark">Test 2</router-link></li>
+        <li><router-link to="/test-new-problem" class="nav-link px-2 link-dark">Test New Problem</router-link></li>
       </ul>
 
       <div class="fs-5 col-md-2">
-        <div v-if="loginStatus">
+        <div v-if="userId">
           <ul class="nav mb-2 justify-content-end mb-md-0">
             <li class="nav-item dropdown">
               <a href="#" class="text-end nav-link dropdown-toggle px-2 link-dark" data-bs-toggle="dropdown" aria-expanded="false">User</a>
@@ -44,19 +43,20 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import axios from 'axios'
 
 export default {
   name: 'NavBar',
   methods: {
-        handleClick() {
-            localStorage.removeItem('token');
-            this.$store.dispatch('loginStatus', null);
-            this.$router.push('/');
-        }
-    },
+    handleClick() {
+      axios.get('logout')
+      this.$store.dispatch('login', null);
+      this.$router.push('/');
+    }
+  },
   computed: {
     ...mapGetters([
-      'loginStatus'
+      'userId'
     ])
   },
 
