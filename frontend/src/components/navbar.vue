@@ -16,7 +16,7 @@
       </ul>
 
       <div class="fs-5 col-md-2">
-        <div v-if="loginStatus">
+        <div v-if="userId">
           <ul class="nav mb-2 justify-content-end mb-md-0">
             <li class="nav-item dropdown">
               <a href="#" class="text-end nav-link dropdown-toggle px-2 link-dark" data-bs-toggle="dropdown" aria-expanded="false">User</a>
@@ -44,19 +44,20 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import axios from 'axios'
 
 export default {
   name: 'NavBar',
   methods: {
-        handleClick() {
-            localStorage.removeItem('token');
-            this.$store.dispatch('loginStatus', null);
-            this.$router.push('/');
-        }
-    },
+    handleClick() {
+      axios.get('logout')
+      this.$store.dispatch('login', null);
+      this.$router.push('/');
+    }
+  },
   computed: {
     ...mapGetters([
-      'loginStatus'
+      'userId'
     ])
   },
 

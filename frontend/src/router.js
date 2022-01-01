@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from './components/Home.vue'
 import ProblemAll from './components/problem/problem_all.vue'
 import ProblemID from './components/problem/problem_id.vue'
-import ProblemID_dashboard from './components/problem/problem_id_dashboard.vue'
+import Problem_id_submission from './components/problem/problem_id_submission.vue'
 import ComponentSlot from './components/component_slot.vue'
 import Status from './components/status.vue'
 import ClassAll from './components/class/class_all.vue'
@@ -14,10 +14,12 @@ import NewProblem from './components/problem/new_problem.vue'
 import Forgot from './components/user/forgot.vue'
 import Reset from './components/user/reset.vue'
 import Change_Profile from './components/user/change_profile.vue'
-import Change_Password from './components/user/change_password.vue'
 
 import Homework from './components/class/homework.vue'
 import Exam from './components/class/exam.vue'
+import Exam_id_problem from './components/class/exam_id_problem.vue'
+import Exam_id_problemset from './components/class/exam_id_problemset.vue'
+import Exam_id_dashboard from './components/class/exam_id_dashboard.vue'
 
 const routes = [
   { path: '/test-problem', component: Problem },
@@ -64,9 +66,9 @@ const routes = [
         component: ProblemID
       },
       {
-        path: ':id/dashboard',
+        path: ':id/submission',
         name: 'id-board',
-        component: ProblemID_dashboard
+        component: Problem_id_submission
       },/*,
       {
         path: 'new'
@@ -101,12 +103,24 @@ const routes = [
       },
       {
         path: 'homework/:id',
-        redirect: '/problem/:id',
+        // redirect: '/problem/:id',
         component: Homework
       },
       {
         path: 'exam',
         component: Exam
+      },
+      {
+        path: 'exam/:id',
+        component: Exam_id_problemset
+      },
+      {
+        path: 'exam/:id/:problemId',
+        component: Exam_id_problem
+      },
+      {
+        path: 'exam/:id/dashboard',
+        component: Exam_id_dashboard
       }
     ]
   },
@@ -121,10 +135,6 @@ const routes = [
   {
     path: "/change_profile",
     component: Change_Profile,
-  },
-  {
-    path: "/change_password",
-    component: Change_Password,
   }
 ]
 

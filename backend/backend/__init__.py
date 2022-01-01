@@ -14,7 +14,7 @@ app = Flask(__name__, template_folder='../templates')
 api = Api(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
-CORS(app)
+CORS(app, supports_credentials = True)
 app.config.from_object(Config)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -101,6 +101,8 @@ api.add_resource(reset_password, "/forgot_password/<token>/new_password")
 from backend.routes import user_profile
 api.add_resource(user_profile, "/user/<int:user_id>/profile")
 
+from backend.routes import user_myprofile
+api.add_resource(user_myprofile, "/user/myprofile")
 
 
 from backend.routes import submission_data

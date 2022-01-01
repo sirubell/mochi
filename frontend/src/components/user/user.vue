@@ -28,15 +28,9 @@
             </div>
           </li>
           <li class="mb-1">
-            <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#orders-collapse" aria-expanded="false">
-              Setting
-            </button>
-            <div class="collapse" id="orders-collapse">
-              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><router-link to="/change_profile" class="link-dark rounded">Change Information</router-link></li>
-                <li><router-link to="/change_password" class="link-dark rounded">Change Password</router-link></li>
-              </ul>
-            </div>
+              <router-link to="/change_profile" class="btn btn-toggle align-items-center rounded collapsed" data-bs-target="#orders-collapse" aria-expanded="false">
+                Change Profile
+              </router-link>
           </li>
           <li class="border-top my-3"></li>
         </ul>
@@ -54,8 +48,29 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import axios from 'axios'
+
 export default {
   name: 'User',
-
+  data() {
+    return {
+      userInfo: {},
+      error: null
+    }
+  },
+  computed: {
+    ...mapGetters([
+      'userId'
+    ])
+  },
+  created() {
+    axios.get('/user/myprofile')
+    .then(res => {
+      this.userInfo = res.data
+    }).catch(e => { 
+      this.error = e
+    })
+  }
 }
 </script>

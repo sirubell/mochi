@@ -332,7 +332,7 @@ class status(Resource):
         if 'page' in request.args:
             page = request.args['page']
         else:
-            return jsonify("message : Error, page is required")
+            return jsonify({"message ":" Error, page is required"})
 
         submissions = Submission.query.all()
         ret = {}
@@ -352,7 +352,7 @@ class status(Resource):
 class signup(Resource):
     def post(self):
         if current_user.is_authenticated:
-            return jsonify("message : Had logged in")
+            return jsonify({"message ":" Had logged in"})
         args = signup_post_args.parse_args()
         if_username_has_existed(args.name)
         is_email_format(args.email)
@@ -365,23 +365,20 @@ class signup(Resource):
         from backend import db
         db.session.add(new_user)
         db.session.commit()
-        return jsonify("message : success to login")
+        return jsonify({"message ":" success to sigup"})
 
 
 class login(Resource):
-    def get(self):
-        return render_template('login.html')
-
     def post(self):
         if current_user.is_authenticated:
-            return redirect(url_for('home'))
+            return jsonify({"message ":" Had login", "userId": current_user.id})
         args = login_post_args.parse_args()
         user = User.query.filter_by(email=args.email).first()
         if user and bcrypt.check_password_hash(user.password, args.password):
             login_user(user, remember=args.remember)
-            return jsonify("message : Success to login.")
+            return jsonify({"message ":" Success to login.", "userId": user.id})
         elif user:
-            return jsonify("message : wrong password")
+            return jsonify({"message ":" wrong password"})
         else:
             abort(404, message="Couldn't find the user")
 
@@ -397,9 +394,9 @@ class reset_sent_email(Resource):
         recipient = args.email
         title = "Reset your password."
         msg = Message(title, recipients=[recipient])
-        msg.body = token
+        msg.body = "This is a email to change your password in mochi, please paste it to the validated page.\nToken is : "+token
         mail.send(msg)
-        return
+        return jsonify({"message":"success to send a mail"})
 
 
 class reset_password(Resource):
@@ -420,11 +417,11 @@ class reset_password(Resource):
 
 
 class logout(Resource):
-    def logout():
+    @login_required
+    def get(self):
         logout_user()
-        return redirect(url_for('home'))
+        return jsonify({"message" : "success to logout"})
 
-# if no login 401
 
 
 class user_profile(Resource):
@@ -436,7 +433,7 @@ class user_profile(Resource):
         datas = []
         for AC in ACs:
             datas.append(AC.problem_id)
-        return jsonify({"name": user.name, "email": user.email, "register_date": str(user.register_date), "user_problem": datas})
+        return jsonify({"name": user.name, "email": user.email, "user_id": user.id, "register_date": str(user.register_date), "user_problem": datas})
 
     def put(self):
         args = user_profile_put_args.parse_args()
@@ -446,6 +443,16 @@ class user_profile(Resource):
         from backend import db
         db.session.commit()
 
+class user_myprofile(Resource):
+    @login_required
+    def get(self):
+        from backend import db
+        user = current_user
+        ACs = User_problem.query.filter_by(user_id=user.id, status=1).all()
+        datas = []
+        for AC in ACs:
+            datas.append(AC.problem_id)
+        return jsonify({"name": user.name, "email": user.email, "user_id": user.id, "register_date": str(user.register_date), "user_problem": datas})
 
 class submission_data(Resource):
     def get(self, submission_id):
