@@ -67,7 +67,7 @@ class problem(Resource):
         if 'page' in request.args:
             page = int(request.args['page'])
         else:
-            return "Error, page is required"
+            return jsonify({'message':"Error, page is required",'code':500})
         topic = None
         difficulty = None
         name = None
@@ -107,17 +107,16 @@ class problem(Resource):
                     "difficulty": problem.difficulty
                 })
             return jsonify(ret)
-        return "don't have any problem", 404
 
     def post(self):
         problem = problem_post_args.parse_args()
         if_problemname_has_existed(problem.name)
         now = Queue.query.filter_by(source_id=problem.source_id).first()
         if now == None:
-            return jsonify({'message':'source_id is not found','status':404})
+            return jsonify({'message':'source_id is not found','code':404})
 
         if now.status == None:
-            return jsonify({'message':"not ok"})
+            return jsonify({'message':"pending",'code':500})
 
 
         if not os.path.isdir(buffer_dir):
@@ -147,7 +146,7 @@ class problem(Resource):
             new_user_problem = User_problem(user_id=user.id,problem_id=new_problem.problem_id,status=0)
             db.session.add(new_user_problem)
         db.session.commit()
-        return "Success to add problem", 200
+        return jsonify({'message':"Success to add problem", 'code':200})
 
 
 class create_problem_test_run(Resource):
@@ -155,22 +154,23 @@ class create_problem_test_run(Resource):
         if 'source_id' in request.args:
             source_id = request.args['source_id']
         else:
-            return "Error, source_id is required"
+            return jsonify({'message':"Error, source_id is required",'code':500})
 
         if 'user_id' in request.args:
             user_id = request.args['user_id']
         else:
-            return "Error, user_id is required"
+            return jsonify({'message':"Error, user_id is required",'code':500})
         now = Queue.query.filter_by(source_id=source_id).first()
         if now == None:
-            return jsonify({'message':'source_id is not found','status':404})
+            return jsonify({'message':'source_id is not found','code':404})
         if now.status == None:
-            return jsonify({'message':"not ok"})
+            return jsonify({'message':"pending",'code':500})
         if now.status == "AC":
             if not os.path.isdir(buffer_dir):
                 os.mkdir(buffer_dir)
             path = os.path.join(buffer_dir, str(user_id))
             res = {}
+            res["status"] = "AC"
             res["test_case_count"] = now.test_case_count
             res["return_set"] = []
             for i in range(now.test_case_count):
@@ -179,7 +179,6 @@ class create_problem_test_run(Resource):
                     res["return_set"].append(temp)
             return jsonify(res)
         else:
-            
             if not os.path.isdir(buffer_dir):
                 os.mkdir(buffer_dir)
             path = os.path.join(buffer_dir, str(user_id))
@@ -188,7 +187,7 @@ class create_problem_test_run(Resource):
             error_message = now.error_message
             db.session.delete(now)
             db.session.commit()
-            return jsonify({'status':status,'error_message':error_message})
+            return jsonify({'status':status,'message':error_message})
 
     def post(self):
         args = create_problem_test_run_args.parse_args()
@@ -203,7 +202,7 @@ class create_problem_test_run(Resource):
             os.mkdir(path)
         input_set = args["test_case"]
         if len(input_set) == 0:
-            return jsonify({'message':"test_case can't be empty!",'status':500})
+            return jsonify({'message':"test_case can't be empty!",'code':500})
         new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(input_set), upload_date=str(
             datetime.datetime.now()), code_content=args.code_content)
         from backend import db
@@ -219,7 +218,7 @@ class create_problem_test_run(Resource):
                 file.write(testcase)
             cnt += 1
 
-        return jsonify({'status':200, 'source_id':new_queue.source_id})
+        return jsonify({'code':200, 'source_id':new_queue.source_id})
 
 
 class test_run(Resource):
@@ -227,14 +226,14 @@ class test_run(Resource):
         if 'source_id' in request.args:
             source_id = request.args['source_id']
         else:
-            return jsonify({'message':"Error, source_id is required"})
+            return jsonify({'message':"Error, source_id is required",'code':500})
         if 'user_id' in request.args:
             user_id = request.args['user_id']
         else:
-            return jsonify({'message':"Error, user_id is required"})
+            return jsonify({'message':"Error, user_id is required",'code':500})
         now = Queue.query.filter_by(source_id=source_id).first()
         if now.status == 0:
-            return jsonify({'message':"not ok"})
+            return jsonify({'message':"pending",'code':500})
         # from backend.convert_file_to_json import convert_file_to_json as yea
         # res = yea("buffer/"+str(source_id)+'.ans')
         if not os.path.isdir(buffer_dir):
@@ -260,7 +259,7 @@ class test_run(Resource):
             file.write(args.code_content)
         db.session.add(new_queue)
         db.session.commit()
-        return 200, source_id
+        return jsonify({'code':200, 'source_id':source_id})
 
 
 class problem_id(Resource):
@@ -273,7 +272,7 @@ class problem_id(Resource):
         args = problem_put_args.parse_args()
         problem = Problem.query.filter_by(problem_id=problem_id).first()
         if problem == None:
-            return jsonify({'message':"problem_id does not exist", 'status':500})
+            return jsonify({'message':"problem_id does not exist", 'code':500})
         if args.name:
             if_problemname_has_existed(args.name, problem_id)
             problem.name = args.name
@@ -296,30 +295,30 @@ class problem_id(Resource):
 
         from backend import db
         db.session.commit()
-        return jsonify({'message':"Success to put problem", 'status':200})
+        return jsonify({'message':"Success to put problem", 'code':200})
 
     #!!
     def delete(self, problem_id):
         problem = Problem.query.filter_by(problem_id=problem_id).delete()
         from backend import db
         db.session.commit()
-        return jsonify({'message':"Success to delete problem", 'status':200})
+        return jsonify({'message':"Success to delete problem", 'code':200})
 
 
 class problem_solution(Resource):
     def get(self, problem_id):
         problem = Problem.query.filter_by(problem_id=problem_id)
         if problem == None:
-            return jsonify({'message':"problem does not exist", 'status':404})
+            return jsonify({'message':"problem does not exist", 'code':404})
 
-        return problem.correct_source_code
+        return jsonify({'solution':problem.correct_source_code})
 
 
 class problem_submission(Resource):
     def get(self, problem_id):
         problem = Problem.query.filter_by(problem_id=problem_id).first()
         if problem == None:
-            return "problem does not exist", 400
+            return jsonify({'message':"problem does not exist", 'code':400})
         # user = User.query.filter_by(id=user_id)
         # if user == None:
         #     return "user does not exist", 400
@@ -330,20 +329,20 @@ class problem_submission(Resource):
         submissions = Submission.query.filter_by(
             problem_id=problem.problem_id).all()
 
-        if submissions:
-            ret = {}
-            ret["returnset"] = []
-            for submission in submissions:
-                ret["returnset"].append({
-                    "submission_id": submission.submission_id,
-                    "problem_id": problem.problem_id,
-                    # "name": user.name,
-                    "status": submission.status,
-                    "language": submission.language,
-                    "upload_date": submission.upload_date
-                })
-            return jsonify(ret)
-        return jsonify([])
+        
+        ret = {}
+        ret["returnset"] = []
+        for submission in submissions:
+            ret["returnset"].append({
+                "submission_id": submission.submission_id,
+                "problem_id": problem.problem_id,
+                # "name": user.name,
+                "status": submission.status,
+                "language": submission.language,
+                "upload_date": submission.upload_date
+            })
+        return jsonify(ret)
+        
 
 
 class status(Resource):
@@ -502,7 +501,7 @@ class queue_new(Resource):
 
         db.session.add(new_queue)
         db.session.commit()
-        return 200
+        return jsonify({'message':'success','code':200})
 
 
 class dispatcher(Resource):
@@ -528,7 +527,7 @@ class dispatcher(Resource):
             problem = Problem.query.filter_by(
                 problem_id=queue.problem_id).first()
             if problem == None and queue.mode in [1, 2]:
-                return "no problem's id = " + str(queue.problem_id)
+                return jsonify({'message':'problem is not found','code':404})
             data["Test_case_count"] = queue.test_case_count
             if queue.mode in [1, 2]:
                 data["Time_limit"] = problem.time_limit
@@ -631,11 +630,11 @@ class dispatcher(Resource):
                     homework_problem = Homework_problem.query.filter_by(homework_id=data.homework_id).all()
                     homework_problem_status = Homework_problem_status.query.filter_by(homework_id=data.homework_id,problem_id=data.problem_id,user_id=data.user_id).first()
                     if homework == None:
-                        return "homework is not found"
+                        return jsonify({'message':"homework is not found",'code':404})
                     if homework_problem == None:
-                        return "homework don't have this problem"
+                        return jsonify({'message':"homework don't have this problem",'code':404})
                     if student == None:
-                        return "user is not in the class"
+                        return jsonify({'message':"user is not in the class",'code':404})
                     if homework_problem_status == None:
                         if status:
                             new_homework_problem_status = Homework_problem_status(homework_id=data.homework_id,problem_id=data.problem_id,user_id=data.user_id,hand_in_status=1)
@@ -689,7 +688,7 @@ class dispatcher(Resource):
                 else:
                     data.error_message = submission["Compile_error_out"]
         db.session.commit()
-        return "success to return", 200
+        return jsonify({'message':"success to return", 'code':200})
 
 
 class class_all(Resource):
@@ -697,23 +696,21 @@ class class_all(Resource):
         if 'page' in request.args:
             page = request.args['page']
         else:
-            return "Error, page is required"
+            return jsonify({'message':"Error, page is required",'code':404})
 
         classes = Class.query.all()
-        if classes:
-            ret = {}
-            ret["returnset"] = []
-            for a_class in classes:
-                user = User.query.filter_by(id=a_class.teacher_id).first()
-                ret["returnset"].append({
-                    "id": a_class.id,
-                    "name": a_class.name,
-                    "semester": a_class.semester,
-                    "teacher_name": user.name,
-                    "public": a_class.is_public
-                })
-            return jsonify(ret)
-        return "don't have any class", 404
+        ret = {}
+        ret["returnset"] = []
+        for a_class in classes:
+            user = User.query.filter_by(id=a_class.teacher_id).first()
+            ret["returnset"].append({
+                "id": a_class.id,
+                "name": a_class.name,
+                "semester": a_class.semester,
+                "teacher_name": user.name,
+                "public": a_class.is_public
+            })
+        return jsonify(ret)
 
     def post(self):    #新增班級，需要teacher的user_id,class_name,semester,is_public
         args = class_post_args.parse_args()
@@ -729,7 +726,7 @@ class class_all(Resource):
 
         user = User.query.filter_by(id=teacher_id).first()
         if user == None:
-            return jsonify({'message':'user is not exist','status':404})
+            return jsonify({'message':'user is not exist','code':404})
         new_class = Class(class_name=args.class_name, semester=args.semester, teacher_name=user.name,
                           is_public=args.is_public, invite_code=s,teacher_id=teacher_id)
         new_user_class = Class_user(class_id=Class.query.count()+1,user_id=teacher_id,student_id=-1,authority=1)
@@ -737,14 +734,14 @@ class class_all(Resource):
         db.session.add(new_class)
         db.session.add(new_user_class)
         db.session.commit()
-        return "success, invite code = " + s , 200
+        return jsonify({'message':"create success", 'invite code':s , 'code':200})
 
 
 class A_class(Resource):
     def get(self,class_id):
         a_class = Class.query.filter_by(class_id=class_id).first()
         if a_class == None:
-            return "class is not found", 404
+            return jsonify({'message':"class is not found", 'code':404})
         user = User.query.filter_by(id=a_class.teacher_id).first()
         ret = {
             "id": a_class.id,
@@ -761,7 +758,7 @@ class A_class(Resource):
         args = class_put_args.parse_args()
         a_class = Class.query.filter_by(class_id=args.class_id).first()
         if a_class == None:
-            return "class is not found",404
+            return jsonify({'message':"class is not found",'code':404})
         if args.name:
             a_class.name=args.name
         if args.semester:
@@ -772,34 +769,34 @@ class A_class(Resource):
             a_class.is_public=args.is_public
         if args.invite_code:
             a_class.invite_code=args.invite_code
-        return "success",200
+        return jsonify({'message':"create success",'code':200})
 
 
 class class_member(Resource):
     def get(self,class_id): #get教室成員
         a_class = Class_user.query.filter_by(class_id=class_id).all()
         if a_class == None:
-            return "class is not found",404
-        if a_class:
-            ret = {}
-            ret["returnset"] = []
-            for student in a_class:
-                user = User.query.filter_by(id=student.user_id).first()
-                ret["returnset"].append({
-                    "id": user.id,
-                    "name": user.name
-                })
-            return jsonify(ret)
-        return jsonify({})
+            return jsonify({'message':"class is not found",'code':404})
+        
+        ret = {}
+        ret["returnset"] = []
+        for student in a_class:
+            user = User.query.filter_by(id=student.user_id).first()
+            ret["returnset"].append({
+                "id": user.id,
+                "name": user.name
+            })
+        return jsonify(ret)
+
 
     def post(self,class_id):  #新增同學到教室，給我user_id和student_id(學號)更新table
         args = class_member_post_args.parse_args()
         user = User.query.filter_by(id=args.user_id).first()
         if user == None:
-            return jsonify({'message':'the user is not found','status':404})
+            return jsonify({'message':'the user is not found','code':404})
         the_class = Class.query.filter_by(class_id=class_id).first()
         if the_class == None:
-            return jsonify({'message':"class is not found",'status':404})
+            return jsonify({'message':"class is not found",'code':404})
         if the_class.invite_code != args.invite_code:
             return jsonify({'message':"invite code is wrong"})
         check = Class_user.query.filter_by(class_id=class_id,user_id=args.user_id,student_id=args.student_id).first()
@@ -809,7 +806,7 @@ class class_member(Resource):
         from backend import db
         db.session.add(new_user_class)
         db.session.commit()
-        return jsonify({'message':'add member success','status':200})
+        return jsonify({'message':'add member success','code':200})
 
     def put(self,class_id):
         args = class_put_args.parse_args()
@@ -832,7 +829,7 @@ class exam(Resource):
             return jsonify({'message':"Error, user_id is required"})
         exam_class = Class.query.filter_by(class_id=class_id).first()
         if exam_class.teacher_id != user_id:
-            return jsonify({'message':"only teacher can create exam",'status':403})
+            return jsonify({'message':"only teacher can create exam",'code':403})
         return "OK",200
 
     def post(self): #新增考試
@@ -840,14 +837,14 @@ class exam(Resource):
 
         a_class = Class.query.filter_by(class_id=args.class_id).first()
         if a_class == None:
-            return jsonify({'message':"class is not found",'status':404})
+            return jsonify({'message':"class is not found",'code':404})
         if a_class.teacher_id != args.user_id:
-            return jsonify({'message':"only teacher can create exam",'status':403})
+            return jsonify({'message':"only teacher can create exam",'code':403})
 
         for a_problem in args.problem_set:
             problem = Problem.query.filter_by(problem_id=a_problem).first()
             if problem == None:
-                return jsonify({'message':"problem id = " + str(a_problem) + " is not found",'status':404})
+                return jsonify({'message':"problem id = " + str(a_problem) + " is not found",'code':404})
         
 
         exam = Exam(class_id=args.class_id,name=args.exam_name,start_time=args.exam_start_time,end_time=args.exam_end_time,exam_info=args.exam_info)
@@ -861,14 +858,14 @@ class exam(Resource):
             
         db.session.add(exam)
         db.session.commit()
-        return jsonify({'message':"success to add exam",'status':300})
+        return jsonify({'message':"success to add exam",'code':300})
 
 
 class dashboard(Resource):
     def get(self,exam_id):  #回傳dashboard table
         lines = Dashboard.query.filter_by(exam_id=exam_id).all()
         if lines == None:
-            return jsonify({'message':"Error, dashboard hadn't been created",'status':404})
+            return jsonify({'message':"Error, dashboard hadn't been created",'code':404})
         problem_set = []
         exam_problems = Exam_problem.filter_by(exam_id=exam_id).all()
         for exam_problem in exam_problems:
@@ -908,13 +905,13 @@ class dashboard(Resource):
                 dash = Dashboard_with_problem(exam_id=exam_id,user_id=student.user_id,problem_id=problem.problem_id,sequence=problem.sequence,try_count=0,solved_time=-1,current_status=-1)
                 db.session.add(dash)
         db.session.commit()
-        return jsonify({'message':"create_succes",'status':200})
+        return jsonify({'message':"create_succes",'code':200})
 
 class homework(Resource):
     def get(self,homework_id):
         homework = Homework.query.filter_by(homework_id=homework_id).first()
         if homework == None:
-            return jsonify({'message':"homework is not found",'status':404})
+            return jsonify({'message':"homework is not found",'code':404})
         homework_problem = Homework_problem.query.filter_by(homework_id=homework_id).all()
         ret = {}
         ret["class_id"]=homework.class_id
@@ -935,15 +932,15 @@ class homework(Resource):
         a_class = Class.query.filter_by(class_id=args.class_id).first()
 
         if a_class == None:
-            return jsonify({'message':"class is not found",'status':404})
+            return jsonify({'message':"class is not found",'code':404})
 
         if args.user_id != a_class.teacher_id:
-            return jsonify({'message':"only teacher can create homework",'status':500})
+            return jsonify({'message':"only teacher can create homework",'code':500})
 
         for a_problem in problem_set:
             problem = Problem.query.filter_by(problem_id=a_problem).first()
             if problem == None:
-                return jsonify({'message':"problem id = " + str(a_problem) + " is not found",'status':404})
+                return jsonify({'message':"problem id = " + str(a_problem) + " is not found",'code':404})
 
         homework = Homework(class_id=args.class_id,name=args.homework_name,upload_time=args.upload_time,deadline=args.deadline,homework_info=args.homework_info)
         from backend import db
@@ -960,14 +957,14 @@ class homework(Resource):
             
         db.session.add(homework)
         db.session.commit()
-        return jsonify({'message':"success to add exam",'status':300})
+        return jsonify({'message':"success to add exam",'code':300})
 
 class homework_status(Resource):
     def get(self,homework_id):
         homework = Homework.query.filter_by(homework_id=homework_id).first()
         students = Class_user.filter_by(class_id=homework.class_id).all()
         if homework == None:
-            return jsonify({'message':"homework is not found",'status':404})
+            return jsonify({'message':"homework is not found",'code':404})
         homework_problem = Homework_problem.query.filter_by(homework_id=homework_id).all()
         ret = {}
         ret["class_id"]=homework.class_id
