@@ -11,8 +11,7 @@
         <li><router-link to="/status" class="nav-link px-2 link-dark">Status</router-link></li>
         <li><router-link to="/class/homework/all" class="nav-link px-2 link-dark">Homework</router-link></li>
         <li><router-link to="/class/exam" class="nav-link px-2 link-dark">Exam</router-link></li>
-        <li><router-link to="/test-problem" class="nav-link px-2 link-dark">Test 1</router-link></li>
-        <li><router-link to="/test-new-problem" class="nav-link px-2 link-dark">Test 2</router-link></li>
+        <li><router-link to="/test-new-problem" class="nav-link px-2 link-dark">Test New Problem</router-link></li>
       </ul>
 
       <div class="fs-5 col-md-2">
