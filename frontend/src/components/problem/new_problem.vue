@@ -8,7 +8,7 @@
         </div>
         <div class="mb-3">
           <label for="problemDescription" class="form-label">Problem Description</label>
-          <textarea v-model="info.problemDesc" class="form-control" :id="problemDescription" placeholder="" rows="10" style="resize: none;"></textarea>
+          <textarea v-model="info.problemDesc" class="form-control" id="problemDescription" placeholder="" rows="10" style="resize: none;"></textarea>
         </div>
         <div class="row mb-3">
           <div class="col">
@@ -16,7 +16,7 @@
               <label for="timeLimit" class="form-label">Max Time (s)</label>
               <input v-model="info.time_limit" type="text" class="form-control" id="timeLimit">
             </div>
-            <select v-model="selectedLanguage" class="form-select mb-2" aria-label="language">
+            <select v-model="info.language" class="form-select mb-2" aria-label="language">
               <option disabled>language</option>
               <option v-for="l in languages" :key="l">{{ l }}</option>
             </select>
@@ -26,18 +26,16 @@
               <label for="memoryLimit" class="form-label">Max Memory (MB)</label>
               <input v-model="info.memory_limit" type="text" class="form-control" id="memoryLimit">
             </div>
-            <select v-model="selectedDifficulty" class="form-select mb-2" aria-label="difficulty">
+            <select v-model="info.difficulty" class="form-select mb-2" aria-label="difficulty">
               <option disabled>difficulty</option>
               <option v-for="(d, index) in difficulties" :key="index">{{ d }}</option>
             </select>
           </div>
         </div>
-        <button type="button" class="btn btn-warning m-2" @click="onTest">Test All Testcases</button>
-        <button type="button" class="btn btn-success m-2" @click="onSumit">Sumit</button>
       </div>
       <div class="col-6">
         <v-ace-editor
-          v-model:value="code"
+          v-model:value="info.code"
           @init="editorInit"
           style="height: 600px;"
           id="editor"
@@ -47,7 +45,6 @@
     <div class="row" v-for="(testcase, index) in testcases" :key="index">
       <div class="col-2 m-auto">
         <button type="button" class="btn btn-danger" @click="onDelete(index)">Delete</button>
-        <button type="button" class="btn btn-success" @click="onPrint(index)">Print</button>
       </div>
       <div class="col">
         <div class="mb-3 text-start">
@@ -62,8 +59,14 @@
         </div>
       </div>
     </div>
+    <div>
+      <error v-if="error" :error="error"/>
+      <loading v-if="loading" :loading="'Testcases is running'"/>
+    </div>
     <div class="my-2">
-      <button type="button" class="btn btn-success" @click="onNewTestcase">New Testcase</button>
+      <button type="button" class="btn btn-primary m-2" @click="onNewTestcase">New Testcase</button>
+      <button type="button" class="btn btn-warning m-2" @click="onTest">Test All Testcases</button>
+      <button type="button" class="btn btn-success m-2" @click="onSumit">Sumit</button>
     </div>
   </div>
 </template>
@@ -71,7 +74,9 @@
 <script>
 import { VAceEditor } from 'vue3-ace-editor'
 import 'ace-builds/src-noconflict/theme-chrome'
-// import axios from 'axios'
+import axios from 'axios'
+import Error from '../error.vue'
+import Loading from '../loading.vue'
 
 export default {
   name: "NewProblem",
@@ -80,21 +85,23 @@ export default {
       info: {
         name: "",
         problemDesc: "",
-        difficulty: "",
+        language: "language",
+        difficulty: "difficulty",
         time_limit: 1,
         memory_limit: 256,
+        code: ""
       },
       testcases: [
         {input: "123", output: "456"},
         {input: "111", output: "222"}
       ],
-      code: "",
       languages: ["c", "cpp", "python"],
       difficulties: ["easy", "medium", "hard"],
-      selectedLanguage: "language",
-      selectedDifficulty: "difficulty",
 
-      error: ""
+      source_id: null,
+
+      error: null,
+      loading: null
     }
   },
   methods: {
@@ -108,40 +115,108 @@ export default {
         return
       }
 
-      const language = this.selectedLanguage
+      const language = this.info.language
       if (language === "language") {
         this.error = "Language is not selected."
         return
       }
 
-      const testcase = this.testcases.map( x => x.input )
-      if (testcase.length < 1) {
+      const test_case = this.testcases.map( x => x.input );
+      if (test_case.length < 1) {
         this.error = "You need to enter at least one testcase."
         return
       }
 
-      let body = {
+      this.error = null
+
+      let postData = {
         user_id: user_id,
         language: language,
-        testcase: testcase,
-        code_content: this.code
+        test_case: test_case,
+        code_content: this.info.code
       }
-      console.log(body)
+
+      axios.post('/problem/new/test_run', postData)
+      .then( res => {
+        if (res.data.source_id !== undefined) {
+          this.source_id = res.data.source_id
+          this.loading = true
+
+          let get_testcase_interval = setInterval( () => {
+            axios.get('problem/new/test_run', {
+              params: {
+                source_id: this.source_id,
+                user_id: user_id
+              }
+            })
+            .then( (res) => {
+              if (res.data.status === "CE") {
+                clearInterval(get_testcase_interval)
+                
+                this.error = res.data.error_message
+              }
+              if (res.data.return_set !== undefined) {
+                clearInterval(get_testcase_interval)
+
+                for (let i = 0; i < this.testcases.length; i++) {
+                  this.testcases[i].output = res.data.return_set[i]
+                }
+
+                this.loading = false
+
+              }
+            })
+          }, 1000)
+        }
+      })
+      .catch( error => {
+        this.error = error
+      })
+
+    },
+    onSumit() {
+      if (this.loading !== false || this.source_id === null) {
+        this.error = "You need to run testcases and wait until it is finished."
+        return
+      }
+
+      let difficultyToInt = function(difficulty) {
+        if (difficulty === "easy") return 1
+        if (difficulty === "medium") return 2
+        if (difficulty === "hard") return 3
+        return 0
+      }
+      console.log(this.info.difficulty)
+
+      const postData = {
+        questioner_id: this.$store.getters.userId,
+        source_id: this.source_id,
+        name: this.info.name,
+        difficulty: difficultyToInt(this.info.difficulty),
+        content: this.info.problemDesc,
+        time_limit: this.info.time_limit,
+        memory_limit: this.info.memory_limit,
+        is_hidden: 0
+      }
+
+      axios.post('/problem', postData)
+      .then(() => {
+        console.log("success to create a problem")
+        this.$router.push('/problem/all')
+      })
+
     },
     onDelete(index) {
       this.testcases.splice(index, 1)
-    },
-    onPrint(index) {
-      let temp = this.testcases[index].input
-      temp = JSON.stringify(temp)
-      console.log(temp)
     },
     onNewTestcase() {
       this.testcases.push({})
     }
   },
   components: {
-    VAceEditor
+    VAceEditor,
+    Error,
+    Loading
   }
 }
 </script>
