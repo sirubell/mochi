@@ -48,8 +48,29 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import axios from 'axios'
+
 export default {
   name: 'User',
-
+  data() {
+    return {
+      userInfo: {},
+      error: null
+    }
+  },
+  computed: {
+    ...mapGetters([
+      'userId'
+    ])
+  },
+  created() {
+    axios.get('/user/myprofile')
+    .then(res => {
+      this.userInfo = res.data
+    }).catch(e => { 
+      this.error = e
+    })
+  }
 }
 </script>

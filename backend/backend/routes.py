@@ -413,7 +413,8 @@ class reset_password(Resource):
 
 
 class logout(Resource):
-    def logout():
+    @login_required
+    def get(self):
         logout_user()
         return jsonify({"message" : "success to logout"})
 
@@ -428,7 +429,7 @@ class user_profile(Resource):
         datas = []
         for AC in ACs:
             datas.append(AC.problem_id)
-        return jsonify({"name": user.name, "email": user.email, "register_date": str(user.register_date), "user_problem": datas})
+        return jsonify({"name": user.name, "email": user.email, "user_id": user.id, "register_date": str(user.register_date), "user_problem": datas})
 
     def put(self):
         args = user_profile_put_args.parse_args()
@@ -438,6 +439,16 @@ class user_profile(Resource):
         from backend import db
         db.session.commit()
 
+class user_myprofile(Resource):
+    @login_required
+    def get(self):
+        from backend import db
+        user = current_user
+        ACs = User_problem.query.filter_by(user_id=user.id, status=1).all()
+        datas = []
+        for AC in ACs:
+            datas.append(AC.problem_id)
+        return jsonify({"name": user.name, "email": user.email, "user_id": user.id, "register_date": str(user.register_date), "user_problem": datas})
 
 class submission_data(Resource):
     def get(self, submission_id):

@@ -44,11 +44,13 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import axios from 'axios'
 
 export default {
   name: 'NavBar',
   methods: {
     handleClick() {
+      axios.get('logout')
       this.$store.dispatch('login', null);
       this.$router.push('/');
     }

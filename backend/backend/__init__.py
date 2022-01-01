@@ -101,6 +101,8 @@ api.add_resource(reset_password, "/forgot_password/<token>/new_password")
 from backend.routes import user_profile
 api.add_resource(user_profile, "/user/<int:user_id>/profile")
 
+from backend.routes import user_myprofile
+api.add_resource(user_myprofile, "/user/myprofile")
 
 
 from backend.routes import submission_data

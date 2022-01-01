@@ -7,11 +7,18 @@
 
 <script>
 import NavBar from './components/navbar.vue'
+import axios from 'axios'
 
 export default {
   name: 'App',
   components: {
     NavBar
+  },
+  created() {
+    axios.get('/user/myprofile')
+    .then(res => {
+      this.$store.dispatch('login', res.data.user_id)
+    })
   }
 }
 </script>
