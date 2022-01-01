@@ -36,11 +36,33 @@
         </ul>
       </div>
     </nav>
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 fs-3">
       <!-- <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"> -->
         <h2 class="d-flex border-bottom">Profile</h2>
-        <h4 class="d-flex">Name</h4>      
-        <h4 class="d-flex">Email</h4>
+        <div class="d-flex mb-3 row">
+          <label for="staticName" class="col-sm-2 col-form-label">Name</label>
+          <div class="col-sm-10">
+            <input type="text" readonly class="form-control-plaintext" id="staticName" :value="userInfo.name">
+          </div>
+        </div>
+        <div class="d-flex mb-3 row">
+          <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
+          <div class="col-sm-10">
+            <input type="text" readonly class="form-control-plaintext" id="staticEmail" :value="userInfo.email">
+          </div>
+        </div>
+        <div class="d-flex mb-3 row">
+          <label for="staticUserId" class="col-sm-2 col-form-label">Id</label>
+          <div class="col-sm-10">
+            <input type="text" readonly class="form-control-plaintext" id="staticUserId" :value="userInfo.user_id">
+          </div>
+        </div>
+        <div class="d-flex mb-3 row">
+          <label for="staticRegisterDate" class="col-sm-2 col-form-label">Register Date</label>
+          <div class="col-sm-10">
+            <input type="text" readonly class="form-control-plaintext" id="staticRegisterDate" :value="userInfo.register_date">
+          </div>
+        </div>
       <!-- </div> -->
     </main>
   </div>
@@ -68,6 +90,7 @@ export default {
     axios.get('/user/myprofile')
     .then(res => {
       this.userInfo = res.data
+      console.log(res.data)
     }).catch(e => { 
       this.error = e
     })
