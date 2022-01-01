@@ -25,14 +25,14 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      problemTable: {}
+      problemTable: {},
+      error: ""
     }
   },
   created() {
-    axios.get('http://192.168.122.231:5000/'+'problem?page='+1)
+    axios.get('problem?page=1')
     .then( response => {
       this.problemTable = response.data.returnset
-      console.log(response.data.returnset)
     })
     .catch( error => {
       this.error = error
