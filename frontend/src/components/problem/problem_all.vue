@@ -5,7 +5,7 @@
     <th>Problem name</th>
     <th>Difficulty</th>
     <tr v-for="item in problemTable" :key="item.id" >
-      <td><a v-bind:href="item.id">{{ item.id }}</a></td>
+      <td><router-link :to="'/problem/' + item.id">{{ item.id }}</router-link></td>
       <td>{{ item.name }}</td>
       <td>{{ item.difficulty }}</td>
     </tr>
