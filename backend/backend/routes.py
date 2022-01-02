@@ -674,7 +674,6 @@ class dispatcher(Resource):
                                 dashboard.total_time += dash.solved_time
                             db.session.add(dash)
                         else:
-                            XD = 1  # date time
                             dash.try_count += 1
                             if status == 'AC':
                                 if dash.current_status == 0:
@@ -729,8 +728,10 @@ class dispatcher(Resource):
                 XD = 1  # status 的定義
                 user_problem = User_problem.query.filter_by(
                     user_id=data.user_id, problem_id=data.problem_id).first()
-                if user_problem.status < status:
-                    user_problem.status = status
+                if status == "AC":
+                    user_problem.status = 1
+                else:
+                    user_problem.status = 0
                 db.session.commit()
 
             elif data.mode == 2:
@@ -902,9 +903,10 @@ class exam(Resource):
             problem = Problem.query.filter_by(problem_id=a_problem).first()
             if problem == None:
                 return jsonify({'message': "problem id = " + str(a_problem) + " is not found", 'code': 404})
-
-        exam = Exam(class_id=args.class_id, name=args.exam_name, start_time=args.exam_start_time,
-                    end_time=args.exam_end_time, exam_info=args.exam_info)
+        start_time = datetime.strptime(args.exam_start_time, "%Y/%m/%d %H:%M:%S")
+        end_time = datetime.strptime(args.exam_end_time, "%Y/%m/%d %H:%M:%S")
+        exam = Exam(class_id=args.class_id, name=args.exam_name, start_time=start_time,
+                    end_time=end_time, exam_info=args.exam_info)
         from backend import db
 
         cnt = 1
