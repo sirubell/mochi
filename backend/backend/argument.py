@@ -89,8 +89,8 @@ submission_post_args.add_argument("code_content", type=str, required=True, help=
 queue_post_args = reqparse.RequestParser()
 queue_post_args.add_argument("user_id", type=int, required=True, help="User_id is required!")
 queue_post_args.add_argument("problem_id", type=int, default=0)
-queue_post_args.add_argument("exam_id", type=int,default=0)
-queue_post_args.add_argument("homework_id", type=int,default=0)
+queue_post_args.add_argument("exam_id", type=int)
+queue_post_args.add_argument("homework_id", type=int)
 queue_post_args.add_argument("language", type=str, required=True, help="Language is required!")
 queue_post_args.add_argument("code_content", type=str, required=True, help="Code_content is required!")
 

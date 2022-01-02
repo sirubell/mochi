@@ -109,7 +109,7 @@ api.add_resource(user_myprofile, "/user/myprofile")
 
 
 from backend.routes import submission_data
-api.add_resource(submission_data, "/submission/<int:source_id>")
+api.add_resource(submission_data, "/submission/<int:submission_id>")
 
 from backend.routes import queue_new
 api.add_resource(queue_new, "/submission/new")
