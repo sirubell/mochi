@@ -12,10 +12,10 @@
   </table>
 
   <p>
-    <button v-on:click="currentPage--">Previous</button> 
-    <button v-on:click="currentPage++">Next</button>
+    <button v-on:click="page_minus">Previous</button> 
+    <button v-on:click="page_plus">Next</button>
   </p>
-
+  <h1>{{currentPage}}</h1>
   <div v-if="error">
     {{ error }}
   </div>
@@ -38,17 +38,18 @@ export default {
   },
   method:{
     page_plus (){
-      this.currentPage++
+      this.currentPage+=1
       console.log(this.currentPage)
     },
     page_minus (){
-      this.currentPage--
+      this.currentPage-=1
     }
   },
   created() {
     axios.get('problem?page='+this.currentPage)
     .then( response => {
       this.problemTable = response.data.returnset
+      console.log(this.currentPage)
     })
     .catch( error => {
       this.error = error
