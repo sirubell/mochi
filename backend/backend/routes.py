@@ -46,8 +46,6 @@ class delete_dir(Resource):
     def delete(self):
         shutil.rmtree(buffer_dir)
         os.mkdir(buffer_dir)
-
-        problem_dir = os.path.join(parentdir, 'Problem')
         if os.path.isdir(problem_dir):
             shutil.rmtree(problem_dir)
             os.mkdir(problem_dir)
@@ -520,8 +518,9 @@ class queue_new(Resource):
         from backend import db
         args = queue_post_args.parse_args()
         problem = Problem.query.filter_by(problem_id=args.problem_id).first()
+        upload_date = datetime.datetime.now()
         new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
-                          homework_id=args.homework_id, language=args.language, upload_date=datetime.datetime.now(), code_content=args.code_content, test_case_count=problem.testcase_count)
+                          homework_id=args.homework_id, language=args.language, upload_date=upload_date, code_content=args.code_content, test_case_count=problem.testcase_count)
 
         if not os.path.isdir(buffer_dir):
             os.mkdir(buffer_dir)
@@ -541,7 +540,7 @@ class queue_new(Resource):
                 ret['code'] = 404
                 ret['warning'] = 'homework is not found'
                 return jsonify(ret)
-            if args.upload_date > homework.deadline:
+            if upload_date > homework.deadline:
                 ret['code'] = 500
                 ret['warning'] = 'homework deadline is over'
                 return jsonify(ret)
@@ -552,7 +551,7 @@ class queue_new(Resource):
                 ret['code'] = 404
                 ret['warning'] = 'exam is not found'
                 return jsonify(ret)
-            if args.upload_date > exam.deadline:
+            if upload_date > exam.end_time:
                 ret['code'] = 500
                 ret['warning'] = 'exam is end'
                 return jsonify(ret)
@@ -634,7 +633,6 @@ class dispatcher(Resource):
     def post(self):
         from backend import db
         args = dispatcher_post_args.parse_args()
-        count = args["Return_count"]
         for submission in args["Return_Set"]:
             data = Queue.query.filter_by(
                 source_id=submission["Source_id"]).first()
@@ -661,12 +659,13 @@ class dispatcher(Resource):
                     end_time = exam.end_time
                     if end_time > upload_date:
                         timedelta = upload_date-start_time
-                        solved_time = timedelta.total_second()//60
+                        solved_time = timedelta.total_seconds()//60
                         from backend import db
                         if dashboard == None:
                             dashboard = Dashboard(
                                 exam_id=data.exam_id, user_id=data.user_id, solved_count=0, total_time=0)
                             db.session.add(dashboard)
+                            db.session.commit()
                         if dash == None:
                             problem = Exam_problem.query.filter_by(
                                 exam_id=data.exam_id, problem_id=problem_id).first()
@@ -679,6 +678,7 @@ class dispatcher(Resource):
                                 dashboard.solved_count += 1
                                 dashboard.total_time += dash.solved_time
                             db.session.add(dash)
+                            db.session.commit()
                         else:
                             dash.try_count += 1
                             if status == 'AC':
@@ -688,12 +688,12 @@ class dispatcher(Resource):
                                     dashboard.solved_count += 1
                                     dashboard.total_time += dash.solved_time + \
                                         (dash.try_count - 1) * 20
-                        db.session.commit()
+                            db.session.commit()
 
                 elif data.homework_id:
                     homework = Homework.query.filter_by(
                         homework_id=data.homework_id).first()
-                    student = Class_user.filter_by(
+                    student = Class_user.query.filter_by(
                         class_id=homework.class_id, user_id=data.user_id).first()
                     homework_problem = Homework_problem.query.filter_by(
                         homework_id=data.homework_id).all()
@@ -717,19 +717,20 @@ class dispatcher(Resource):
                                 new_homework_problem_status = Homework_problem_status(
                                     homework_id=data.homework_id, problem_id=data.problem_id, user_id=data.user_id, hand_in_status=2)
                             db.session.add(new_homework_problem_status)
+                            db.session.commit()
                         else:
                             if status != "AC" and homework_problem_status.hand_in_status == 0:
                                 homework_problem_status.hand_in_status = 1
                             else:
                                 homework_problem_status.hand_in_status = 2
-                        db.session.commit()
+                            db.session.commit()
 
                 new_submission = Submission(user_id=data.user_id, problem_id=data.problem_id, source_id=submission["Source_id"], status=submission["Status"], code_content=data.code_content, exam_id=data.exam_id, homework_id=data.homework_id, error_hint=submission[
                     "Compile_error_out"], error_line=0, language=data.language, time_used=submission["Time"], memory_used=submission["Memory"], upload_date=data.upload_date)
 
                 db.session.add(new_submission)
-                Queue.query.filter_by(
-                    source_id=submission["Source_id"]).delete()
+                db.session.delete(data)
+                db.session.commit()
 
                 XD = 1  # status 的定義
                 user_problem = User_problem.query.filter_by(
@@ -738,7 +739,6 @@ class dispatcher(Resource):
                     user_problem.status = 1
                 else:
                     user_problem.status = 0
-                db.session.commit()
 
             elif data.mode == 2:
                 XD = 1  # compile_error_out 的 status
@@ -765,7 +765,6 @@ class dispatcher(Resource):
                         cnt += 1
                 else:
                     data.error_message = submission["Compile_error_out"]
-        db.session.commit()
         return jsonify({'message': "success to return", 'code': 200})
 
 
@@ -896,6 +895,27 @@ class class_member(Resource):
 
 
 class exam(Resource):
+    def get(self, exam_id):
+        exam = Homework.query.filter_by(exam_id=exam_id).first()
+        if exam == None:
+            return jsonify({'message': "exam is not found", 'code': 404})
+        exam_problem = Homework_problem.query.filter_by(
+            exam_id=exam_id).all()
+        ret = {}
+        ret["class_id"] = exam.class_id
+        ret["name"] = exam.name
+        ret["upload_time"] = exam.upload_time
+        ret["deadline"] = exam.deadline
+        ret["exam_info"] = exam.exam_info
+        ret["problem_set"] = []
+        for a_problem in exam_problem:
+            problem = Problem.query.filter_by(
+                problem_id=a_problem.problem_id).first()
+            ret["problem_set"].append({'sequence':a_problem.sequence,'problem_name':problem.name,'problem_id':problem.problem_id})
+        return jsonify(ret)
+
+
+class add_exam(Resource):
     def post(self):  # 新增考試
         args = exam_post_args.parse_args()
 
@@ -915,22 +935,23 @@ class exam(Resource):
                     end_time=end_time, exam_info=args.exam_info)
         from backend import db
         db.session.add(exam)
+        db.session.commit()
         cnt = 1
         for a_problem in args.problem_set:
             new_exam_problem = Exam_problem(
-                exam_id=Exam.query.count()+1, problem_id=a_problem, sequence=cnt)
+                exam_id=Exam.query.count(), problem_id=a_problem, sequence=cnt)
             cnt += 1
             db.session.add(new_exam_problem)
 
         db.session.commit()
-        problem_set = Exam_problem.query.filter_by(exam_id=Exam.query.count()+1).all()
+        problem_set = Exam_problem.query.filter_by(exam_id=Exam.query.count()).all()
         students = Class_user.query.filter_by(class_id=args.class_id).all()
         from backend import db
         for student in students:
-            new_dashboard = Dashboard(exam_id=Exam.query.count()+1, user_id=student.user_id)
+            new_dashboard = Dashboard(exam_id=Exam.query.count(), user_id=student.user_id)
             db.session.add(new_dashboard)
             for problem in problem_set:
-                dash = Dashboard_with_problem(exam_id=Exam.query.count()+1, user_id=student.user_id, problem_id=problem.problem_id,
+                dash = Dashboard_with_problem(exam_id=Exam.query.count(), user_id=student.user_id, problem_id=problem.problem_id,
                                               sequence=problem.sequence)
                 db.session.add(dash)
         db.session.add(exam)
@@ -940,7 +961,7 @@ class exam(Resource):
 
 class dashboard(Resource):
     def get(self, exam_id):  # 回傳dashboard table
-        lines = Dashboard.query.filter_by(exam_id=exam_id).all()
+        lines = Dashboard.query.filter_by(exam_id=exam_id).order_by(Dashboard.solved_count.desc()).all()
         if lines == None:
             return jsonify({'message': "Error, dashboard hadn't been created", 'code': 404})
         problem_set = []
@@ -960,13 +981,54 @@ class dashboard(Resource):
             for dash in dashs:
                 problem = {}
                 problem["sequence"]=dash.sequence
-                problem["problem_status"]=dash.current_status
-                problem["problem_time"]=dash.solved_time
-                problem["problem_try_count"]=dash.try_count
+                problem["status"]=dash.current_status
+                problem["solved_time"]=dash.solved_time
+                problem["try_count"]=dash.try_count
                 a_student["problem"].append(problem)
             ret["return_set"].append(a_student)
         return jsonify(ret)
         
+
+
+class add_homework(Resource):
+    def post(self):
+        args = homework_post_args.parse_args()
+        problem_set = args.problem_set
+
+        a_class = Class.query.filter_by(class_id=args.class_id).first()
+
+        if a_class == None:
+            return jsonify({'message': "class is not found", 'code': 404})
+
+        if args.user_id != a_class.teacher_id:
+            return jsonify({'message': "only teacher can create homework", 'code': 500})
+
+        for a_problem in problem_set:
+            problem = Problem.query.filter_by(problem_id=a_problem).first()
+            if problem == None:
+                return jsonify({'message': "problem id = " + str(a_problem) + " is not found", 'code': 404})
+
+        upload_time = datetime.datetime.strptime(args.upload_time, "%Y/%m/%d %H:%M:%S")
+        deadline = datetime.datetime.strptime(args.deadline, "%Y/%m/%d %H:%M:%S")
+        homework = Homework(class_id=args.class_id, name=args.homework_name,
+                            upload_time=upload_time, deadline=deadline, homework_info=args.homework_info)
+        from backend import db
+
+        cnt = 1
+        for a_problem in problem_set:
+            new_homework_problem = Homework_problem(
+                homework_id=homework.query.count()+1, problem_id=a_problem, sequence=cnt)
+            cnt += 1
+            db.session.add(new_homework_problem)
+            students = Class_user.query.ilter_by(class_id=args.class_id).all()
+            for student in students:
+                new_homework_problem_status = Homework_problem_status(homework_id=Homework.query.count(
+                )+1, problem_id=a_problem, user_id=student.user_id, hand_in_status=0)
+                db.session.add(new_homework_problem_status)
+
+        db.session.add(homework)
+        db.session.commit()
+        return jsonify({'message': "success to add exam", 'code': 300})
 
 
 class homework(Resource):
@@ -986,51 +1048,13 @@ class homework(Resource):
         for a_problem in homework_problem:
             problem = Problem.query.filter_by(
                 problem_id=a_problem.problem_id).first()
-            ret["problem_set"].append(problem.as_dict)
+            ret["problem_set"].append({'sequence':a_problem.sequence,'problem_name':problem.name,'problem_id':problem.problem_id})
         return jsonify(ret)
-
-    def post(self):
-        args = homework_post_args.parse_args()
-        problem_set = args.problem_set
-
-        a_class = Class.query.filter_by(class_id=args.class_id).first()
-
-        if a_class == None:
-            return jsonify({'message': "class is not found", 'code': 404})
-
-        if args.user_id != a_class.teacher_id:
-            return jsonify({'message': "only teacher can create homework", 'code': 500})
-
-        for a_problem in problem_set:
-            problem = Problem.query.filter_by(problem_id=a_problem).first()
-            if problem == None:
-                return jsonify({'message': "problem id = " + str(a_problem) + " is not found", 'code': 404})
-
-        homework = Homework(class_id=args.class_id, name=args.homework_name,
-                            upload_time=args.upload_time, deadline=args.deadline, homework_info=args.homework_info)
-        from backend import db
-
-        cnt = 1
-        for a_problem in problem_set:
-            new_homework_problem = Homework_problem(
-                homework_id=homework.query.count()+1, problem_id=a_problem, sequence=cnt)
-            cnt += 1
-            db.session.add(new_homework_problem)
-            students = Class_user.filter_by(class_id=args.class_id).all()
-            for student in students:
-                new_homework_problem_status = Homework_problem_status(homework_id=Homework.query.count(
-                )+1, problem_id=a_problem, user_id=student.user_id, hand_in_status=0)
-                db.session.add(new_homework_problem_status)
-
-        db.session.add(homework)
-        db.session.commit()
-        return jsonify({'message': "success to add exam", 'code': 300})
-
 
 class homework_status(Resource):
     def get(self, homework_id):
         homework = Homework.query.filter_by(homework_id=homework_id).first()
-        students = Class_user.filter_by(class_id=homework.class_id).all()
+        students = Class_user.query.filter_by(class_id=homework.class_id).all()
         if homework == None:
             return jsonify({'message': "homework is not found", 'code': 404})
         homework_problem = Homework_problem.query.filter_by(
@@ -1039,11 +1063,17 @@ class homework_status(Resource):
         ret["class_id"] = homework.class_id
         ret["name"] = homework.name
         ret["status_table"] = []
-        for a_problem in homework_problem:
-            ret["status_table"][str(a_problem.sequence)] = []
-            for student in students:
-                homework_problem_status = Homework_problem_status.query_filter_by(
-                    homework_id=homework.homework_id, problem_id=a_problem.problem_id, user_id=student.user_id).first()
-                ret["status_table"][str(a_problem.sequence)].append(
-                    homework_problem_status)
+        for student in students:
+            a_student_status = {}
+            a_student_status['student_id'] = student.student_id
+            a_student_status['status'] = []
+            for a_problem in homework_problem:
+                problem = {}
+                problem["sequence"]=a_problem.sequence
+                homework_problem_status = Homework_problem_status.query.filter_by(
+            homework_id=homework.homework_id, problem_id=a_problem.problem_id, user_id=student.user_id).first()
+                problem["status"]=homework_problem_status.hand_in_status
+                a_student_status['status'].append(problem)
+                
+            ret["status_table"].append(a_student_status)
         return jsonify(ret)

@@ -126,8 +126,20 @@ api.add_resource(A_class,"/class/<int:class_id>")
 from backend.routes import class_member
 api.add_resource(class_member,"/class/<int:class_id>/member")
 
+from backend.routes import add_exam
+api.add_resource(add_exam,"/exam")
+
 from backend.routes import exam
 api.add_resource(exam,"/exam")
 
 from backend.routes import dashboard
 api.add_resource(dashboard,"/exam/<int:exam_id>/dashboard")
+
+from backend.routes import homework
+api.add_resource(homework,"/homework/<int:homework_id>")
+
+from backend.routes import add_homework
+api.add_resource(add_homework,"/homework")
+
+from backend.routes import homework_status
+api.add_resource(homework_status,"/homework_status/<int:homework_id>")
