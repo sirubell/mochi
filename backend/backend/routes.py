@@ -914,7 +914,7 @@ class exam(Resource):
         exam = Exam(class_id=args.class_id, name=args.exam_name, start_time=start_time,
                     end_time=end_time, exam_info=args.exam_info)
         from backend import db
-
+        db.session.add(exam)
         cnt = 1
         for a_problem in args.problem_set:
             new_exam_problem = Exam_problem(
@@ -922,6 +922,17 @@ class exam(Resource):
             cnt += 1
             db.session.add(new_exam_problem)
 
+        db.session.commit()
+        problem_set = Exam_problem.query.filter_by(exam_id=Exam.query.count()+1).all()
+        students = Class_user.query.filter_by(class_id=args.class_id).all()
+        from backend import db
+        for student in students:
+            new_dashboard = Dashboard(exam_id=Exam.query.count()+1, user_id=student.user_id)
+            db.session.add(new_dashboard)
+            for problem in problem_set:
+                dash = Dashboard_with_problem(exam_id=Exam.query.count()+1, user_id=student.user_id, problem_id=problem.problem_id,
+                                              sequence=problem.sequence)
+                db.session.add(dash)
         db.session.add(exam)
         db.session.commit()
         return jsonify({'message': "success to add exam", 'code': 300})
@@ -955,22 +966,7 @@ class dashboard(Resource):
                 a_student["problem"].append(problem)
             ret["return_set"].append(a_student)
         return jsonify(ret)
-
-    def post(self,exam_id):  # 初始化dashboard table
-        exam = Exam.query.filter_by(exam_id=exam_id).first()
-        problem_set = Exam_problem.query.filter_by(exam_id=exam_id).all()
-        class_id = exam.class_id
-        students = Class_user.query.filter_by(class_id=class_id).all()
-        from backend import db
-        for student in students:
-            new_dashboard = Dashboard(exam_id=exam_id, user_id=student.user_id)
-            db.session.add(new_dashboard)
-            for problem in problem_set:
-                dash = Dashboard_with_problem(exam_id=exam_id, user_id=student.user_id, problem_id=problem.problem_id,
-                                              sequence=problem.sequence)
-                db.session.add(dash)
-        db.session.commit()
-        return jsonify({'message': "create_succes", 'code': 200})
+        
 
 
 class homework(Resource):
