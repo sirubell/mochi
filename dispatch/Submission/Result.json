@@ -1,85 +1,23 @@
 {
-    "Return_count": 2,
+    "Return_count": 1,
     "Return_Set": [
         {
             "Source_id": 1,
-            "Mode": 1,
-            "Status": "AC",
+            "Mode": 3,
+            "Status": "Check_TLE_MLE_Error",
             "Compile_error_out": "",
-            "Time": "2",
-            "Memory": "2384",
-            "All_stander_out": {},
+            "Time": "-1",
+            "Memory": "-1",
+            "All_stander_out": {
+                "1": "",
+                "2": ""
+            },
             "All_compare_out": [
                 {
-                    "1": "AC"
+                    "1": "Check_TLE_MLE_Error"
                 },
                 {
-                    "2": "AC"
-                },
-                {
-                    "3": "AC"
-                },
-                {
-                    "4": "AC"
-                },
-                {
-                    "5": "AC"
-                },
-                {
-                    "6": "AC"
-                },
-                {
-                    "7": "AC"
-                },
-                {
-                    "8": "AC"
-                },
-                {
-                    "9": "AC"
-                },
-                {
-                    "10": "AC"
-                }
-            ]
-        },
-        {
-            "Source_id": 2,
-            "Mode": 1,
-            "Status": "AC",
-            "Compile_error_out": "",
-            "Time": "1",
-            "Memory": "2304",
-            "All_stander_out": {},
-            "All_compare_out": [
-                {
-                    "1": "AC"
-                },
-                {
-                    "2": "AC"
-                },
-                {
-                    "3": "AC"
-                },
-                {
-                    "4": "AC"
-                },
-                {
-                    "5": "AC"
-                },
-                {
-                    "6": "AC"
-                },
-                {
-                    "7": "AC"
-                },
-                {
-                    "8": "AC"
-                },
-                {
-                    "9": "AC"
-                },
-                {
-                    "10": "AC"
+                    "2": "Check_TLE_MLE_Error"
                 }
             ]
         }

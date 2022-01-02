@@ -139,3 +139,34 @@ def change_json(data) :
 			smalldata["All_compare_out"].append({str(key2):data[key]["All_compare_out"][key2]})
 		res["Return_Set"].append(smalldata)
 	return res
+
+
+def c_block_header(file_place):
+	try:
+		f = open(file_place,"r")
+		content = f.read().replace('\n',' ')
+		if content.find("unistd.h") == -1 and content.find("threads.h") == -1 and content.find("fork") == -1:
+			return "Save"
+		return "Block"
+	except:
+		return "Check_Block_Error"
+
+def cpp_block_header(file_place):
+	try:
+		f = open(file_place,"r")
+		content = f.read().replace('\n',' ')
+		if content.find("thread") == -1 and content.find("system") == -1 and content.find("popen") == -1 and content.find("fork") == -1:
+			return "Save"
+		return "Block"
+	except:
+		return "Check_Block_Error"
+
+def python_block_header(file_place):
+	try:
+		f = open(file_place,"r")
+		content = f.read().replace('\n',' ')
+		if content.find('subprocess') == -1 and content.find("multiprocessing") == -1 and content.find("threading") == -1:
+			return "Save"
+		return "Block"
+	except:
+		return "Check_Block_Error"
