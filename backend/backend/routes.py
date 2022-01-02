@@ -200,6 +200,7 @@ class create_problem_test_run(Resource):
         if not os.path.isdir(path):
             os.mkdir(path)
         else:
+            from backend import db
             shutil.rmtree(path)
             os.mkdir(path)
             last_q = Queue.query.filter_by(
@@ -239,18 +240,21 @@ class test_run(Resource):
         else:
             return jsonify({'message': "Error, user_id is required", 'code': 500})
         now = Queue.query.filter_by(source_id=source_id).first()
-        if now.status == 0:
+        if now.status == None:
             return jsonify({'message': "pending", 'code': 500})
+        
         # from backend.convert_file_to_json import convert_file_to_json as yea
         # res = yea("buffer/"+str(source_id)+'.ans')
-        if not os.path.isdir(buffer_dir):
-            os.mkdir(buffer_dir)
-        with open(os.paht.join(buffer_dir, str(source_id)+".ans"), mode="r", encoding="utf-8") as file:
-            res = file.read()
-        from backend import db
-        db.session.delete(now)
-        db.session.commit()
-        return res
+        if now.status == 'AC':
+            if not os.path.isdir(buffer_dir):
+                os.mkdir(buffer_dir)
+            with open(os.path.join(buffer_dir, str(source_id)+".ans"), mode="r", encoding="utf-8") as file:
+                res = file.read()
+            from backend import db
+            db.session.delete(now)
+            db.session.commit()
+            return jsonify({'message':'OK','output':res,'status':'AC'})
+        return jsonify({'message':now.error_message,'output':"",'status':now.status})
 
     def post(self):
         from backend import db
@@ -903,8 +907,8 @@ class exam(Resource):
             problem = Problem.query.filter_by(problem_id=a_problem).first()
             if problem == None:
                 return jsonify({'message': "problem id = " + str(a_problem) + " is not found", 'code': 404})
-        start_time = datetime.strptime(args.exam_start_time, "%Y/%m/%d %H:%M:%S")
-        end_time = datetime.strptime(args.exam_end_time, "%Y/%m/%d %H:%M:%S")
+        start_time = datetime.datetime.strptime(args.exam_start_time, "%Y/%m/%d %H:%M:%S")
+        end_time = datetime.datetime.strptime(args.exam_end_time, "%Y/%m/%d %H:%M:%S")
         exam = Exam(class_id=args.class_id, name=args.exam_name, start_time=start_time,
                     end_time=end_time, exam_info=args.exam_info)
         from backend import db
@@ -927,7 +931,7 @@ class dashboard(Resource):
         if lines == None:
             return jsonify({'message': "Error, dashboard hadn't been created", 'code': 404})
         problem_set = []
-        exam_problems = Exam_problem.filter_by(exam_id=exam_id).all()
+        exam_problems = Exam_problem.query.filter_by(exam_id=exam_id).all()
         for exam_problem in exam_problems:
             problem_set.append(exam_problem.problem_id)
         ret = {}
@@ -939,21 +943,18 @@ class dashboard(Resource):
             a_student["solved"] = line.solved_count
             dashs = Dashboard_with_problem.query.filter_by(
                 user_id=line.user_id).all()
-            a_student["problem_status"] = []
-            a_student["problem_time"] = []
-            a_student["problem_try_count"] = []
+            a_student["problem"] = []
             for dash in dashs:
-                a_student["problem_status"].append(dash.current_status)
-                a_student["problem_time"].append(dash.solved_time)
-                a_student["problem_try_count"].append(dash.try_count)
+                problem = {}
+                problem["sequence"]=dash.sequence
+                problem["problem_status"]=dash.current_status
+                problem["problem_time"]=dash.solved_time
+                problem["problem_try_count"]=dash.try_count
+                a_student["problem"].append(problem)
             ret["return_set"].append(a_student)
         return jsonify(ret)
 
-    def post(self):  # 初始化dashboard table
-        if 'exam_id' in request.args:
-            exam_id = request.args['exam_id']
-        else:
-            return jsonify({'message': "Error, exam_id is required"})
+    def post(self,exam_id):  # 初始化dashboard table
         exam = Exam.query.filter_by(exam_id=exam_id).first()
         problem_set = Exam_problem.query.filter_by(exam_id=exam_id).all()
         class_id = exam.class_id
@@ -964,7 +965,7 @@ class dashboard(Resource):
             db.session.add(new_dashboard)
             for problem in problem_set:
                 dash = Dashboard_with_problem(exam_id=exam_id, user_id=student.user_id, problem_id=problem.problem_id,
-                                              sequence=problem.sequence, try_count=0, solved_time=-1, current_status=-1)
+                                              sequence=problem.sequence)
                 db.session.add(dash)
         db.session.commit()
         return jsonify({'message': "create_succes", 'code': 200})

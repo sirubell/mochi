@@ -274,7 +274,7 @@ class Dashboard_with_problem(db.Model):
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
     # penalty_time = db.Column(db.Integer, default=0)
     sequence = db.Column(db.Integer, nullable=False)
-    try_count = db.Column(db.Integer, nullable=False)
-    solved_time = db.Column(db.Integer, nullable=False)
+    try_count = db.Column(db.Integer, nullable=False, default=0)
+    solved_time = db.Column(db.Integer, nullable=False, default=0)
     current_status = db.Column(db.Integer, nullable=False, default=0)
     
