@@ -10,6 +10,12 @@
       <td>{{ item.difficulty }}</td>
     </tr>
   </table>
+
+  <p>
+    <button v-on:click="currentPage--">Previous</button> 
+    <button v-on:click="currentPage++">Next</button>
+  </p>
+
   <div v-if="error">
     {{ error }}
   </div>
@@ -25,12 +31,22 @@ import axios from 'axios'
 export default {
   data() {
     return {
+      currentPage:1,
       problemTable: {},
       error: ""
     }
   },
+  method:{
+    page_plus (){
+      this.currentPage++
+      console.log(this.currentPage)
+    },
+    page_minus (){
+      this.currentPage--
+    }
+  },
   created() {
-    axios.get('problem?page=1')
+    axios.get('problem?page='+this.currentPage)
     .then( response => {
       this.problemTable = response.data.returnset
     })
