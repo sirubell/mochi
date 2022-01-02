@@ -130,8 +130,8 @@ class problem(Resource):
 
         if not os.path.isdir(problem_dir):
             os.mkdir(problem_dir)
-        # os.rename(parentdir+"buffer/"+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
-        #           parentdir+"buffer/"+str(now.user_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
+        # os.rename(buffer_dir+'/'+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
+        #           buffer_dir+'/'+str(now.user_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
         shutil.move(path, os.path.join(
             problem_dir, str(Problem.query.count()+1)))
         from backend import db
@@ -245,15 +245,17 @@ class test_run(Resource):
         
         # from backend.convert_file_to_json import convert_file_to_json as yea
         # res = yea("buffer/"+str(source_id)+'.ans')
+        from backend import db
         if now.status == 'AC':
             if not os.path.isdir(buffer_dir):
                 os.mkdir(buffer_dir)
             with open(os.path.join(buffer_dir, str(source_id)+".ans"), mode="r", encoding="utf-8") as file:
                 res = file.read()
-            from backend import db
             db.session.delete(now)
             db.session.commit()
             return jsonify({'message':'OK','output':res,'status':'AC'})
+        db.session.delete(now)
+        db.session.commit()
         return jsonify({'message':now.error_message,'output':"",'status':now.status})
 
     def post(self):
