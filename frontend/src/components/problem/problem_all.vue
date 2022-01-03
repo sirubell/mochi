@@ -16,9 +16,10 @@
   </table>
   <p>
     <button v-if ="currentPage > 1 "  v-on:click="page_minus">Previous</button> 
+    <l1>第{{currentPage}}頁</l1>
     <button v-if ="maxpage > currentPage "  v-on:click="page_plus">Next</button>
   </p>
-  <h1>{{currentPage}}</h1>
+  
   <div v-if="error">
     {{ error }}
   </div>
