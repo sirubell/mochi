@@ -36,11 +36,10 @@ export default {
     methods: {
         async forgotPassword(){ //利用 try catch 作錯誤偵測
             try{
-                await axios.post('forgot_password', {
+                await axios.post('/forgot_password/email', {
                     email: this.email
                 }); // 資料由後方物件帶入 
-                this.message = 'The email was sent!';
-                this.error = '';
+                // this.message = 'The email was sent!';
                 this.$router.push('/reset');
             }
             catch(e){
