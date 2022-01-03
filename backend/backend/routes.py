@@ -478,15 +478,29 @@ class user_myprofile(Resource):
             datas.append(AC.problem_id)
         return jsonify({"name": user.name, "email": user.email, "user_id": user.id, "register_date": str(user.register_date), "user_problem": datas})
 
-class change_profile(Resource):
+class change_profile_name_email(Resource):
     @login_required
+    def get(self):
+        user = current_user
+        return jsonify({"name": user.name, "email": user.email})
     def put(self):
-        args = change_profile_put_args.parse_args()
+        args = change_profile_name_email_put_args.parse_args()
         if_username_has_existed(args.name)
         if_email_has_existed(args.email)
         self = args
         from backend import db
         db.session.commit()
+
+class change_profile_password(Resource):
+    @login_required
+    def put(self):
+        args = change_profile_password_put_args.parse_args()
+        confirm_password_equal_password(args.password, args.confirm_password)
+        hashed_password = bcrypt.generate_password_hash(
+            args.password).decode('utf-8')
+        self.password = hashed_password
+        from backend import db
+        db.session.commit()        
 
 class submission_data(Resource):
     def get(self, submission_id):

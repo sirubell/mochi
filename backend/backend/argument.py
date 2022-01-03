@@ -53,10 +53,13 @@ login_post_args.add_argument("email", type=str, required=True, help='Email is re
 login_post_args.add_argument("password", type=str, required=True, help='Password is required!')
 login_post_args.add_argument("remember", type=bool)
 
-change_profile_put_args = reqparse.RequestParser()
-change_profile_put_args.add_argument("name", type=str)
-change_profile_put_args.add_argument("email", type=str)
-change_profile_put_args.add_argument("password", type=str)
+change_profile_name_email_put_args = reqparse.RequestParser()
+change_profile_name_email_put_args.add_argument("name", type=str)
+change_profile_name_email_put_args.add_argument("email", type=str)
+
+change_profile_password_put_args = reqparse.RequestParser()
+change_profile_password_put_args.add_argument("password", type=str)
+change_profile_password_put_args.add_argument("comfirm_password", type=str)
 
 request_reset_post_args = reqparse.RequestParser()
 request_reset_post_args.add_argument("email", type=str, required=True, help='Email is required!')
