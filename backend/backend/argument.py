@@ -40,6 +40,8 @@ create_problem_test_run_args.add_argument("user_id", type=int, required=True, he
 create_problem_test_run_args.add_argument("language", type=str, required=True, help="Language is required!")
 create_problem_test_run_args.add_argument("code_content", type=str, required=True, help="Code_content is required!")
 create_problem_test_run_args.add_argument("test_case", type=str, required=True, action="append")
+create_problem_test_run_args.add_argument("time_limit", type=str, default = 1)
+create_problem_test_run_args.add_argument("memory_limit", type=str, default = 512)
 
 
 signup_post_args = reqparse.RequestParser()
@@ -93,6 +95,8 @@ queue_post_args.add_argument("exam_id", type=int)
 queue_post_args.add_argument("homework_id", type=int)
 queue_post_args.add_argument("language", type=str, required=True, help="Language is required!")
 queue_post_args.add_argument("code_content", type=str, required=True, help="Code_content is required!")
+queue_post_args.add_argument("time_limit", type=int, default=1)
+queue_post_args.add_argument("memory_limit", type=int, default=512)
 
 dispatcher_post_args = reqparse.RequestParser()
 dispatcher_post_args.add_argument("Return_count", type=int, required=True, help="Return_count is required!")
