@@ -1,18 +1,19 @@
 <template>
 <div>
-  <h1>Problem is not implemented.</h1>
+  <error v-if="error" :error="error" />
+  <h1>{{ info.name }}</h1>
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-2">
         <div class="row mb-3">
           <div class="col">
             <div class="mb-3">
-              <label for="maxTime" class="form-label">Max Time</label>
-              <input type="text" class="form-control" id="maxTime" disabled readonly>
+              <label for="timeLimit" class="form-label">Time Limit</label>
+              <input :value="info.time_limit + 's'" type="text" class="form-control" id="timeLimit" disabled readonly>
             </div>
             <div class="mb-3">
-              <label for="maxMem" class="form-label">Max Memory</label>
-              <input type="text" class="form-control" id="maxMem" disabled readonly>
+              <label for="memoryLimit" class="form-label">Memory Limit</label>
+              <input :value="info.memory_limit + 'MB'" type="text" class="form-control" id="memoryLimit" disabled readonly>
             </div>
             <select v-model="selectedLanguage" class="form-select" aria-label="language">
               <option disabled>language</option>
@@ -20,12 +21,13 @@
             </select>
           </div>
           <div class="col">
-            <button type="button" @click="onClickDescBtn" class="btn my-3" :class="showDesc() ? 'btn-primary' : 'btn-outline-primary'">Desciption</button>
-            <button type="button" @click="onClickInfoBtn" class="btn my-3" :class="showInfo() ? 'btn-secondary' : 'btn-outline-secondary'">Info</button>
-            <div>
+            <div class="mb-2">
               <label for="uploadCode" class="form-label">Upload Code</label>
               <input class="form-control" type="file" id="uploadCode" accept=".c,.cpp,.py" @change="uploadFile">
             </div>
+            <span class="mb-2">Difficulty: {{ info.difficulty }}</span>
+            <button type="button" @click="onClickDescBtn" class="btn my-2" :class="showDesc() ? 'btn-primary' : 'btn-outline-primary'">Desciption</button>
+            <button type="button" @click="onClickSubBtn" class="btn my-2" :class="showSub() ? 'btn-secondary' : 'btn-outline-secondary'">Submission</button>
           </div>
         </div>
         <div class="mb-3">
@@ -41,8 +43,10 @@
           <textarea class="form-control" id="testOutput" rows="3" style="resize: none;" disabled readonly></textarea>
         </div>
       </div>
-      <div class="col-lg-4 text-start" v-show="showDesc()">{{ description }}</div>
-      <div class="col-lg-4 text-start" v-show="showInfo()">{{ info }}</div>
+      <div class="col-lg-4 text-start" v-show="showDesc()">
+        {{ info.content }}
+      </div>
+      <div class="col-lg-4 text-start" v-show="showSub()">{{  }}</div>
       <div class="col-lg">
         <v-ace-editor
           v-model:value="code"
@@ -65,6 +69,8 @@ import 'ace-builds/src-noconflict/mode-c_cpp'
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/theme-monokai.js'
 // import 'ace-builds/src-noconflict/theme-chrome.js'
+import axios from 'axios'
+import Error from '../error.vue'
 
 export default {
   name: 'Problem',
@@ -74,36 +80,48 @@ export default {
       // when add new language to this array
       // you need to update the mode and the
       // language config(aceLanguage()) for ace editor
-      languages: ["c", "cpp", "python"],
+      languages: ["c", "c++", "python"],
       panel: "description",
-      description: "temp desc",
-      info: "temp info",
+
       code: "",
-      problemId: ""
+
+      info: {
+        id: "",
+        name: "",
+        questioner_id: "",
+        difficulty: "",
+        content: "",
+        time_limit: "",
+        memory_limit: "",
+        sample_input: "",
+        sample_ouput: "",
+      },
+
+      error: null
     }
   },
   computed: {
     aceLanguage() {
       if (this.selectedLanguage === "language") return "text"
-      if (this.selectedLanguage === "c" || this.selectedLanguage === "cpp") return "c_cpp"
+      if (this.selectedLanguage === "c" || this.selectedLanguage === "c++") return "c_cpp"
       return this.selectedLanguage
     }
   },
   methods: {
     editorInit() {
-      console.log("creating ace editor")
+      // do nothing
     },
     showDesc() {
       return this.panel === "description"
     },
-    showInfo() {
-      return this.panel === "info"
+    showSub() {
+      return this.panel === "submission"
     },
     onClickDescBtn() {
       this.panel = "description"
     },
-    onClickInfoBtn() {
-      this.panel = "info"
+    onClickSubBtn() {
+      this.panel = "submission"
     },
     uploadFile(evt) {
       const reader = new FileReader()
@@ -116,10 +134,28 @@ export default {
     }
   },
   components: {
-    VAceEditor
+    VAceEditor,
+    Error
   },
   created() {
-    this.problemId = this.$route.params.problemId
+    this.info.id = this.$route.params.problemId
+    axios.get('/problem/' + this.info.id)
+    .then( res => {
+      if (res.data.code === 404) {
+        this.error = res.data.message
+      } else {
+        this.info.id = res.data.problem_id
+        this.info.name = res.data.name
+        this.info.questioner_id = res.data.questioner_id
+        this.info.difficulty = res.data.difficulty
+        this.info.content = res.data.content
+        this.info.time_limit = res.data.time_limit
+        this.info.memory_limit = res.data.memory_limit
+        this.info.sample_input = res.data.sample_input
+        this.info.sample_output = res.data.sample_output
+      }
+    })
+    .catch( e => { this.error = e})
   }
 }
 </script>
