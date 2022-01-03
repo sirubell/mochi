@@ -78,7 +78,8 @@ export default {
       panel: "description",
       description: "temp desc",
       info: "temp info",
-      code: ""
+      code: "",
+      problemId: ""
     }
   },
   computed: {
@@ -116,6 +117,9 @@ export default {
   },
   components: {
     VAceEditor
+  },
+  created() {
+    this.problemId = this.$route.params.problemId
   }
 }
 </script>

@@ -74,9 +74,6 @@ api.add_resource(problem_id, "/problem/<int:problem_id>")
 from backend.routes import problem_solution
 api.add_resource(problem_solution,"/problem/<int:problem_id>/solution")
 
-from backend.routes import problem_submission
-api.add_resource(problem_submission, "/problem/<int:problem_id>/submission")
-
 from backend.routes import test_run
 api.add_resource(test_run,"/problem/test_run")
 
@@ -109,7 +106,7 @@ api.add_resource(user_myprofile, "/user/myprofile")
 
 
 from backend.routes import submission_data
-api.add_resource(submission_data, "/submission/<int:source_id>")
+api.add_resource(submission_data, "/submission/<int:submission_id>")
 
 from backend.routes import queue_new
 api.add_resource(queue_new, "/submission/new")
@@ -126,11 +123,20 @@ api.add_resource(A_class,"/class/<int:class_id>")
 from backend.routes import class_member
 api.add_resource(class_member,"/class/<int:class_id>/member")
 
-from backend.routes import add_member_to_class
-api.add_resource(add_member_to_class,"/class/<int:class_id>/add_member")
+from backend.routes import add_exam
+api.add_resource(add_exam,"/exam")
 
 from backend.routes import exam
-api.add_resource(exam,"/exam")
+api.add_resource(exam,"/exam/<int:exam_id>")
 
 from backend.routes import dashboard
 api.add_resource(dashboard,"/exam/<int:exam_id>/dashboard")
+
+from backend.routes import homework
+api.add_resource(homework,"/homework/<int:homework_id>")
+
+from backend.routes import add_homework
+api.add_resource(add_homework,"/homework")
+
+from backend.routes import homework_status
+api.add_resource(homework_status,"/homework_status/<int:homework_id>")

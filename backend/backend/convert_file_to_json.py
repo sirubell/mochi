@@ -14,7 +14,7 @@ def convert_file_to_json(file_place):
 
 def convert_file_to_testcase():
 	ret = []
-	another_path = 'C:/Users/a2320/Desktop/coding/mochi/backend/test_buffer/3/'
+	another_path = 'C:/Users/a2320/Desktop/coding/mochi/backend/test_buffer/1/'
 	for i in range(0,11):
 		s = ""
 		with open(another_path+str(i)+".in",mode="r",encoding="utf-8") as f:

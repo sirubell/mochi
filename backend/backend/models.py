@@ -4,7 +4,7 @@ from backend import db, app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-#import datetime
+import datetime
 
 
 
@@ -68,6 +68,7 @@ class Problem(db.Model):
     memory_limit = db.Column(db.Integer, nullable = False)
     testcase_count = db.Column(db.Integer, nullable = False)
     sample_input = db.Column(db.String(1024), nullable = False)
+    sample_output = db.Column(db.String(1024), nullable = False)
     is_hidden = db.Column(db.Integer, nullable=False, default=0)
     upload_date = db.Column(db.DateTime, nullable=False)
 
@@ -83,7 +84,17 @@ class Problem(db.Model):
         return jsonify(self.problem_id, self.name, self.content, self.difficulty)
 
     def as_dict(self):
-       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+        ret = {}
+        ret["problem_id"]=self.problem_id
+        ret["name"]=self.name
+        ret["questioner_id"]=self.questioner_id
+        ret["difficulty"]=self.difficulty
+        ret["content"]=self.content
+        ret["time_limit"]=self.time_limit
+        ret["memory_limit"]=self.memory_limit
+        ret["sample_input"]=self.sample_input
+        ret["sample_output"]=self.sample_output
+        return jsonify(ret)
 #✔
 
 class Problem_Testcase(db.Model):
@@ -136,27 +147,31 @@ class Submission(db.Model):
     memory_used = db.Column(db.String(20), nullable=False)     
     exam_id = db.Column(db.Integer)
     homework_id = db.Column(db.Integer)
-    upload_date = db.Column(db.String(30), nullable=False)
+    upload_date = db.Column(db.DateTime, nullable=False)
     #同register_date做法
     code_content = db.Column(db.String(524288), nullable=False)
 
     def __repr__(self):
         return jsonify(self.submission_id, self.user_id, self.problem_id, self.status,self.error_hint, self.error_line, self.time_used, self.memory_used, self.exam_id, self.homework_id, str(self.upload_date), self.code_content)
     def as_dict(self):
-       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+       res = {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+       time = self.upload_date
+       res["upload_date"] = time.strftime("%Y/%m/%d %H:%M:%S")
+       return res
 #✔
     
 class Queue(db.Model):
     __tablename__ = "queue"
     source_id = db.Column(db.Integer, primary_key=True)
-    status = db.Column(db.Integer, default=0)
+    status = db.Column(db.String(20))
+    error_message = db.Column(db.String(30))
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), default=0)
     mode = db.Column(db.Integer, nullable=False, default=0)
     exam_id = db.Column(db.Integer,default=0)
     homework_id = db.Column(db.Integer,default=0)  
     language = db.Column(db.String(20), nullable=False)
-    upload_date = db.Column(db.String(30), nullable=False)
+    upload_date = db.Column(db.DateTime, nullable=False)
     test_case_count = db.Column(db.Integer,default=0)
     time_limit = db.Column(db.Integer, default = 1024)
     memory_limit = db.Column(db.Integer, default = 1024)
@@ -164,7 +179,10 @@ class Queue(db.Model):
     code_content = db.Column(db.String(10000), nullable=False)
     
     def as_dict(self):
-       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+       res = {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+       time = self.upload_date
+       res["upload_date"] = time.strftime("%Y/%m/%d %H:%M:%S")
+       return res
     def __repr__(self):
         return jsonify(self.source_id, self.user_id, self.problem_id, self.mode, self.exam_id, self.homework_id, self.language, str(self.upload_date), self.code_content)
 #✔
@@ -203,6 +221,13 @@ class Homework(db.Model):
     upload_time = db.Column(db.DateTime, nullable=False)
     deadline = db.Column(db.DateTime, nullable=False)
     homework_info = db.Column(db.String(3000))
+    def as_dict(self):
+       res = {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+       time = self.upload_time
+       res["upload_time"] = time.strftime("%Y/%m/%d %H:%M:%S")
+       time = self.deadline
+       res["deadline"] = time.strftime("%Y/%m/%d %H:%M:%S")
+       return res
     
     
 class Homework_problem(db.Model):
@@ -229,6 +254,13 @@ class Exam(db.Model):
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
     exam_info = db.Column(db.String(3000))
+    def as_dict(self):
+       res = {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+       time = self.start_time
+       res["start_time"] = time.strftime("%Y/%m/%d %H:%M:%S")
+       time = self.end_time
+       res["end_time"] = time.strftime("%Y/%m/%d %H:%M:%S")
+       return res
     #大小
 class Exam_problem(db.Model):
     __tablename__ = "exam_problem"
@@ -253,7 +285,7 @@ class Dashboard_with_problem(db.Model):
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
     # penalty_time = db.Column(db.Integer, default=0)
     sequence = db.Column(db.Integer, nullable=False)
-    try_count = db.Column(db.Integer, nullable=False)
-    solved_time = db.Column(db.Integer, nullable=False)
+    try_count = db.Column(db.Integer, nullable=False, default=0)
+    solved_time = db.Column(db.Integer, nullable=False, default=0)
     current_status = db.Column(db.Integer, nullable=False, default=0)
     
