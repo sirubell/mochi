@@ -22,7 +22,7 @@ export default {
   created() {
     axios.get('/user/myprofile')
     .then(res => {
-      this.$store.dispatch('login', res.data.user_id)
+      this.$store.dispatch('login', res.data)
     })
     .catch(error => {
       this.$store.dispatch('login', null)

@@ -3,11 +3,22 @@
         <form @submit.prevent="handleSubmit">
             <h3>Reset Password</h3>
             
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label>token</label>
                 <input v-model="token" type="text" class="form-control" placeholder="Token"/>
             </div>
-            <button class="btn btn-primary btn-block" style="margin-top:10px"><router-link :to="'/reset/'+token">Submit</router-link></button>
+            <button class="btn btn-primary btn-block" ><router-link :to="'/reset/'+token">Submit</router-link></button> -->
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" class="form-control" v-model="password" placeholder="Password"/>
+            </div>
+
+            <div class="form-group">
+                <label>Password Confirm</label>
+                <input type="password" class="form-control" v-model="password_confirm" placeholder="Password Confirm"/>
+            </div>
+
+            <button class="btn btn-primary btn-block" style="margin-top:10px">Submit</button>
         </form>
     </div>
 </template>
@@ -15,22 +26,24 @@
 <script>
 import axios from 'axios'
 export default {
-    name: 'Reset',
+    name: 'Reset_token',
     data() {
         return {
-            token: '',
+            password: '',
+            password_confirm: '',
         }
     },
     methods: {
         async handleSubmit() {
             try{
-                const response = await axios.post('/forgot_password/confirm_token',{
-                    token: this.token,
+                const response = await axios.post('/forgot_password/new_password/<token>',{
+                    password: this.password,
+                    password_confirm: this.password_confirm,
                     // token: this.$route.params.token
                 });
 
                 console.log(response);
-                this.$router.push('/reset_token');
+                this.$router.push('/login');
             }
             catch(e){
                 this.error = e;
@@ -53,10 +66,6 @@ export default {
     transition: all .3s;
   }
   .router-link-active{
-      text-decoration: none;
-      color: white;
-  }
-  a{
       text-decoration: none;
       color: white;
   }

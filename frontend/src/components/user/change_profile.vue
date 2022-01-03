@@ -37,11 +37,11 @@
         <div class="edit">
           <div class="edit-item">
             <span class="label d-flex">Change email :</span>
-            <input type="email" class="create-input d-flex" v-model="email" placeholder="Edit email"/>
+            <input type="email" class="form-control create-input d-flex" v-model="email" placeholder="Edit email"/>
           </div>
           <div class="edit-item">
             <span class="label d-flex">Change password :</span>
-            <input type="password" class="create-input d-flex" v-model="password" placeholder="Edit password"/>
+            <input type="password" class="form-control create-input d-flex" v-model="password" placeholder="Edit password"/>
           </div>
           <div>
             <button class="send d-flex btn btn-primary btn-block" style="margin-top:10px" @click="save">save</button>
