@@ -65,17 +65,17 @@ export default {
     data() {
       return {
         password: '',
-        confirm_password: ''
+        confirm_password: '',
+        error: ''
       }
     },
     methods: {
         async ChangePassword(){ //利用 try catch 作錯誤偵測
             try{
-                const response = await axios.put('user/change_profile_password', {
+                await axios.put('user/change_profile_password', {
                     password: this.password,
                     confirm_password: this.confirm_password
                 }); // 資料由後方物件帶入 
-                console.log(response);
                 this.$router.push('/user');
             }
             catch(e){

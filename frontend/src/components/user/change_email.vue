@@ -60,41 +60,36 @@
 
 <script>
 import axios from 'axios'
+
 export default {
-    name: 'Change_Email',
-    data() {
-      return {
-        name: '',
-        email: ''
+  name: 'Change_Email',
+  data() {
+    return {
+      name: "",
+      email: "",
+      error: null
+    }
+  },
+  methods: {
+    save() {
+      const payload = {
+        name: this.name,
+        email: this.email
       }
-    },
-    methods: {
-        
-        async ChangeEmail()
-        { //利用 try catch 作錯誤偵測
-            try{
-                const response = await axios.put('user/change_profile_name_email', {
-                    name: this.name,
-                    email: this.email
-                }); // 資料由後方物件帶入 
-                console.log(response);
-                this.$router.push('/user');
-            }
-            catch(e){
-                this.error = e;
-            }
-        }
-    },
-    created(){
-        axios.get('http://192.168.122.134:5000/user/change_profile_name_email')
-      .then( response => {
-        this.data = response.data
-        console.log(this.data)
-      })
-      .catch( error => {
+      axios.put('/user/change_profile_name_email', payload)
+      .then( () => this.$router.push('/user'))
+      .catch ( error => {
         this.error = error
-      });
-    },
+      })
+    }
+  },
+  created() {
+    if (this.$store.getters.userInfo === null) {
+      this.$router.push('/login')
+    }
+    this.name = this.$store.getters.userInfo.name
+    this.email = this.$store.getters.userInfo.email
+  }
 }
 </script>
 
