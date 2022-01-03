@@ -16,16 +16,14 @@ problem_get_args.add_argument("page",type=int)
 problem_get_args.add_argument("difficulty",type=str)
 problem_get_args.add_argument("name",type=str)
 
-
 problem_put_args = reqparse.RequestParser()
+problem_put_args.add_argument("source_id",type=int,default=-1)
 problem_put_args.add_argument("name",type=str)
 problem_put_args.add_argument("difficulty",type=int)
 problem_put_args.add_argument("content",type=str)
-problem_put_args.add_argument("sample_input",type=str)
 problem_put_args.add_argument("time_limit",type=int)
 problem_put_args.add_argument("memory_limit",type=int)
 problem_put_args.add_argument("is_hidden",type=int)
-problem_put_args.add_argument("testcase_count",type=int)
 problem_put_args.add_argument("correct_source_code",type=str)
 
 test_run_post_args = reqparse.RequestParser()

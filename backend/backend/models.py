@@ -68,6 +68,7 @@ class Problem(db.Model):
     memory_limit = db.Column(db.Integer, nullable = False)
     testcase_count = db.Column(db.Integer, nullable = False)
     sample_input = db.Column(db.String(1024), nullable = False)
+    sample_output = db.Column(db.String(1024), nullable = False)
     is_hidden = db.Column(db.Integer, nullable=False, default=0)
     upload_date = db.Column(db.DateTime, nullable=False)
 
@@ -83,7 +84,17 @@ class Problem(db.Model):
         return jsonify(self.problem_id, self.name, self.content, self.difficulty)
 
     def as_dict(self):
-       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+        ret = {}
+        ret["problem_id"]=self.problem_id
+        ret["name"]=self.name
+        ret["questioner_id"]=self.questioner_id
+        ret["difficulty"]=self.difficulty
+        ret["content"]=self.content
+        ret["time_limit"]=self.time_limit
+        ret["memory_limit"]=self.memory_limit
+        ret["sample_input"]=self.sample_input
+        ret["sample_output"]=self.sample_output
+        return jsonify(ret)
 #✔
 
 class Problem_Testcase(db.Model):

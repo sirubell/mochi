@@ -74,9 +74,6 @@ api.add_resource(problem_id, "/problem/<int:problem_id>")
 from backend.routes import problem_solution
 api.add_resource(problem_solution,"/problem/<int:problem_id>/solution")
 
-from backend.routes import problem_submission
-api.add_resource(problem_submission, "/problem/<int:problem_id>/submission")
-
 from backend.routes import test_run
 api.add_resource(test_run,"/problem/test_run")
 

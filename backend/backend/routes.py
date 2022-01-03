@@ -46,6 +46,8 @@ class delete_dir(Resource):
     def delete(self):
         shutil.rmtree(buffer_dir)
         os.mkdir(buffer_dir)
+
+        problem_dir = os.path.join(parentdir, 'Problem')
         if os.path.isdir(problem_dir):
             shutil.rmtree(problem_dir)
             os.mkdir(problem_dir)
@@ -67,37 +69,28 @@ class problem(Resource):
             page = int(request.args['page'])
         else:
             return jsonify({'message': "Error, page is required", 'code': 500})
-        topic = None
+        XD = 1 # topic
+        # topic = None
         difficulty = None
         name = None
-        if 'topic' in request.args:
-            topic = request.args['topic']
+        # if 'topic' in request.args:
+        #     topic = request.args['topic']
         if 'difficulty' in request.args:
             difficulty = request.args['difficulty']
         if 'name' in request.args:
             name = request.args['name']
-
-        problems = Problem.query.paginate(per_page=20, page=page)
-        ''' if topic and difficulty and name:
-            from backend import db
-            problems = Problem.query.filter(db.and_(db.and_(Problem.topic==topic,Problem.difficulty==difficulty),Problem.name.like(name))).all()
-        elif topic:
-            problems = Problem.query.filter(Problem.topic==topic).all()
-        elif topic and difficulty:
-            problems = Problem.query.filter(db.and_(Problem.difficulty==difficulty,Problem.topic==topic)).all()'''
-
-        # if difficulty and name:
-        #     from backend import db
-        #     problems = Problem.query.filter(
-        #         db.and_(Problem.difficulty == difficulty, Problem.name.like(name))).all()
-        # elif difficulty:
-        #     problems = Problem.query.filter(
-        #         Problem.difficulty == difficulty).all()
-        # elif name:
-        #     problems = Problem.query.filter(Problem.name.like(name)).all()
+        if difficulty and name:
+            problems = Problem.query.filter(db.and_(Problem.difficulty==difficulty,Problem.name.like(name))).paginate(per_page=20, page=page).order_by(Problem.problem_id)
+        elif difficulty:
+            problems = Problem.query.filtery_by(difficulty=difficulty).paginate(per_page=20, page=page).order_by(Problem.problem_id)
+        elif name:
+            problems = Problem.query.filter(Problem.name.like(name)).paginate(per_page=20, page=page).order_by(Problem.problem_id)
+        else:
+            problems = Problem.query.paginate(per_page=20, page=page).order_by(Problem.problem_id)
 
         if problems:
             ret = {}
+            ret["status"]=200
             ret["returnset"] = []
             for problem in problems.items:
                 ret["returnset"].append({
@@ -122,9 +115,10 @@ class problem(Resource):
         path = os.path.join(buffer_dir, str(now.user_id))
         with open(path+"/"+str(1)+'.in', mode="r", encoding="utf-8") as file:
             sample_input = file.read()
-
+        with open(path+"/"+str(1)+'.ans', mode="r", encoding="utf-8") as file:
+            sample_output = file.read()
         new_problem = Problem(questioner_id=problem.questioner_id, name=problem.name, difficulty=problem.difficulty, content=problem.content, time_limit=problem.time_limit, memory_limit=problem.memory_limit,
-                              testcase_count=now.test_case_count, sample_input=sample_input, is_hidden=problem.is_hidden, upload_date=datetime.datetime.now(), correct_source_code=now.code_content, correct_answer_language=now.language)
+                              testcase_count=now.test_case_count, sample_input=sample_input, sample_output=sample_output, is_hidden=problem.is_hidden, upload_date=datetime.datetime.now(), correct_source_code=now.code_content, correct_answer_language=now.language)
 
         if not os.path.isdir(problem_dir):
             os.mkdir(problem_dir)
@@ -244,14 +238,14 @@ class test_run(Resource):
         # from backend.convert_file_to_json import convert_file_to_json as yea
         # res = yea("buffer/"+str(source_id)+'.ans')
         from backend import db
-        if now.status == 'AC':
+        if now.status in ['AC','WA']:
             if not os.path.isdir(buffer_dir):
                 os.mkdir(buffer_dir)
             with open(os.path.join(buffer_dir, str(source_id)+".ans"), mode="r", encoding="utf-8") as file:
                 res = file.read()
             db.session.delete(now)
             db.session.commit()
-            return jsonify({'message':'OK','output':res,'status':'AC'})
+            return jsonify({'message':'OK','output':res,'status':now.status})
         db.session.delete(now)
         db.session.commit()
         return jsonify({'message':now.error_message,'output':"",'status':now.status})
@@ -276,12 +270,18 @@ class test_run(Resource):
 class problem_id(Resource):
     def get(self, problem_id):
         problem = Problem.query.filter_by(problem_id=problem_id).first()
+        if problem == None:
+            return jsonify({'code':404,'message':'problem is not found'})
         return problem.as_dict()
 
     #!!
     def put(self, problem_id):
         args = problem_put_args.parse_args()
         problem = Problem.query.filter_by(problem_id=problem_id).first()
+        XD = 1
+        # problem_testcase = Problem_Testcase.query.filter_by(problem_id=problem_id).all()
+        if args.source_id !=-1:
+            XD = 1
         if problem == None:
             return jsonify({'message': "problem_id does not exist", 'code': 500})
         if args.name:
@@ -295,10 +295,6 @@ class problem_id(Resource):
             problem.time_limit = args.time_limit
         if args.memory_limit:
             problem.memory_limit = args.memory_limit
-        if args.sample_input:
-            problem.sample_input = args.sample_input
-        if args.testcase_count:
-            problem.testcase_count = args.testcase_count
         if args.is_hidden:
             problem.is_hidden = args.is_hidden
         if args.correct_source_code:
@@ -322,42 +318,7 @@ class problem_solution(Resource):
         if problem == None:
             return jsonify({'message': "problem does not exist", 'code': 404})
 
-        return jsonify({'solution': problem.correct_source_code})
-
-
-class problem_submission(Resource):
-    def get(self, problem_id):
-        problem = Problem.query.filter_by(problem_id=problem_id).first()
-        if problem == None:
-            return jsonify({'message': "problem does not exist", 'code': 404})
-        user_id = None
-        if 'user_id' in request.args:
-            user_id = request.args['user_id']
-            user = User.query.filter_by(id=user_id).first()
-            if user == None:
-                return jsonify({'message': "user does not exist", 'code': 404})
-
-        if user_id:
-            submissions = Submission.query.filter_by(
-                user_id=user_id, problem_id=problem_id).all()
-        else:
-            submissions = Submission.query.filter_by(
-                problem_id=problem.problem_id).all()
-
-        ret = {}
-        ret["returnset"] = []
-        for submission in submissions:
-            user = User.query.filter_by(id=submission.user_id).first()
-            time = submission.upload_date
-            ret["returnset"].append({
-                "submission_id": submission.submission_id,
-                "problem_id": problem.problem_id,
-                "name": user.name,
-                "status": submission.status,
-                "language": submission.language,
-                "upload_date": time.strftime("%Y/%m/%d %H:%M:%S")
-            })
-        return jsonify(ret)
+        return jsonify({'solution': problem.correct_source_code,'code':200})
 
 
 class status(Resource):
@@ -365,17 +326,39 @@ class status(Resource):
         if 'page' in request.args:
             page = request.args['page']
         else:
-            return jsonify({"message ": " Error, page is required"})
-
-        submissions = Submission.query.all()
+            return jsonify({"message ": " Error, page is required",'code':500})
+        user_id = None
+        problem_id = None
+        if 'user_id' in request.args:
+            user_id = request.args['user_id']
+            user = User.query.filter_by(user_id=user_id).first()
+            if user == None:
+                return jsonify({'message':'user is not found','code':404})
+        if 'problem_id' in request.args:
+            problem_id = request.args['problem_id']
+            problem = Problem.query.filter_by(problem_id=problem_id).first()
+            if problem == None:
+                return jsonify({'message':'problem is not found','code':404})
+        
+        if user_id and problem_id:
+            submissions = Submission.query.filter_by(user_id=user_id,problem_id=problem_id).paginate(per_page=20, page=page).order_by(Submission.submission_id)    
+        elif problem_id:
+            submissions = Submission.query.filter_by(problem_id=problem_id).paginate(per_page=20, page=page).order_by(Submission.submission_id)    
+        elif user_id:
+            submissions = Submission.query.filter_by(user_id=user_id).paginate(per_page=20, page=page).order_by(Submission.submission_id)    
+        else:
+            submissions = Submission.query.paginate(per_page=20, page=page).order_by(Submission.submission_id)
+        
         ret = {}
+        ret['code'] = 200
         ret["returnset"] = []
         for submission in submissions:
             time = submission.upload_date
+            user = User.query.filter_by(id=submission.user_id).first()
             ret["returnset"].append({
                 "submission_id": submission.submission_id,
-                "problem_id": problem.problem_id,
-                "name": User.name,
+                "problem_id": submission.problem_id,
+                "name": user.name,
                 "status": submission.status,
                 "language": submission.language,
                 "upload_date": time.strftime("%Y/%m/%d %H:%M:%S")
@@ -521,15 +504,15 @@ class queue_new(Resource):
         upload_date = datetime.datetime.now()
         new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
                           homework_id=args.homework_id, language=args.language, upload_date=upload_date, code_content=args.code_content, test_case_count=problem.testcase_count)
-
+        db.session.add(new_queue)
+        db.session.commit()
         if not os.path.isdir(buffer_dir):
             os.mkdir(buffer_dir)
 
-        with open(os.path.join(buffer_dir, str(Queue.query.count() + 1) + '.' + str(args.language)), mode="w", encoding="utf-8") as file:
+        with open(os.path.join(buffer_dir, str(Queue.query.count()) + '.' + str(args.language)), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
 
-        db.session.add(new_queue)
-        db.session.commit()
+        
         ret = {}
         ret['message'] = 'add queue success'
         ret['code'] = 200
