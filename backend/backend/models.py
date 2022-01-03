@@ -62,7 +62,7 @@ class Problem(db.Model):
     problem_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), unique=True, nullable=False)
     questioner_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
-    difficulty = db.Column(db.String(30), nullable=False)
+    difficulty = db.Column(db.Integer, nullable=False)
     content = db.Column(db.String(524288), nullable=False)
     time_limit = db.Column(db.Integer, nullable = False)
     memory_limit = db.Column(db.Integer, nullable = False)
@@ -173,8 +173,8 @@ class Queue(db.Model):
     language = db.Column(db.String(20), nullable=False)
     upload_date = db.Column(db.DateTime, nullable=False)
     test_case_count = db.Column(db.Integer,default=0)
-    time_limit = db.Column(db.Integer, default = 1)
-    memory_limit = db.Column(db.Integer, default = 512)
+    time_limit = db.Column(db.Integer, default = 1024)
+    memory_limit = db.Column(db.Integer, default = 1024)
     #同register_date做法
     code_content = db.Column(db.String(10000), nullable=False)
     

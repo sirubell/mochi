@@ -40,8 +40,6 @@ create_problem_test_run_args.add_argument("user_id", type=int, required=True, he
 create_problem_test_run_args.add_argument("language", type=str, required=True, help="Language is required!")
 create_problem_test_run_args.add_argument("code_content", type=str, required=True, help="Code_content is required!")
 create_problem_test_run_args.add_argument("test_case", type=str, required=True, action="append")
-create_problem_test_run_args.add_argument("time_limit", type=str, default = 1)
-create_problem_test_run_args.add_argument("memory_limit", type=str, default = 512)
 
 
 signup_post_args = reqparse.RequestParser()
@@ -55,10 +53,13 @@ login_post_args.add_argument("email", type=str, required=True, help='Email is re
 login_post_args.add_argument("password", type=str, required=True, help='Password is required!')
 login_post_args.add_argument("remember", type=bool)
 
-user_profile_put_args = reqparse.RequestParser()
-user_profile_put_args.add_argument("name", type=str)
-user_profile_put_args.add_argument("email", type=str)
-user_profile_put_args.add_argument("password", type=str)
+change_profile_name_email_put_args = reqparse.RequestParser()
+change_profile_name_email_put_args.add_argument("name", type=str)
+change_profile_name_email_put_args.add_argument("email", type=str)
+
+change_profile_password_put_args = reqparse.RequestParser()
+change_profile_password_put_args.add_argument("password", type=str)
+change_profile_password_put_args.add_argument("comfirm_password", type=str)
 
 request_reset_post_args = reqparse.RequestParser()
 request_reset_post_args.add_argument("email", type=str, required=True, help='Email is required!')
@@ -67,7 +68,6 @@ confirm_token_post_args = reqparse.RequestParser()
 confirm_token_post_args.add_argument("token", type=str, required=True, help="Token is required!")
 
 reset_password_put_args = reqparse.RequestParser()
-reset_password_put_args.add_argument("token", type=str, required=True, help='Token is required!')
 reset_password_put_args.add_argument("password", type=str, required=True, help='Password is required!')
 reset_password_put_args.add_argument("confirm_password", type=str, required=True, help='Confirm_password is required!')
 
@@ -93,12 +93,10 @@ queue_post_args.add_argument("exam_id", type=int)
 queue_post_args.add_argument("homework_id", type=int)
 queue_post_args.add_argument("language", type=str, required=True, help="Language is required!")
 queue_post_args.add_argument("code_content", type=str, required=True, help="Code_content is required!")
-queue_post_args.add_argument("time_limit", type=int, default=1)
-queue_post_args.add_argument("memory_limit", type=int, default=512)
 
 dispatcher_post_args = reqparse.RequestParser()
 dispatcher_post_args.add_argument("Return_count", type=int, required=True, help="Return_count is required!")
-dispatcher_post_args.add_argument("Return_Set",   type=dict, required=True, help="Return_Set is required!", action="append")
+dispatcher_post_args.add_argument("Return_Set", type=dict, required=True, help="Return_Set is required!", action="append")
 
 exam_post_args = reqparse.RequestParser()
 exam_post_args.add_argument('class_id',type=int,required=True,help="class_id is required!")
