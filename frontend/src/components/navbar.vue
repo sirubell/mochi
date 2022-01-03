@@ -22,7 +22,7 @@
               <ul class="dropdown-menu" aria-labelledby="dropdown03">
                 <li><router-link to="/user"  class="dropdown-item">My profile</router-link></li>
                 <li><a class="dropdown-item" href="#">查看個人解題紀錄</a></li>
-                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                <li><router-link to="/change_email" class="dropdown-item">Change Profile</router-link></li>
               </ul>
             </li>
             <li class="nav-item">

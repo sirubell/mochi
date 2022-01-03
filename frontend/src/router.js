@@ -8,7 +8,8 @@ import User from './components/user/user.vue'
 import Forgot_password from './components/user/forgot_password.vue'
 import Reset from './components/user/reset.vue'
 import Reset_token from './components/user/reset_token.vue'
-import Change_Profile from './components/user/change_profile.vue'
+import Change_Password from './components/user/change_password.vue'
+import Change_Email from './components/user/change_email.vue'
 
 import Problem from './components/problem/problem.vue'
 import NewProblem from './components/problem/new_problem.vue'
@@ -123,8 +124,12 @@ const routes = [
     component: Reset_token,
   },
   {
-    path: "/change_profile",
-    component: Change_Profile,
+    path: "/change_password",
+    component: Change_Password,
+  },
+  {
+    path: "/change_email",
+    component: Change_Email,
   }
 ]
 
