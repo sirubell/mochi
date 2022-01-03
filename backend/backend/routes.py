@@ -190,9 +190,9 @@ class create_problem_test_run(Resource):
     def post(self):
         args = create_problem_test_run_args.parse_args()
         if args.time_limit > 5 or args.time_limit < 0:
-            return jsonify({"message":"invalid_time_limit",'code':500})
+            return jsonify({"message": "invalid_time_limit", 'code': 500})
         if args.memory_limit > 5120 or args.memory_limit < 6:
-            return jsonify({"message":"invalid_memory_limit",'code':500})
+            return jsonify({"message": "invalid_memory_limit", 'code': 500})
         if not os.path.isdir(buffer_dir):
             os.mkdir(buffer_dir)
         path = os.path.join(buffer_dir, str(args.user_id))
@@ -211,7 +211,7 @@ class create_problem_test_run(Resource):
         if len(input_set) == 0:
             return jsonify({'message': "test_case can't be empty!", 'code': 500})
         new_queue = Queue(user_id=args.user_id, mode=3, language=args.language, test_case_count=len(
-            input_set), upload_date=datetime.datetime.now(), code_content=args.code_content,time_limit=args.time_limit,memory_limit=args.memory_limit)
+            input_set), upload_date=datetime.datetime.now(), code_content=args.code_content, time_limit=args.time_limit, memory_limit=args.memory_limit)
         from backend import db
         db.session.add(new_queue)
         db.session.commit()
@@ -354,22 +354,22 @@ class status(Resource):
                 return jsonify({'message': 'problem is not found', 'code': 404})
 
         if user_id and problem_id:
-            submissions = Submission.query.filter_by(user_id=user_id, problem_id=problem_id).paginate(
-                per_page=20, page=page).order_by(Submission.submission_id)
+            submissions = Submission.query.filter_by(user_id=user_id, problem_id=problem_id).order_by(Submission.submission_id).paginate(
+                per_page=20, page=page)
         elif problem_id:
-            submissions = Submission.query.filter_by(problem_id=problem_id).paginate(
-                per_page=20, page=page).order_by(Submission.submission_id)
+            submissions = Submission.query.filter_by(problem_id=problem_id).order_by(Submission.submission_id).paginate(
+                per_page=20, page=page)
         elif user_id:
-            submissions = Submission.query.filter_by(user_id=user_id).paginate(
-                per_page=20, page=page).order_by(Submission.submission_id)
+            submissions = Submission.query.filter_by(user_id=user_id).order_by(Submission.submission_id).paginate(
+                per_page=20, page=page)
         else:
-            submissions = Submission.query.paginate(
-                per_page=20, page=page).order_by(Submission.submission_id)
+            submissions = Submission.query.order_by(Submission.submission_id).paginate(
+                per_page=20, page=page)
 
         ret = {}
         ret['code'] = 200
         ret["returnset"] = []
-        for submission in submissions:
+        for submission in submissions.items:
             time = submission.upload_date
             user = User.query.filter_by(id=submission.user_id).first()
             ret["returnset"].append({
@@ -518,6 +518,8 @@ class queue_new(Resource):
         from backend import db
         args = queue_post_args.parse_args()
         problem = Problem.query.filter_by(problem_id=args.problem_id).first()
+        if problem == None:
+            return jsonify({'message':'problem is not found','code':404})
         upload_date = datetime.datetime.now()
         new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
                           homework_id=args.homework_id, language=args.language, upload_date=upload_date, code_content=args.code_content, test_case_count=problem.testcase_count)
