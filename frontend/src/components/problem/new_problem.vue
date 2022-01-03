@@ -154,6 +154,7 @@ export default {
                 clearInterval(get_testcase_interval)
                 
                 this.error = res.data.error_message
+                this.loading = false
               }
               if (res.data.return_set !== undefined) {
                 clearInterval(get_testcase_interval)
@@ -180,19 +181,19 @@ export default {
         return
       }
 
-      let difficultyToInt = function(difficulty) {
-        if (difficulty === "easy") return 1
-        if (difficulty === "medium") return 2
-        if (difficulty === "hard") return 3
-        return 0
-      }
-      console.log(this.info.difficulty)
+      //let difficultyToInt = function(difficulty) {
+      //  if (difficulty === "easy") return 1
+      //  if (difficulty === "medium") return 2
+      //  if (difficulty === "hard") return 3
+      //  return 0
+      //}
+      //console.log(this.info.difficulty)
 
       const postData = {
         questioner_id: this.$store.getters.userId,
         source_id: this.source_id,
         name: this.info.name,
-        difficulty: difficultyToInt(this.info.difficulty),
+        difficulty: this.info.difficulty,
         content: this.info.problemDesc,
         time_limit: this.info.time_limit,
         memory_limit: this.info.memory_limit,
