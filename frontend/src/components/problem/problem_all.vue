@@ -11,20 +11,18 @@
     </tr>
   </table>
 
-  <p>
-    <button v-on:click="page_minus">Previous</button> 
-    <button v-on:click="page_plus">Next</button>
-  </p>
-  <h1>{{currentPage}}</h1>
-  <div v-if="error">
-    {{ error }}
-  </div>
+
+  <button @click="pageMinus" type="button" class="btn btn-outline-primary">Previous</button>
+  <button @click="pagePlus" type="button" class="btn btn-outline-primary">Next</button>
+  <h1>{{ currentPage }}</h1>
+  <error v-if="error" :error="error" />
   
 </div>
 
 </template>
 
 <script>
+import Error from '../error.vue'
 
 import axios from 'axios'
 
@@ -36,15 +34,14 @@ export default {
       error: ""
     }
   },
-  method:{
-    page_plus (){
-      this.currentPage+=1
+  methods: {
+    pagePlus() {
+      this.currentPage += 1
       this.reloadTable()
-      console.log(this.currentPage)
     },
-    page_minus (){
+    pageMinus (){
       if (this.currentPage > 1) {
-        this.currentPage-=1
+        this.currentPage -= 1
         this.reloadTable()
       }
     },
@@ -52,7 +49,6 @@ export default {
       axios.get('problem?page='+this.currentPage)
       .then( response => {
         this.problemTable = response.data.returnset
-        console.log(this.currentPage)
       })
       .catch( error => {
         this.error = error
@@ -61,6 +57,9 @@ export default {
   },
   created() {
     this.reloadTable()
-  }
+  },
+  components: [
+    Error
+  ]
 }
 </script>

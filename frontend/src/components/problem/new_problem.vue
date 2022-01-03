@@ -62,6 +62,7 @@
     <div>
       <error v-if="error" :error="error"/>
       <loading v-if="loading" :loading="'Testcases is running'"/>
+      <Info v-if="return_status !== null" :info="return_status"/>
     </div>
     <div class="my-2">
       <button type="button" class="btn btn-primary m-2" @click="onNewTestcase">New Testcase</button>
@@ -77,6 +78,7 @@ import 'ace-builds/src-noconflict/theme-chrome'
 import axios from 'axios'
 import Error from '../error.vue'
 import Loading from '../loading.vue'
+import Info from '../info.vue'
 
 export default {
   name: "NewProblem",
@@ -95,13 +97,14 @@ export default {
         {input: "123", output: "456"},
         {input: "111", output: "222"}
       ],
-      languages: ["c", "cpp", "python"],
+      languages: ["c", "c++", "python"],
       difficulties: ["easy", "medium", "hard"],
 
       source_id: null,
 
       error: null,
-      loading: null
+      loading: null,
+      return_status: null
     }
   },
   methods: {
@@ -128,47 +131,59 @@ export default {
       }
 
       this.error = null
+      this.return_status = null
 
       let postData = {
         user_id: user_id,
         language: language,
         test_case: test_case,
-        code_content: this.info.code
+        code_content: this.info.code,
+        time_limit: this.info.time_limit,
+        memory_limit: this.info.memory_limit
       }
 
       axios.post('/problem/new/test_run', postData)
       .then( res => {
-        if (res.data.source_id !== undefined) {
-          this.source_id = res.data.source_id
-          this.loading = true
-
-          let get_testcase_interval = setInterval( () => {
-            axios.get('problem/new/test_run', {
-              params: {
-                source_id: this.source_id,
-                user_id: user_id
-              }
-            })
-            .then( (res) => {
-              if (res.data.status === "CE") {
-                clearInterval(get_testcase_interval)
-                
-                this.error = res.data.error_message
-                this.loading = false
-              }
-              if (res.data.return_set !== undefined) {
-                clearInterval(get_testcase_interval)
-
-                for (let i = 0; i < this.testcases.length; i++) {
-                  this.testcases[i].output = res.data.return_set[i]
-                }
-
-                this.loading = false
-
-              }
-            })
-          }, 1000)
+        if (res.data.code === 500) {
+          this.error = res.data.message
+          return
         }
+        
+        this.source_id = res.data.source_id
+        this.loading = true
+
+        let get_testcase_interval = setInterval( () => {
+          axios.get('problem/new/test_run', {
+            params: {
+              source_id: this.source_id,
+              user_id: user_id
+            }
+          })
+          .then( (res) => {
+            const message = res.data.message
+            if (message === "pending") {
+              return
+            }
+
+            clearInterval(get_testcase_interval)
+            this.loading = false
+
+            if (message === "Error, source_id is required" || message === "Error, user_id is required" || message === "source_id is not found") {
+              this.error = message
+              return
+            }
+
+
+            this.return_status = res.data.status
+            if (this.return_status === "AC") {
+              for (let i = 0; i < this.testcases.length; i++) {
+                this.testcases[i].output = res.data.return_set[i]
+              }
+            } else {
+              this.error = message
+            }
+          })
+        }, 1000)
       })
       .catch( error => {
         this.error = error
@@ -217,7 +232,8 @@ export default {
   components: {
     VAceEditor,
     Error,
-    Loading
+    Loading,
+    Info
   }
 }
 </script>
