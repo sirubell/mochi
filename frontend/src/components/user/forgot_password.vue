@@ -12,11 +12,8 @@
                 <label>Email</label>
                 <input type="email" class="form-control" v-model="email" placeholder="Email"/>
             </div>
-
-            <button type="submit" variant="info" class="btn btn-primary btn-block" style="margin-top:10px">Reset Password</button>
-            <div id="result">
-                <p>{{ resetText }}</p>
-            </div>
+            
+            <button class="btn btn-primary btn-block" style="margin-top:10px">Reset Password</button> 
         </form> 
     </div>
 </template>
@@ -26,28 +23,28 @@ import axios from 'axios'
 import Error from '../error.vue'
 
 export default {
-    name: 'Forgot',
+    name: 'Forgot_password',
     components: {
         Error
     },
     data() {
         return {
             email: '',
-            message: ''
+            error: ''
         }
     },
     methods: {
         async forgotPassword(){ //利用 try catch 作錯誤偵測
             try{
-                await axios.post('forgot', {
+                await axios.post('forgot_password', {
                     email: this.email
                 }); // 資料由後方物件帶入 
                 this.message = 'The email was sent!';
                 this.error = '';
+                this.$router.push('/reset');
             }
             catch(e){
-                this.error = 'Error occurred!';
-                this.message = '';
+                this.error = e;
             }
         }
     }

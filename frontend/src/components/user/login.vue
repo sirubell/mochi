@@ -16,7 +16,7 @@
         <button class="btn btn-primary btn-block" style="margin-top:10px">Login</button>
 
         <p class="forgot-password text-right">
-            <router-link to="/forgot">Forgot password?</router-link>
+            <router-link to="/forgot_password">Forgot password?</router-link>
         </p>
         <p class="forgot-password text-right">
             <router-link to="/signup">Register an account?</router-link>
@@ -50,8 +50,7 @@ export default {
                     password: this.password,
                 });
 
-                localStorage.setItem('token', response.data.token);
-                this.$store.dispatch('login', response.data.userId);
+                this.$store.dispatch('login', response.data);
                 this.$router.push('/home');
             }catch (e) {
                 this.error = 'Invalid username/password!'

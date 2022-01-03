@@ -49,14 +49,13 @@ export default {
     methods: {
         async handleSubmit(){
             try{
-              await axios.post('signup', {
-                name: this.name,
-                email: this.email,
-                password: this.password,
-                confirm_password: this.confirm_password,
-            });
-
-            this.$router.push('/login');
+                await axios.post('signup', {
+                    name: this.name,
+                    email: this.email,
+                    password: this.password,
+                    confirm_password: this.confirm_password,
+                });
+                this.$router.push('/login');
             }catch(e){
             this.error = 'Error occurred!';
             }

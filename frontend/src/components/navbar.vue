@@ -15,7 +15,7 @@
       </ul>
 
       <div class="fs-5 col-md-2">
-        <div v-if="userId">
+        <div v-if="userInfo">
           <ul class="nav mb-2 justify-content-end mb-md-0">
             <li class="nav-item dropdown">
               <a href="#" class="text-end nav-link dropdown-toggle px-2 link-dark" data-bs-toggle="dropdown" aria-expanded="false">User</a>
@@ -56,7 +56,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'userId'
+      'userInfo'
     ])
   },
 
