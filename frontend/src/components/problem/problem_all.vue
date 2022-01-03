@@ -29,7 +29,6 @@
 </template>
 
 <script>
-// import { mapGetters } from 'vuex'
 import axios from 'axios'
 
 export default {
@@ -45,7 +44,6 @@ export default {
     page_plus (){
       this.currentPage+=1
       this.reloadtable()
-      // console.log(this.currentPage)
     },
     page_minus (){
       this.currentPage-=1
@@ -53,11 +51,12 @@ export default {
     },
     delete_question :function(id,user){
       console.log(user)
-      axios.delete('problem/'+id+'?user'+user,{
+      axios.delete('problem/'+id+'?user_id='+user,{
         data: {
            user:user
          },
       });
+      this.reloadtable()
     },
     reloadtable (){
       axios.get('problem?page='+this.currentPage)
