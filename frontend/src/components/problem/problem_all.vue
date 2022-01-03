@@ -31,7 +31,7 @@ export default {
     return {
       currentPage:1,
       problemTable: {},
-      error: ""
+      error: null
     }
   },
   methods: {
@@ -49,6 +49,7 @@ export default {
       axios.get('problem?page='+this.currentPage)
       .then( response => {
         this.problemTable = response.data.returnset
+        this.error = null
       })
       .catch( error => {
         this.error = error
@@ -58,8 +59,8 @@ export default {
   created() {
     this.reloadTable()
   },
-  components: [
+  components: {
     Error
-  ]
+  }
 }
 </script>
