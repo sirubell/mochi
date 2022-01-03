@@ -104,6 +104,8 @@ api.add_resource(user_profile, "/user/<int:user_id>/profile")
 from backend.routes import user_myprofile
 api.add_resource(user_myprofile, "/user/myprofile")
 
+from backend.routes import change_profile
+api.add_resource(change_profile, '/user/change_profile')
 
 from backend.routes import submission_data
 api.add_resource(submission_data, "/submission/<int:submission_id>")

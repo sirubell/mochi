@@ -464,13 +464,7 @@ class user_profile(Resource):
             datas.append(AC.problem_id)
         return jsonify({"name": user.name, "email": user.email, "user_id": user.id, "register_date": str(user.register_date), "user_problem": datas})
 
-    def put(self):
-        args = user_profile_put_args.parse_args()
-        if_username_has_existed(args.name)
-        if_email_has_existed(args.email)
-        self = args
-        from backend import db
-        db.session.commit()
+    
 
 
 class user_myprofile(Resource):
@@ -484,6 +478,15 @@ class user_myprofile(Resource):
             datas.append(AC.problem_id)
         return jsonify({"name": user.name, "email": user.email, "user_id": user.id, "register_date": str(user.register_date), "user_problem": datas})
 
+class change_profile(Resource):
+    @login_required
+    def put(self):
+        args = change_profile_put_args.parse_args()
+        if_username_has_existed(args.name)
+        if_email_has_existed(args.email)
+        self = args
+        from backend import db
+        db.session.commit()
 
 class submission_data(Resource):
     def get(self, submission_id):
