@@ -127,7 +127,7 @@ from backend.routes import add_exam
 api.add_resource(add_exam,"/exam")
 
 from backend.routes import exam
-api.add_resource(exam,"/exam")
+api.add_resource(exam,"/exam/<int:exam_id>")
 
 from backend.routes import dashboard
 api.add_resource(dashboard,"/exam/<int:exam_id>/dashboard")

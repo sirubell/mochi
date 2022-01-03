@@ -504,6 +504,19 @@ class queue_new(Resource):
         upload_date = datetime.datetime.now()
         new_queue = Queue(user_id=args.user_id, problem_id=args.problem_id, mode=1, exam_id=args.exam_id,
                           homework_id=args.homework_id, language=args.language, upload_date=upload_date, code_content=args.code_content, test_case_count=problem.testcase_count)
+        ret = {}
+        if args.homework_id:
+            homework =  Homework.query.filter_by(homework_id=args.homework_id).first()
+            if homework == None:
+                ret['code'] = 404
+                ret['warning'] = 'homework is not found'
+                return jsonify(ret)
+        elif args.exam_id:
+            exam = Exam.query.filter_by(exam_id=args.exam_id).first()
+            if exam == None:
+                ret['code'] = 404
+                ret['warning'] = 'exam is not found'
+                return jsonify(ret)
         db.session.add(new_queue)
         db.session.commit()
         if not os.path.isdir(buffer_dir):
@@ -512,17 +525,11 @@ class queue_new(Resource):
         with open(os.path.join(buffer_dir, str(Queue.query.count()) + '.' + str(args.language)), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
 
-        
-        ret = {}
         ret['message'] = 'add queue success'
         ret['code'] = 200
         ret['warning'] = None
         if args.homework_id:
             homework =  Homework.query.filter_by(homework_id=args.homework_id).first()
-            if homework == None:
-                ret['code'] = 404
-                ret['warning'] = 'homework is not found'
-                return jsonify(ret)
             if upload_date > homework.deadline:
                 ret['code'] = 500
                 ret['warning'] = 'homework deadline is over'
@@ -530,10 +537,6 @@ class queue_new(Resource):
 
         elif args.exam_id:
             exam = Exam.query.filter_by(exam_id=args.exam_id).first()
-            if exam == None:
-                ret['code'] = 404
-                ret['warning'] = 'exam is not found'
-                return jsonify(ret)
             if upload_date > exam.end_time:
                 ret['code'] = 500
                 ret['warning'] = 'exam is end'
@@ -546,7 +549,7 @@ class dispatcher(Resource):
     def get(self):
         from backend import db
         from backend.convert_file_to_json import convert_file_to_json as yea
-        queues = Queue.query.limit(20).all()
+        queues = Queue.query.limit(10).all()
         datas = {}
         datas["Submission_Set"] = []
         cnt = 0
@@ -629,14 +632,13 @@ class dispatcher(Resource):
                 print(res)
                 continue
             if data.mode == 1:
+                status = submission["Status"]
                 if data.exam_id:
                     exam = Exam.query.filter_by(exam_id=data.exam_id).first()
                     dashboard = Dashboard.query.filter_by(
                         exam_id=data.exam_id, user_id=data.user_id).first()
                     dash = Dashboard_with_problem.query.filter_by(
                         exam_id=data.exam_id, user_id=data.user_id, problem_id=data.problem_id).first()
-                    
-                    status = submission["Status"]
                     upload_date = data.upload_date
                     start_time = exam.start_time
                     end_time = exam.end_time
@@ -663,14 +665,14 @@ class dispatcher(Resource):
                             db.session.add(dash)
                             db.session.commit()
                         else:
-                            dash.try_count += 1
+                            if dash.current_status != 1:
+                                dash.try_count += 1
                             if status == 'AC':
                                 if dash.current_status == 0:
                                     dash.current_status = 1
                                     dash.solved_time = solved_time
                                     dashboard.solved_count += 1
-                                    dashboard.total_time += dash.solved_time + \
-                                        (dash.try_count - 1) * 20
+                                    dashboard.total_time += dash.solved_time + (dash.try_count - 1) * 20
                             db.session.commit()
 
                 elif data.homework_id:
@@ -682,7 +684,6 @@ class dispatcher(Resource):
                         homework_id=data.homework_id).all()
                     homework_problem_status = Homework_problem_status.query.filter_by(
                         homework_id=data.homework_id, problem_id=data.problem_id, user_id=data.user_id).first()
-                    status = submission["Status"]
                     upload_date = data.upload_date
                     deadline = homework.deadline
                     if upload_date < deadline:
@@ -748,6 +749,7 @@ class dispatcher(Resource):
                         cnt += 1
                 else:
                     data.error_message = submission["Compile_error_out"]
+        db.session.commit()
         return jsonify({'message': "success to return", 'code': 200})
 
 
@@ -879,16 +881,16 @@ class class_member(Resource):
 
 class exam(Resource):
     def get(self, exam_id):
-        exam = Homework.query.filter_by(exam_id=exam_id).first()
+        exam = Exam.query.filter_by(exam_id=exam_id).first()
         if exam == None:
             return jsonify({'message': "exam is not found", 'code': 404})
-        exam_problem = Homework_problem.query.filter_by(
-            exam_id=exam_id).all()
+        exam_problem = Exam_problem.query.filter_by(
+            exam_id=exam_id).order_by(Exam_problem.sequence).all()
         ret = {}
         ret["class_id"] = exam.class_id
         ret["name"] = exam.name
-        ret["upload_time"] = exam.upload_time
-        ret["deadline"] = exam.deadline
+        ret["start_time"] = exam.start_time.strftime("%Y/%m/%d %H:%M:%S")
+        ret["end_time"] = exam.end_time.strftime("%Y/%m/%d %H:%M:%S")
         ret["exam_info"] = exam.exam_info
         ret["problem_set"] = []
         for a_problem in exam_problem:
@@ -944,7 +946,7 @@ class add_exam(Resource):
 
 class dashboard(Resource):
     def get(self, exam_id):  # 回傳dashboard table
-        lines = Dashboard.query.filter_by(exam_id=exam_id).order_by(Dashboard.solved_count.desc()).all()
+        lines = Dashboard.query.filter_by(exam_id=exam_id).order_by(Dashboard.solved_count.desc()).order_by(Dashboard.total_time).all()
         if lines == None:
             return jsonify({'message': "Error, dashboard hadn't been created", 'code': 404})
         problem_set = []
@@ -958,8 +960,9 @@ class dashboard(Resource):
             a_student = {}
             a_student["name"] = user.name
             a_student["solved"] = line.solved_count
+            a_student["total_time"] = line.total_time
             dashs = Dashboard_with_problem.query.filter_by(
-                user_id=line.user_id).all()
+                exam_id=exam_id,user_id=line.user_id).all()
             a_student["problem"] = []
             for dash in dashs:
                 problem = {}
@@ -1003,7 +1006,7 @@ class add_homework(Resource):
                 homework_id=homework.query.count()+1, problem_id=a_problem, sequence=cnt)
             cnt += 1
             db.session.add(new_homework_problem)
-            students = Class_user.query.ilter_by(class_id=args.class_id).all()
+            students = Class_user.query.filter_by(class_id=args.class_id).all()
             for student in students:
                 new_homework_problem_status = Homework_problem_status(homework_id=Homework.query.count(
                 )+1, problem_id=a_problem, user_id=student.user_id, hand_in_status=0)
@@ -1011,7 +1014,7 @@ class add_homework(Resource):
 
         db.session.add(homework)
         db.session.commit()
-        return jsonify({'message': "success to add exam", 'code': 300})
+        return jsonify({'message': "success to add homework", 'code': 300})
 
 
 class homework(Resource):
