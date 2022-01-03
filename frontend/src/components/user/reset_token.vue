@@ -36,9 +36,9 @@ export default {
     methods: {
         async handleSubmit() {
             try{
-                const response = await axios.post('/forgot_password/new_password/<token>',{
+                const response = await axios.put('/forgot_password/new_password/' + this.$route.params.token ,{
                     password: this.password,
-                    password_confirm: this.password_confirm,
+                    confirm_password: this.password_confirm,
                     // token: this.$route.params.token
                 });
 
