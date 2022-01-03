@@ -70,7 +70,6 @@ confirm_token_post_args = reqparse.RequestParser()
 confirm_token_post_args.add_argument("token", type=str, required=True, help="Token is required!")
 
 reset_password_put_args = reqparse.RequestParser()
-reset_password_put_args.add_argument("token", type=str, required=True, help='Token is required!')
 reset_password_put_args.add_argument("password", type=str, required=True, help='Password is required!')
 reset_password_put_args.add_argument("confirm_password", type=str, required=True, help='Confirm_password is required!')
 
@@ -99,7 +98,7 @@ queue_post_args.add_argument("code_content", type=str, required=True, help="Code
 
 dispatcher_post_args = reqparse.RequestParser()
 dispatcher_post_args.add_argument("Return_count", type=int, required=True, help="Return_count is required!")
-dispatcher_post_args.add_argument("Return_Set",   type=dict, required=True, help="Return_Set is required!", action="append")
+dispatcher_post_args.add_argument("Return_Set", type=dict, required=True, help="Return_Set is required!", action="append")
 
 exam_post_args = reqparse.RequestParser()
 exam_post_args.add_argument('class_id',type=int,required=True,help="class_id is required!")
