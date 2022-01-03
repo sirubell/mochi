@@ -28,7 +28,6 @@
 <script>
 import axios from 'axios'
 import Error from '../error.vue'
-import { mapGetters } from 'vuex'
 
 export default {
     name: 'Login',
@@ -45,23 +44,24 @@ export default {
     methods: {
         async handleSubmit(){
             try{
-                const response = await axios.post('login', {
+                await axios.post('login', {
                     email: this.email,
                     password: this.password,
                 });
 
-                this.$store.dispatch('login', response.data);
+                axios.get('/user/myprofile')
+                .then( res => {
+                  this.$store.dispatch('login', res.data);
+                })
+                .catch (e => {
+                  this.error = e
+                })
                 this.$router.push('/home');
             }catch (e) {
                 this.error = 'Invalid username/password!'
             }
         }
     },
-    computed: {
-      ...mapGetters([
-        'userId'
-      ])
-    }
 }
 </script>
 

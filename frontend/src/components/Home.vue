@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 v-if="userInfo">Hi, userId = {{userInfo}}</h3>
+    <h3 v-if="userInfo">Hi, user = {{userInfo.name}}</h3>
     <h3 v-if="!userInfo">You are not logged in!</h3>
 
     <h3>Hello, this is mochi online judge!</h3>
