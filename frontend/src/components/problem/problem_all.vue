@@ -14,7 +14,6 @@
       <td v-if="user_id==item.questioner_id"><button v-on:click="delete_question(item.id,user_id)">{{user_id}}</button></td>
     </tr>
   </table>
-
   <p>
     <button v-if ="currentPage > 1 "  v-on:click="page_minus">Previous</button> 
     <button v-if ="maxpage > currentPage "  v-on:click="page_plus">Next</button>
@@ -23,7 +22,6 @@
   <div v-if="error">
     {{ error }}
   </div>
-  
 </div>
 
 </template>
