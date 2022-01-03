@@ -39,21 +39,28 @@ export default {
   method:{
     page_plus (){
       this.currentPage+=1
+      this.reloadTable()
       console.log(this.currentPage)
     },
     page_minus (){
-      this.currentPage-=1
+      if (this.currentPage > 1) {
+        this.currentPage-=1
+        this.reloadTable()
+      }
+    },
+    reloadTable() {
+      axios.get('problem?page='+this.currentPage)
+      .then( response => {
+        this.problemTable = response.data.returnset
+        console.log(this.currentPage)
+      })
+      .catch( error => {
+        this.error = error
+      });
     }
   },
   created() {
-    axios.get('problem?page='+this.currentPage)
-    .then( response => {
-      this.problemTable = response.data.returnset
-      console.log(this.currentPage)
-    })
-    .catch( error => {
-      this.error = error
-    });
+    this.reloadTable()
   }
 }
 </script>
