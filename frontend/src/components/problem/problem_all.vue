@@ -12,8 +12,8 @@
   </table>
 
   <p>
-    <button v-on:click="page_minus">Previous</button> 
-    <button v-on:click="page_plus">Next</button>
+    <button @click="pageMinus()">Previous</button> 
+    <button @click="pagePlus()">Next</button>
   </p>
   <h1>{{currentPage}}</h1>
   <div v-if="error">
@@ -36,15 +36,15 @@ export default {
       error: ""
     }
   },
-  method:{
-    page_plus (){
-      this.currentPage+=1
+  methods: {
+    pagePlus() {
+      this.currentPage += 1
       this.reloadTable()
       console.log(this.currentPage)
     },
-    page_minus (){
+    pageMinus (){
       if (this.currentPage > 1) {
-        this.currentPage-=1
+        this.currentPage -= 1
         this.reloadTable()
       }
     },
@@ -60,7 +60,14 @@ export default {
     }
   },
   created() {
-    this.reloadTable()
+    axios.get('problem?page='+this.currentPage)
+    .then( response => {
+      this.problemTable = response.data.returnset
+      console.log(this.currentPage)
+    })
+    .catch( error => {
+      this.error = error
+    });
   }
 }
 </script>
