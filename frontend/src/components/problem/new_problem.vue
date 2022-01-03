@@ -62,7 +62,7 @@
     <div>
       <error v-if="error" :error="error"/>
       <loading v-if="loading" :loading="'Testcases is running'"/>
-      <Info v-if="return_status !== null" :info="return_status"/>
+      <Info v-if="return_status" :info="return_status"/>
     </div>
     <div class="my-2">
       <button type="button" class="btn btn-primary m-2" @click="onNewTestcase">New Testcase</button>
@@ -93,10 +93,7 @@ export default {
         memory_limit: 256,
         code: ""
       },
-      testcases: [
-        {input: "123", output: "456"},
-        {input: "111", output: "222"}
-      ],
+      testcases: [],
       languages: ["c", "c++", "python"],
       difficulties: ["easy", "medium", "hard"],
 
@@ -196,14 +193,6 @@ export default {
         return
       }
 
-      //let difficultyToInt = function(difficulty) {
-      //  if (difficulty === "easy") return 1
-      //  if (difficulty === "medium") return 2
-      //  if (difficulty === "hard") return 3
-      //  return 0
-      //}
-      //console.log(this.info.difficulty)
-
       const postData = {
         questioner_id: this.$store.getters.userId,
         source_id: this.source_id,
@@ -216,9 +205,14 @@ export default {
       }
 
       axios.post('/problem', postData)
-      .then(() => {
-        console.log("success to create a problem")
-        this.$router.push('/problem/all')
+      .then( res => {
+        const code = res.data.code
+        
+        if (code === 200) {
+          this.return_status = res.data.message
+        } else {
+          this.error = res.data.message
+        }
       })
 
     },
@@ -226,7 +220,7 @@ export default {
       this.testcases.splice(index, 1)
     },
     onNewTestcase() {
-      this.testcases.push({})
+      this.testcases.push({ input: "", output: ""})
     }
   },
   components: {
