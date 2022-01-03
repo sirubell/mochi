@@ -403,7 +403,7 @@ class login(Resource):
         elif user:
             abort(400, message=" wrong password")
         else:
-            abort(404, message="Couldn't find the user")
+            abort(404, message="Couldn't find the user(no this email)")
 
 
 class reset_sent_email(Resource):
@@ -417,7 +417,7 @@ class reset_sent_email(Resource):
         recipient = args.email
         title = "Reset your password."
         msg = Message(title, recipients=[recipient])
-        msg.body = "This is a email to change your password in mochi, please paste it to the validated page.\nToken is : "+token
+        msg.body = "This is a email to change your password in mochi, please paste token to the validated page.\n Token is the following: "+token
         mail.send(msg)
         return jsonify({"message": "success to send a mail"})
 
@@ -433,11 +433,11 @@ class confirm_token(Resource):
 
 
 class reset_password(Resource):
-    def put(self):
+    def put(self, token):
         if current_user.is_authenticated:
             return jsonify({"message ": " Had login", "userId": current_user.id})
         args = reset_password_put_args.parse_args()
-        user = User.verify_reset_token(args.token)
+        user = User.verify_reset_token(token)
         confirm_password_equal_password(args.password, args.confirm_password)
         hashed_password = bcrypt.generate_password_hash(
             args.password).decode('utf-8')
