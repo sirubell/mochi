@@ -950,7 +950,7 @@ class exam(Resource):
         for a_problem in exam_problem:
             problem = Problem.query.filter_by(
                 problem_id=a_problem.problem_id).first()
-            ret["problem_set"].append({'sequence':a_problem.sequence,'problem_name':problem.name,'problem_id':problem.problem_id})
+            ret["problem_set"].append({'exam_id':exam_id,'sequence':a_problem.sequence,'problem_name':problem.name,'problem_id':problem.problem_id})
         return jsonify(ret)
 
 
@@ -1129,4 +1129,17 @@ class exam_table(Resource):
             a_exam["start_time"] = exam.start_time.strftime("%Y/%m/%d %H:%M:%S")
             a_exam["end_time"] = exam.end_time.strftime("%Y/%m/%d %H:%M:%S")
             ret.append(a_exam)
+        return jsonify(ret)
+
+class homework_table(Resource):
+    def get(self,class_id):
+        homeworks = Homework.query.filter_by(class_id=class_id).order_by(Homework.homework_id).all()
+        ret = []
+        for homework in homeworks:
+            a_homework = {}
+            a_homework["homework_id"] = homework.id
+            a_homework["name"] = homework.name
+            a_homework["upload_time"] = homework.upload_time.strftime("%Y/%m/%d %H:%M:%S")
+            a_homework["deadline"] = homework.deadline.strftime("%Y/%m/%d %H:%M:%S")
+            ret.append(a_homework)
         return jsonify(ret)
