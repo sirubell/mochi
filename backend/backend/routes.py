@@ -1106,4 +1106,5 @@ class exam_table(Resource):
             a_exam["name"] = exam.name
             a_exam["start_time"] = exam.start_time.strftime("%Y/%m/%d %H:%M:%S")
             a_exam["end_time"] = exam.end_time.strftime("%Y/%m/%d %H:%M:%S")
+            ret.append(a_exam)
         return jsonify(ret)
