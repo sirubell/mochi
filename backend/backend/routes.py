@@ -764,7 +764,7 @@ class dispatcher(Resource):
             elif data.mode == 2:
                 XD = 1  # compile_error_out 的 status
                 data.status = submission["Status"]
-                if data.status == "AC":
+                if data.status in ["AC","WA"]:
                     if not os.path.isdir(buffer_dir):
                         os.mkdir(buffer_dir)
                     with open(os.path.join(buffer_dir, str(data.source_id) + ".ans"), mode="w", encoding="utf-8") as file:
