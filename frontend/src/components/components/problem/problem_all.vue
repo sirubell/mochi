@@ -3,15 +3,15 @@
   <table class="table" >
     <th>#</th>
     <th>Problem name</th>
-    <th>language</th>
-    <th>status</th>
-    <th>upload_date</th>
-    <tr v-for="item,index in statusTable" :key="item.id" >
-      <td><!--<router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link>-->{{ index+1 }}</td>
+    <th>Difficulty</th>
+    <th>Questioner_id</th>
+    <th>Delete</th>
+    <tr v-for="item,index in problemTable" :key="item.id" >
+      <td><router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link></td>
       <td>{{ item.name }}</td>
-      <td>{{ item.language }}</td>
-      <td>{{ item.status }}</td>
-      <td>{{ item.upload_date }}</td>
+      <td>{{ item.difficulty }}</td>
+      <td>{{ item.questioner_id }}</td>
+      <td v-if="user_id==item.questioner_id"><button v-on:click="delete_question(item.id,user_id)">Delete</button></td>
     </tr>
   </table>
   <p>
@@ -27,18 +27,19 @@
 </template>
 
 <script>
+// import Error from '../error.vue'
+
 import axios from 'axios'
 export default {
-  name: 'Status',
   data() {
     return {
       currentPage:1,
-      statusTable: {},
+      problemTable: {},
       error: "",
       user_id :this.$store.getters.userId
     }
   },
-   methods:{
+  methods:{
     page_plus (){
       this.currentPage+=1
       this.reloadtable()
@@ -47,10 +48,19 @@ export default {
       this.currentPage-=1
       this.reloadtable()
     },
+    delete_question :function(id,user){
+      console.log(user)
+      axios.delete('problem/'+id+'?user_id='+user,{
+        data: {
+           user:user
+         },
+      });
+      this.reloadtable()
+    },
     reloadtable (){
-      axios.get('status?page='+this.currentPage)
+      axios.get('problem?page='+this.currentPage)
       .then( response => {
-        this.statusTable = response.data.returnset
+        this.problemTable = response.data.returnset
         console.log(this.currentPage)
       })
       .catch( error => {
@@ -59,9 +69,9 @@ export default {
     },
   },
   created() {
-    axios.get('status?page='+this.currentPage)
+    axios.get('problem?page='+this.currentPage)
     .then( response => {
-      this.statusTable = response.data.returnset
+      this.problemTable = response.data.returnset
       this.maxpage=response.data.maxpage
       console.log(response.data.maxpage)
     })

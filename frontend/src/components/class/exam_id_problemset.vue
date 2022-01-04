@@ -7,9 +7,10 @@
     <th>題目名稱</th>
     <th>sequence</th>
     <tr v-for="item,index in ExamTable" :key="item.id" >
-      <td><a v-bind:href="'/problem/' + item.problem_id">{{ index+1 }}</a></td>
+      <td><a v-bind:href=" item.exam_id  + '/' + item.problem_id">{{ index+1 }}</a></td>
       <td>{{ item.problem_name }}</td>
       <td>{{ item.sequence }}</td>
+      <!-- <td>{{ ExamID }}</td> -->
     </tr>
   </table>
   <div v-if="error">
@@ -21,21 +22,21 @@
 </template>
 
 <script>
-var current = window.location.pathname;
 import axios from 'axios'
 
 export default {
   name: 'Exam',
   data() {
     return {
+      current: this.$route.params.id,
       ExamTable: {}
     }
   },
   created() {
-    axios.get(current.substr(6))
+    axios.get("/exam/"+this.current)
     .then( response => {
       this.ExamTable = response.data.problem_set
-      this.ExamID=current.substr(6)
+      this.ExamID=this.current
       this.Examstarttime = response.data.start_time
       this.Exam_name = response.data.name
       console.log(response.data)
