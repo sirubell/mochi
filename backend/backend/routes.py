@@ -347,7 +347,7 @@ class status(Resource):
         problem_id = None
         if 'user_id' in request.args:
             user_id = int(request.args['user_id'])
-            user = User.query.filter_by(user_id=user_id).first()
+            user = User.query.filter_by(id=user_id).first()
             if user == None:
                 return jsonify({'message':'user is not found','code':404})
         if 'problem_id' in request.args:
