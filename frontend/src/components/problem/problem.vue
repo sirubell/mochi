@@ -1,6 +1,8 @@
 <template>
 <div>
   <error v-if="error" :error="error" />
+  <loading v-if="loading" loading="Testcase is running" />
+  <info v-if="return_status" :info="'Testcase status: ' + return_status" />
   <h1>{{ info.name }}</h1>
   <div class="container-fluid">
     <div class="row">
@@ -15,7 +17,7 @@
               <label for="memoryLimit" class="form-label">Memory Limit</label>
               <input :value="info.memory_limit + 'MB'" type="text" class="form-control" id="memoryLimit" disabled readonly>
             </div>
-            <select v-model="selectedLanguage" class="form-select" aria-label="language">
+            <select v-model="info.language" class="form-select" aria-label="language">
               <option disabled>language</option>
               <option v-for="l in languages" :key="l">{{ l }}</option>
             </select>
@@ -32,15 +34,15 @@
         </div>
         <div class="mb-3">
           <button class="btn btn-success m-2">Sumit</button>
-          <button class="btn btn-success m-2" @click="test()">Test</button>
+          <button class="btn btn-success m-2" @click="onTest()">Test</button>
         </div>
         <div class="mb-3">
           <label for="testInput" class="form-label">Test Input</label>
-          <textarea class="form-control" id="testInput" rows="3" style="resize: none;"></textarea>
+          <textarea v-model="test_case.input" class="form-control" id="testInput" rows="3" style="resize: none;"></textarea>
         </div>
         <div class="mb-3">
           <label for="testOutput" class="form-label">Test Output</label>
-          <textarea class="form-control" id="testOutput" rows="3" style="resize: none;" disabled readonly></textarea>
+          <textarea v-model="test_case.output" class="form-control" id="testOutput" rows="3" style="resize: none;" disabled readonly></textarea>
         </div>
       </div>
       <div class="col-lg-4 text-start" v-show="showDesc()">
@@ -71,40 +73,44 @@ import 'ace-builds/src-noconflict/theme-monokai.js'
 // import 'ace-builds/src-noconflict/theme-chrome.js'
 import axios from 'axios'
 import Error from '../error.vue'
+import Loading from '../loading.vue'
+import Info from '../info.vue'
 
 export default {
   name: 'Problem',
   data() {
     return {
-      selectedLanguage: "language",
       // when add new language to this array
       // you need to update the mode and the
       // language config(aceLanguage()) for ace editor
       languages: ["c", "c++", "python"],
       panel: "description",
+      source_id: null,
 
       code: "",
+      test_case: {input: "", output: ""},
 
       info: {
         id: "",
         name: "",
+        language: "language",
+        content: "",
         questioner_id: "",
         difficulty: "",
-        content: "",
         time_limit: "",
         memory_limit: "",
-        sample_input: "",
-        sample_ouput: "",
       },
 
-      error: null
+      error: null,
+      loading: false,
+      return_status: null
     }
   },
   computed: {
     aceLanguage() {
-      if (this.selectedLanguage === "language") return "text"
-      if (this.selectedLanguage === "c" || this.selectedLanguage === "c++") return "c_cpp"
-      return this.selectedLanguage
+      if (this.info.language === "language") return "text"
+      if (this.info.language === "c" || this.info.language === "c++") return "c_cpp"
+      return this.info.language
     }
   },
   methods: {
@@ -130,12 +136,72 @@ export default {
       }
       reader.readAsText(evt.target.files[0])
     },
-    test() {
+    onTest() {
+      this.error = null
+      this.loading = false
+      this.return_status = null
+
+      if (this.$store.getters.userInfo === null) {
+        this.$router.push("/login")
+        return
+      }
+
+      if (this.info.language === "language") {
+        this.error = "Please select a language."
+        return
+      }
+      
+
+      const payload = {
+        user_id: this.$store.getters.userInfo.user_id,
+        problem_id: this.info.id,
+        language: this.info.language,
+        code_content: this.code,
+        test_case: this.test_case.input
+      }
+
+      axios.post('/problem/test_run', payload)
+      .then( res => {
+        this.source_id = res.data.source_id
+      })
+      .catch( error => this.error = error)
+
+      this.loading = true
+
+      const get_test_interval = setInterval( () => {
+        axios.get('/problem/test_run', {
+          params: {
+            source_id: this.source_id,
+            user_id: this.$store.getters.userInfo.user_id
+          }
+        })
+        .then( res => {
+          const message = res.data.message
+          if (message === "pending") {
+            return
+          }
+
+          clearInterval(get_test_interval)
+          this.loading = false
+
+          this.return_status = res.data.status
+          this.test_case.output = res.data.output
+          if (message !== "OK") this.error = message
+        })
+        .catch( error => {
+          clearInterval(get_test_interval)
+          this.error = error
+        })
+      }, 1000)
+
+      
     }
   },
   components: {
     VAceEditor,
-    Error
+    Error,
+    Loading,
+    Info
   },
   created() {
     this.info.id = this.$route.params.problemId
