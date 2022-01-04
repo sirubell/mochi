@@ -13,7 +13,7 @@
             <input type="password" class="form-control" v-model="password" placeholder="Password"/>
         </div>
 
-        <button class="btn btn-primary btn-block" style="margin-top:10px">Login</button>
+        <button class="btn btn-outline-primary" style="margin-top:10px">Login</button>
 
         <p class="forgot-password text-right">
             <router-link to="/forgot_password">Forgot password?</router-link>
