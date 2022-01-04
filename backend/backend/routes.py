@@ -465,8 +465,6 @@ class user_profile(Resource):
         return jsonify({"name": user.name, "email": user.email, "user_id": user.id, "register_date": str(user.register_date), "user_problem": datas})
 
     
-
-
 class user_myprofile(Resource):
     @login_required
     def get(self):
@@ -486,8 +484,10 @@ class change_profile_name_email(Resource):
     def put(self):
         args = change_profile_name_email_put_args.parse_args()
         if_username_has_existed(args.name)
+        is_email_format(args.email)
         if_email_has_existed(args.email)
-        self = args
+        current_user.name = args.name
+        current_user.email = args.email
         from backend import db
         db.session.commit()
 
@@ -498,7 +498,7 @@ class change_profile_password(Resource):
         confirm_password_equal_password(args.password, args.confirm_password)
         hashed_password = bcrypt.generate_password_hash(
             args.password).decode('utf-8')
-        self.password = hashed_password
+        current_user.password = hashed_password
         from backend import db
         db.session.commit()        
 
