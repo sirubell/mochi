@@ -33,7 +33,7 @@
           </div>
         </div>
         <div class="mb-3">
-          <button class="btn btn-success m-2">Sumit</button>
+          <button class="btn btn-success m-2" @click="onSubmit">Submit</button>
           <button class="btn btn-success m-2" @click="onTest()">Test</button>
         </div>
         <div class="mb-3">
@@ -86,6 +86,7 @@ export default {
       languages: ["c", "c++", "python"],
       panel: "description",
       source_id: null,
+      submissions: {},
 
       code: "",
       test_case: {input: "", output: ""},
@@ -193,9 +194,64 @@ export default {
           this.error = error
         })
       }, 1000)
+    },
+    onSubmit() {
+      if (this.$store.getters.userInfo === null) {
+        this.router.push('/login')
+        return
+      }
+      if (this.info.language === "language") {
+        this.error = "Please select a language"
+        return
+      }
 
-      
+      this.error = null
+      this.loading = true
+      this.return_status = null
+
+      const payload = {
+        user_id: this.$store.getters.userInfo.user_id,
+        problem_id: this.info.id,
+        language: this.info.language,
+        code_content: this.code
+      }
+      console.log(payload)
+
+      axios.post('/submission/new', payload)
+      .then( res => {
+        this.source_id - res.data.source_id
+
+        this.loading = true
+        
+        const get_submission_interval = setInterval( () => {
+          axios.get('/submission/new', {
+            source_id = this.source_id
+          })
+          .then( res => {
+            const message = res.data.message
+            if (message === "not ok") {
+              return
+            }
+
+            clearInterval(get_submission_interval)
+            if (message !== "ok") {
+              this.error = message
+            } else {
+              this.get_new_submission(res.data.submission_id)
+            }
+          })
+          .catch( error => {
+            this.error = error
+            clearInterval(get_submission_interval)
+          })
+        }, 1000)
+      })
+      .catch( error => this.error = error)
+    },
+    get_new_submission(submission_id) {
+      axios.get('/submission')
     }
+
   },
   components: {
     VAceEditor,
