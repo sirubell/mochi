@@ -117,7 +117,7 @@ class problem(Resource):
             sample_input = file.read()
         with open(path+"/"+str(1)+'.ans', mode="r", encoding="utf-8") as file:
             sample_output = file.read()
-        new_problem = Problem(questioner_id=problem.questioner_id, name=problem.name, difficulty=problem.difficulty, content=problem.content, time_limit=problem.time_limit, memory_limit=problem.memory_limit,
+        new_problem = Problem(questioner_id=problem.questioner_id, name=problem.name, difficulty=problem.difficulty, content=problem.content, time_limit=now.time_limit, memory_limit=now.memory_limit,
                               testcase_count=now.test_case_count, sample_input=sample_input, sample_output=sample_output, is_hidden=problem.is_hidden, upload_date=datetime.datetime.now(), correct_source_code=now.code_content, correct_answer_language=now.language)
 
         if not os.path.isdir(problem_dir):
