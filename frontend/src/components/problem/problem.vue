@@ -219,13 +219,13 @@ export default {
 
       axios.post('/submission/new', payload)
       .then( res => {
-        this.source_id - res.data.source_id
+        this.source_id = res.data.source_id
 
         this.loading = true
         
         const get_submission_interval = setInterval( () => {
           axios.get('/submission/new', {
-            source_id = this.source_id
+            source_id: this.source_id
           })
           .then( res => {
             const message = res.data.message
@@ -249,7 +249,13 @@ export default {
       .catch( error => this.error = error)
     },
     get_new_submission(submission_id) {
-      axios.get('/submission')
+      axios.get('/submission', {
+        params: {
+          submission_id: submission_id
+        }
+      })
+      .then( res => console.log(res.data))
+      .catch( error => this.error = error)
     }
 
   },
