@@ -307,13 +307,20 @@ class problem_id(Resource):
         db.session.commit()
         return jsonify({'message': "Success to put problem", 'code': 200})
 
-    #!!
     def delete(self, problem_id):
         problem = Problem.query.filter_by(problem_id=problem_id).delete()
+        if problem == None:
+            return jsonify({'message':'problem is not found','code':404})
+        if 'user_id' in request.args:
+            user_id = request.args['user_id']
+        else:
+            return jsonify({'message':'user_id is required','code':500})
+        if problem.questioner_id != user_id:
+            return jsonify({'message':'wrong user','code':403})
         from backend import db
+        db.session.delete(problem)
         db.session.commit()
         return jsonify({'message': "Success to delete problem", 'code': 200})
-
 
 class problem_solution(Resource):
     def get(self, problem_id):
