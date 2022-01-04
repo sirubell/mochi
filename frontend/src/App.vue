@@ -40,7 +40,7 @@ export default {
   }
    
   body {
-    /* background: rgb(194, 212, 176) !important; */
+    /* background: rgb(206, 218, 196) !important; */
     min-height: 100vh;
     display: flex;
     font-weight: 400;
