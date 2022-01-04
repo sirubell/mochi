@@ -185,9 +185,9 @@ class create_problem_test_run(Resource):
 
     def post(self):
         args = create_problem_test_run_args.parse_args()
-        if args.time_limit > 5 or args.time_limit < 0:
+        if int(args.time_limit) > 5 or int(args.time_limit) < 0:
             return jsonify({"message": "invalid_time_limit", 'code': 500})
-        if args.memory_limit > 5120 or args.memory_limit < 6:
+        if int(args.memory_limit) > 5120 or int(args.memory_limit) < 6:
             return jsonify({"message": "invalid_memory_limit", 'code': 500})
         if not os.path.isdir(buffer_dir):
             os.mkdir(buffer_dir)

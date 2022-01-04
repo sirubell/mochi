@@ -138,7 +138,7 @@ class Submission(db.Model):
     submission_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     problem_id = db.Column(db.Integer, db.ForeignKey(Problem.problem_id), nullable=False)
-    source_id = db.Column(db.Integer, nullable=False)
+    source_id = db.Column(db.Integer)
     status = db.Column(db.Integer, nullable=False)
     error_hint = db.Column(db.Integer)              
     error_line = db.Column(db.Integer)              
