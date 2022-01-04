@@ -2,12 +2,14 @@
 <div>
   <table class="table" >
     <th>#</th>
-    <th>Exam</th>
-    <th>Time left</th>
-    <tr v-for="item in ExamTable" :key="item.id" >
-      <td><a v-bind:href="'exam/'+item.id">{{ item.id }}</a></td>
-      <td>{{ item.title }}</td>
-      <td>{{ item.userId }}</td>
+    <th>Name</th>
+    <th>Start time</th>
+    <th>End time</th>
+    <tr v-for="item,index in ExamTable" :key="item.id" >
+      <td><router-link :to="'exam/'+item.exam_id"> {{ index+1 }} </router-link></td>
+      <td>{{ item.name }}</td>
+      <td>{{ item.start_time }}</td>
+      <td>{{ item.end_time }}</td>
     </tr>
   </table>
   <div v-if="error">
@@ -30,7 +32,7 @@ export default {
     }
   },
   created() {
-    axios.get('http://192.168.122.231:5000/'+'1/exam')
+    axios.get('class/1/exam')
     .then( response => {
       this.ExamTable = response.data
       console.log(response.data)

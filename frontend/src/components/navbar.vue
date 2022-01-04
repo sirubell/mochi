@@ -15,14 +15,14 @@
       </ul>
 
       <div class="fs-5 col-md-2">
-        <div v-if="userId">
+        <div v-if="userInfo">
           <ul class="nav mb-2 justify-content-end mb-md-0">
             <li class="nav-item dropdown">
               <a href="#" class="text-end nav-link dropdown-toggle px-2 link-dark" data-bs-toggle="dropdown" aria-expanded="false">User</a>
               <ul class="dropdown-menu" aria-labelledby="dropdown03">
                 <li><router-link to="/user"  class="dropdown-item">My profile</router-link></li>
                 <li><a class="dropdown-item" href="#">查看個人解題紀錄</a></li>
-                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                <li><router-link to="/change_email" class="dropdown-item">Change Profile</router-link></li>
               </ul>
             </li>
             <li class="nav-item">
@@ -56,7 +56,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'userId'
+      'userInfo'
     ])
   },
 

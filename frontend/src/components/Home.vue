@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h3 v-if="userId">Hi, userId = {{userId}}</h3>
-    <h3 v-if="!userId">You are not logged in!</h3>
+    <h3 v-if="userInfo">Hi, user = {{userInfo.name}}</h3>
+    <h3 v-if="!userInfo">You are not logged in!</h3>
 
     <h3>Hello, this is mochi online judge!</h3>
     
@@ -21,7 +21,7 @@ export default {
     HelloWorld
   },
   computed: {
-    ...mapGetters(['userId'])
+    ...mapGetters(['userInfo'])
   }
 }
 </script>

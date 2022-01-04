@@ -16,7 +16,7 @@
         <button class="btn btn-primary btn-block" style="margin-top:10px">Login</button>
 
         <p class="forgot-password text-right">
-            <router-link to="/forgot">Forgot password?</router-link>
+            <router-link to="/forgot_password">Forgot password?</router-link>
         </p>
         <p class="forgot-password text-right">
             <router-link to="/signup">Register an account?</router-link>
@@ -28,7 +28,6 @@
 <script>
 import axios from 'axios'
 import Error from '../error.vue'
-import { mapGetters } from 'vuex'
 
 export default {
     name: 'Login',
@@ -45,24 +44,24 @@ export default {
     methods: {
         async handleSubmit(){
             try{
-                const response = await axios.post('login', {
+                await axios.post('login', {
                     email: this.email,
                     password: this.password,
                 });
 
-                localStorage.setItem('token', response.data.token);
-                this.$store.dispatch('login', response.data.userId);
+                axios.get('/user/myprofile')
+                .then( res => {
+                  this.$store.dispatch('login', res.data);
+                })
+                .catch (e => {
+                  this.error = e
+                })
                 this.$router.push('/home');
             }catch (e) {
                 this.error = 'Invalid username/password!'
             }
         }
     },
-    computed: {
-      ...mapGetters([
-        'userId'
-      ])
-    }
 }
 </script>
 

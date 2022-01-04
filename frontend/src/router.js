@@ -5,9 +5,11 @@ import Status from './components/status.vue'
 import Login from './components/user/login.vue'
 import SignUp from './components/user/signup.vue'
 import User from './components/user/user.vue'
-import Forgot from './components/user/forgot.vue'
+import Forgot_password from './components/user/forgot_password.vue'
 import Reset from './components/user/reset.vue'
-import Change_Profile from './components/user/change_profile.vue'
+import Reset_token from './components/user/reset_token.vue'
+import Change_Password from './components/user/change_password.vue'
+import Change_Email from './components/user/change_email.vue'
 
 import Problem from './components/problem/problem.vue'
 import NewProblem from './components/problem/new_problem.vue'
@@ -110,16 +112,24 @@ const routes = [
     ]
   },
   {
-    path: "/forgot",
-    component: Forgot,
+    path: "/forgot_password",
+    component: Forgot_password,
   },
   {
-    path: "/reset/:token",
+    path: "/reset",
     component: Reset,
   },
   {
-    path: "/change_profile",
-    component: Change_Profile,
+    path: "/reset/:token",
+    component: Reset_token,
+  },
+  {
+    path: "/change_password",
+    component: Change_Password,
+  },
+  {
+    path: "/change_email",
+    component: Change_Email,
   }
 ]
 
