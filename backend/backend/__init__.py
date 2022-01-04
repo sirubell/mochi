@@ -128,6 +128,9 @@ api.add_resource(A_class,"/class/<int:class_id>")
 from backend.routes import class_member
 api.add_resource(class_member,"/class/<int:class_id>/member")
 
+from backend.routes import exam_table
+api.add_resource(exam_table,"/class/<int:class_id>/exam")
+
 from backend.routes import add_exam
 api.add_resource(add_exam,"/exam")
 
