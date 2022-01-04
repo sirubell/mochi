@@ -6,8 +6,8 @@
     <th>Difficulty</th>
     <th>Questioner_id</th>
     <th>Delete</th>
-    <tr v-for="item in problemTable" :key="item.id" >
-      <td><router-link :to="'/problem/' + item.id">{{ item.id }}</router-link></td>
+    <tr v-for="item,index in problemTable" :key="item.id" >
+      <td><router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link></td>
       <td>{{ item.name }}</td>
       <td>{{ item.difficulty }}</td>
       <td>{{ item.questioner_id }}</td>
