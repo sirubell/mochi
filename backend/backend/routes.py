@@ -246,9 +246,11 @@ class test_run(Resource):
                 os.mkdir(buffer_dir)
             with open(os.path.join(buffer_dir, str(source_id)+".ans"), mode="r", encoding="utf-8") as file:
                 res = file.read()
+            with open(os.path.join(buffer_dir, str(source_id)+".cans"), mode="r", encoding="utf-8") as file:
+                res2 = file.read()
             db.session.delete(now)
             db.session.commit()
-            return jsonify({'message':'OK','output':res,'status':now.status})
+            return jsonify({'message':'OK','output':res,'status':now.status,'correct_ans_output':res2})
         db.session.delete(now)
         db.session.commit()
         return jsonify({'message':now.error_message,'output':"",'status':now.status})
