@@ -308,7 +308,7 @@ class problem_id(Resource):
         return jsonify({'message': "Success to put problem", 'code': 200})
 
     def delete(self, problem_id):
-        problem = Problem.query.filter_by(problem_id=problem_id).delete()
+        problem = Problem.query.filter_by(problem_id=problem_id).first()
         if problem == None:
             return jsonify({'message':'problem is not found','code':404})
         if 'user_id' in request.args:
@@ -317,7 +317,11 @@ class problem_id(Resource):
             return jsonify({'message':'user_id is required','code':500})
         if problem.questioner_id != user_id:
             return jsonify({'message':'wrong user','code':403})
+        problem_testcases = Problem_Testcase.query.filter_by(problem_id=problem_id).all()
+        shutil.rmtree(problem_dir+'/'+str(problem_id))
         from backend import db
+        for problem_testcase in problem_testcases:
+            db.session.delete(problem_testcase)
         db.session.delete(problem)
         db.session.commit()
         return jsonify({'message': "Success to delete problem", 'code': 200})
