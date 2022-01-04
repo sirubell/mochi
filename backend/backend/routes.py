@@ -334,7 +334,7 @@ class problem_solution(Resource):
 class status(Resource):
     def get(self):
         if 'page' in request.args:
-            page = request.args['page']
+            page = int(request.args['page'])
         else:
             return jsonify({"message ": " Error, page is required",'code':500})
         user_id = None
@@ -1104,8 +1104,6 @@ class exam_table(Resource):
         for exam in exams:
             a_exam = {}
             a_exam["name"] = exam.name
-            a_exam["start_time"] = datetime.datetime.strptime(
-            exam.start_time, "%Y/%m/%d %H:%M:%S")
-            a_exam["end_time"] = datetime.datetime.strptime(
-            exam.end_time, "%Y/%m/%d %H:%M:%S")
+            a_exam["start_time"] = exam.start_time.strftime("%Y/%m/%d %H:%M:%S")
+            a_exam["end_time"] = exam.end_time.strftime("%Y/%m/%d %H:%M:%S")
         return jsonify(ret)
