@@ -522,7 +522,6 @@ class change_profile_password(Resource):
 
 class submission_data(Resource):
     def get(self, submission_id):
-
         from backend import db
         submission = Submission.query.filter_by(
             submission_id=submission_id).first()
@@ -532,6 +531,20 @@ class submission_data(Resource):
 
 
 class queue_new(Resource):
+    def get(self):
+        if 'source_id' in request.args:
+            source_id = int(request.args['source_id'])
+        else:
+            return jsonify({'message': "Error, source_id is required", 'code': 404})
+        now = Queue.query.filter_by(source_id=source_id).first()
+        if now:
+            return jsonify({'message':'not ok','code':500})
+        submission = Submission.query.filter_by(source_id=source_id).first()
+        if submission == None:
+            return jsonify({'message':'unexpected error','code':404})
+        return jsonify({'message':'ok','submission_id':submission.id,'code':200})
+
+
     def post(self):
         from backend import db
         args = queue_post_args.parse_args()
@@ -579,7 +592,7 @@ class queue_new(Resource):
                 ret['warning'] = 'exam is end'
                 return jsonify(ret)
 
-        return jsonify({'message': 'success', 'code': 200})
+        return jsonify({'message': 'success', 'code': 200, 'source_id':new_queue.source_id})
 
 
 class dispatcher(Resource):
@@ -770,6 +783,8 @@ class dispatcher(Resource):
                     with open(os.path.join(buffer_dir, str(data.source_id) + ".ans"), mode="w", encoding="utf-8") as file:
                         file.write(submission["All_stander_out"]
                                    [str(data.source_id)])
+                    with open(os.path.join(buffer_dir, str(data.source_id) + ".cans"), mode="w", encoding="utf-8") as file:
+                        file.write(submission["Correct_answer_out"])
                 else:
                     data.error_message = submission["Compile_error_out"]
 
