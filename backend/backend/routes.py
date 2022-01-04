@@ -1092,7 +1092,7 @@ class homework_status(Resource):
 
 class exam_table(Resource):
     def get(self,class_id):
-        exams = Exam.query.filter_by(class_id=class_id).order_by(Exam.exam_id)
+        exams = Exam.query.filter_by(class_id=class_id).order_by(Exam.exam_id).all()
         ret = []
         for exam in exams:
             a_exam = {}
