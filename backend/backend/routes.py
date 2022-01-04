@@ -146,12 +146,12 @@ class problem(Resource):
 class create_problem_test_run(Resource):
     def get(self):
         if 'source_id' in request.args:
-            source_id = request.args['source_id']
+            source_id = int(request.args['source_id'])
         else:
             return jsonify({'message': "Error, source_id is required", 'code': 500})
 
         if 'user_id' in request.args:
-            user_id = request.args['user_id']
+            user_id = int(request.args['user_id'])
         else:
             return jsonify({'message': "Error, user_id is required", 'code': 500})
         now = Queue.query.filter_by(source_id=source_id).first()
@@ -227,11 +227,11 @@ class create_problem_test_run(Resource):
 class test_run(Resource):
     def get(self):
         if 'source_id' in request.args:
-            source_id = request.args['source_id']
+            source_id = int(request.args['source_id'])
         else:
             return jsonify({'message': "Error, source_id is required", 'code': 500})
         if 'user_id' in request.args:
-            user_id = request.args['user_id']
+            user_id = int(request.args['user_id'])
         else:
             return jsonify({'message': "Error, user_id is required", 'code': 500})
         now = Queue.query.filter_by(source_id=source_id).first()
@@ -312,7 +312,7 @@ class problem_id(Resource):
         if problem == None:
             return jsonify({'message':'problem is not found','code':404})
         if 'user_id' in request.args:
-            user_id = request.args['user_id']
+            user_id = int(request.args['user_id'])
         else:
             return jsonify({'message':'user_id is required','code':500})
         if problem.questioner_id != user_id:
@@ -340,12 +340,12 @@ class status(Resource):
         user_id = None
         problem_id = None
         if 'user_id' in request.args:
-            user_id = request.args['user_id']
+            user_id = int(request.args['user_id'])
             user = User.query.filter_by(user_id=user_id).first()
             if user == None:
                 return jsonify({'message':'user is not found','code':404})
         if 'problem_id' in request.args:
-            problem_id = request.args['problem_id']
+            problem_id = int(request.args['problem_id'])
             problem = Problem.query.filter_by(problem_id=problem_id).first()
             if problem == None:
                 return jsonify({'message':'problem is not found','code':404})
@@ -789,7 +789,7 @@ class dispatcher(Resource):
 class class_all(Resource):
     def get(self):  # 給所有班級資訊
         if 'page' in request.args:
-            page = request.args['page']
+            page = int(request.args['page'])
         else:
             return jsonify({'message': "Error, page is required", 'code': 404})
 
