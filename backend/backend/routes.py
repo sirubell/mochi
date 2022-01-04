@@ -1107,6 +1107,7 @@ class exam_table(Resource):
         ret = []
         for exam in exams:
             a_exam = {}
+            a_exam["exam_id"] = exam.id
             a_exam["name"] = exam.name
             a_exam["start_time"] = exam.start_time.strftime("%Y/%m/%d %H:%M:%S")
             a_exam["end_time"] = exam.end_time.strftime("%Y/%m/%d %H:%M:%S")
