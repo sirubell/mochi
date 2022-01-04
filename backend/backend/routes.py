@@ -354,16 +354,16 @@ class status(Resource):
                 return jsonify({'message': 'problem is not found', 'code': 404})
 
         if user_id and problem_id:
-            submissions = Submission.query.filter_by(user_id=user_id, problem_id=problem_id).order_by(Submission.submission_id).paginate(
+            submissions = Submission.query.filter_by(user_id=user_id, problem_id=problem_id).order_by(Submission.submission_id.desc()).paginate(
                 per_page=20, page=page)
         elif problem_id:
-            submissions = Submission.query.filter_by(problem_id=problem_id).order_by(Submission.submission_id).paginate(
+            submissions = Submission.query.filter_by(problem_id=problem_id).order_by(Submission.submission_id.desc()).paginate(
                 per_page=20, page=page)
         elif user_id:
-            submissions = Submission.query.filter_by(user_id=user_id).order_by(Submission.submission_id).paginate(
+            submissions = Submission.query.filter_by(user_id=user_id).order_by(Submission.submission_id.desc()).paginate(
                 per_page=20, page=page)
         else:
-            submissions = Submission.query.order_by(Submission.submission_id).paginate(
+            submissions = Submission.query.order_by(Submission.submission_id.desc()).paginate(
                 per_page=20, page=page)
 
         ret = {}
@@ -1093,4 +1093,17 @@ class homework_status(Resource):
                 a_student_status['status'].append(problem)
 
             ret["status_table"].append(a_student_status)
+        return jsonify(ret)
+
+class exam_table(Resource):
+    def get(self,class_id):
+        exams = Exam.query.filter_by(class_id=class_id).order_by(Exam.exam_id)
+        ret = []
+        for exam in exams:
+            a_exam = {}
+            a_exam["name"] = exam.name
+            a_exam["start_time"] = datetime.datetime.strptime(
+            exam.start_time, "%Y/%m/%d %H:%M:%S")
+            a_exam["end_time"] = datetime.datetime.strptime(
+            exam.end_time, "%Y/%m/%d %H:%M:%S")
         return jsonify(ret)
