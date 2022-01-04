@@ -1124,7 +1124,7 @@ class exam_table(Resource):
         ret = []
         for exam in exams:
             a_exam = {}
-            a_exam["exam_id"] = exam.id
+            a_exam["exam_id"] = exam.exam_id
             a_exam["name"] = exam.name
             a_exam["start_time"] = exam.start_time.strftime("%Y/%m/%d %H:%M:%S")
             a_exam["end_time"] = exam.end_time.strftime("%Y/%m/%d %H:%M:%S")
@@ -1137,7 +1137,7 @@ class homework_table(Resource):
         ret = []
         for homework in homeworks:
             a_homework = {}
-            a_homework["homework_id"] = homework.id
+            a_homework["homework_id"] = homework.homework_id
             a_homework["name"] = homework.name
             a_homework["upload_time"] = homework.upload_time.strftime("%Y/%m/%d %H:%M:%S")
             a_homework["deadline"] = homework.deadline.strftime("%Y/%m/%d %H:%M:%S")
