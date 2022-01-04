@@ -7,7 +7,7 @@
                 <label>token</label>
                 <input v-model="token" type="text" class="form-control" placeholder="Token"/>
             </div>
-            <button class="btn btn-primary btn-block" style="margin-top:10px"><router-link :to="'/reset/'+token">Submit</router-link></button>
+            <button @click="handleSubmit" class="btn btn-primary btn-block" style="margin-top:10px">Submit</button>
         </form>
     </div>
 </template>
@@ -19,23 +19,20 @@ export default {
     data() {
         return {
             token: '',
+            error: null
         }
     },
     methods: {
-        async handleSubmit() {
-            try{
-                const response = await axios.post('/forgot_password/confirm_token',{
-                    token: this.token,
-                    // token: this.$route.params.token
-                });
-
-                console.log(response);
-                this.$router.push('/reset_token');
-            }
-            catch(e){
-                this.error = e;
-            }
-        }
+      handleSubmit() {
+        axios.post('/forgot_password/confirm_token',{
+          token: this.token,
+          // token: this.$route.params.token
+        })
+        .then( () => {
+          this.$router.push('/reset/' + this.token);
+        })
+        .catch( error => { this.error = error})
+      }
     }
 }
 </script>
