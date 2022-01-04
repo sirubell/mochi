@@ -541,7 +541,10 @@ class queue_new(Resource):
         now = Queue.query.filter_by(source_id=source_id).first()
         if now:
             return jsonify({'message':'not ok','code':500})
+        from backend import db
         submission = Submission.query.filter_by(source_id=source_id).first()
+        submission.source_id = None
+        db.session.commit()
         if submission == None:
             return jsonify({'message':'unexpected error','code':404})
         return jsonify({'message':'ok','submission_id':submission.id,'code':200})
