@@ -1,12 +1,7 @@
 <template>
-  <!-- <h1>User is not implemented.</h1> -->
 <div class="container-fluid">
   <div class="row">
-    <!-- <a href="/" class="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom">
-      <svg class="bi me-2" width="30" height="24"><use xlink:href="#bootstrap"/></svg>
-      <span class="fs-5 fw-semibold">Refresh</span>
-    </a> -->
-    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light collapse">
       <div class="position-sticky pt-3">
         <ul class="nav flex-column">
           <li class="mb-1">

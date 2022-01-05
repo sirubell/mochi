@@ -28,7 +28,7 @@
             <span class="mb-2">Difficulty: {{ info.difficulty }}</span>
             <button type="button" @click="onClickDescBtn" class="btn my-2" :class="showDesc() ? 'btn-primary' : 'btn-outline-primary'">Desciption</button>
             <button type="button" @click="onClickSubBtn" class="btn my-2" :class="showSub() ? 'btn-secondary' : 'btn-outline-secondary'">Submission</button>
-            <button type="button" ><a v-bind:href="'dashboard'" >考試計分表</a></button>
+            <button type="button" ><a v-bind:href="'submission/'+ info.id" >通過紀錄</a></button>
           </div>
         </div>
         <div class="mb-3">

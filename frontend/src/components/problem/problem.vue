@@ -1,6 +1,8 @@
 <template>
 <div>
   <error v-if="error" :error="error" />
+  <loading v-if="loading" loading="Running" />
+  <info v-if="return_status" :info="'Testcase status: ' + return_status" />
   <h1>{{ info.name }}</h1>
   <div class="container-fluid">
     <div class="row">
@@ -31,22 +33,42 @@
           </div>
         </div>
         <div class="mb-3">
-          <button class="btn btn-success m-2">Sumit</button>
-          <button class="btn btn-success m-2" @click="test()">Test</button>
+          <button class="btn btn-success m-2" @click=onSubmit()>Submit</button>
+          <button class="btn btn-success m-2" @click="onTest()">Test</button>
         </div>
         <div class="mb-3">
           <label for="testInput" class="form-label">Test Input</label>
-          <textarea class="form-control" id="testInput" rows="3" style="resize: none;"></textarea>
+          <textarea v-model="test_case.input" class="form-control" id="testInput" rows="3" style="resize: none;"></textarea>
         </div>
         <div class="mb-3">
           <label for="testOutput" class="form-label">Test Output</label>
-          <textarea class="form-control" id="testOutput" rows="3" style="resize: none;" disabled readonly></textarea>
+          <textarea v-model="test_case.output" class="form-control" id="testOutput" rows="3" style="resize: none;" disabled readonly></textarea>
         </div>
       </div>
       <div class="col-lg-4 text-start" v-show="showDesc()">
         {{ info.content }}
       </div>
-      <div class="col-lg-4 text-start" v-show="showSub()">{{  }}</div>
+      <div class="col-lg-4 text-start" v-show="showSub()">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">SubmissionID</th>
+            <th scope="col">Status</th>
+            <th scope="col">Language</th>
+            <th scope="col">Submit Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="sub in submissions" :key="sub.time">
+            <th scope="row">{{ sub.submission_id }}</th>
+            <td>{{ sub.status }}</td>
+            <td>{{ sub.language }}</td>
+            <td>{{ sub.time }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      </div>
       <div class="col-lg">
         <v-ace-editor
           v-model:value="code"
@@ -71,6 +93,8 @@ import 'ace-builds/src-noconflict/theme-monokai.js'
 // import 'ace-builds/src-noconflict/theme-chrome.js'
 import axios from 'axios'
 import Error from '../error.vue'
+import Loading from '../loading.vue'
+import Info from '../info.vue'
 
 export default {
   name: 'Problem',
@@ -82,6 +106,9 @@ export default {
       // language config(aceLanguage()) for ace editor
       languages: ["c", "c++", "python"],
       panel: "description",
+      source_id: null,
+      test_case: { input: "", output: ""},
+      submissions: [],
 
       code: "",
 
@@ -97,7 +124,9 @@ export default {
         sample_ouput: "",
       },
 
-      error: null
+      error: null,
+      loading: false,
+      return_status: null
     }
   },
   computed: {
@@ -122,6 +151,7 @@ export default {
     },
     onClickSubBtn() {
       this.panel = "submission"
+      this.load_all_submissions()
     },
     uploadFile(evt) {
       const reader = new FileReader()
@@ -130,12 +160,160 @@ export default {
       }
       reader.readAsText(evt.target.files[0])
     },
-    test() {
+    onTest() {
+      this.error = null
+      this.loading = false
+      this.return_status = null
+
+      if (this.$store.getters.userInfo === null) {
+        this.$router.push("/login")
+        return
+      }
+
+      if (this.selectedLanguage === "language") {
+        this.error = "Please select a language."
+        return
+      }
+      
+
+      const payload = {
+        user_id: this.$store.getters.userInfo.user_id,
+        problem_id: this.info.id,
+        language: this.selectedLanguage,
+        code_content: this.code,
+        test_case: this.test_case.input
+      }
+
+      axios.post('/problem/test_run', payload)
+      .then( res => {
+        this.source_id = res.data.source_id
+      })
+      .catch( error => this.error = error)
+
+      this.loading = true
+
+      const get_test_interval = setInterval( () => {
+        axios.get('/problem/test_run', {
+          params: {
+            source_id: this.source_id,
+            user_id: this.$store.getters.userInfo.user_id
+          }
+        })
+        .then( res => {
+          const message = res.data.message
+          if (message === "pending") {
+            return
+          }
+
+          clearInterval(get_test_interval)
+          this.loading = false
+
+          this.return_status = res.data.status
+          this.test_case.output = res.data.output
+          if (message !== "OK") this.error = message
+        })
+        .catch( error => {
+          clearInterval(get_test_interval)
+          this.error = error
+        })
+      }, 1000)
+    },
+    onSubmit() {
+      if (this.$store.getters.userInfo === null) {
+        this.router.push('/login')
+        return
+      }
+      if (this.selectedLanguage === "language") {
+        this.error = "Please select a language"
+        return
+      }
+
+      this.error = null
+      this.loading = true
+      this.return_status = null
+      this.onClickSubBtn()
+
+      const payload = {
+        user_id: this.$store.getters.userInfo.user_id,
+        problem_id: this.info.id,
+        language: this.selectedLanguage,
+        code_content: this.code
+      }
+
+      axios.post('/submission/new', payload)
+      .then( res => {
+        this.source_id = res.data.source_id
+
+        this.loading = true
+        
+        const get_submission_interval = setInterval( () => {
+          axios.get('/submission/new', {
+            params: {
+              source_id: this.source_id
+            }
+          })
+          .then( res => {
+            const message = res.data.message
+            if (message === "not ok") {
+              return
+            }
+
+            this.loading = false
+
+            clearInterval(get_submission_interval)
+            if (message !== "ok") {
+              this.error = message
+            } else {
+              this.get_new_submission(res.data.submission_id)
+            }
+          })
+          .catch( error => {
+            this.error = error
+            clearInterval(get_submission_interval)
+          })
+        }, 1000)
+      })
+      .catch( error => this.error = error)
+    },
+    get_new_submission(submission_id) {
+      axios.get('/submission/' + submission_id)
+      .then( res => {
+        this.submissions.unshift({
+          submission_id: res.data.submission_id,
+          language: res.data.language,
+          status: res.data.status,
+          time: res.data.upload_date
+        })
+      })
+      .catch( error => this.error = error)
+    },
+    load_all_submissions() {
+      const user_id = this.$store.getters.userInfo.user_id
+      axios.get('/status', {
+        params: {
+          page: 1,
+          user_id: user_id,
+          problem_id: this.info.id
+        }
+      })
+      .then( res => {
+        this.submissions = res.data.returnset.map( x => { 
+          return {
+            submission_id: x.submission_id,
+            language: x.language,
+            status: x.status,
+            time: x.upload_date
+          }
+        })
+      })
+      .catch( error => this.error = error )
     }
   },
   components: {
     VAceEditor,
-    Error
+    Error,
+    Loading,
+    Info
   },
   created() {
     this.info.id = this.$route.params.problemId
@@ -153,6 +331,9 @@ export default {
         this.info.memory_limit = res.data.memory_limit
         this.info.sample_input = res.data.sample_input
         this.info.sample_output = res.data.sample_output
+
+        this.test_case.input = this.info.sample_input
+        this.test_case.output = this.info.sample_output
       }
     })
     .catch( e => { this.error = e})
