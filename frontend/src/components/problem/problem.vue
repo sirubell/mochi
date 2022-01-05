@@ -33,16 +33,16 @@
           </div>
         </div>
         <div class="mb-3">
-          <button class="btn btn-success m-2">Sumit</button>
-          <button class="btn btn-success m-2" @click="test()">Test</button>
+          <button class="btn btn-success m-2" @click=onSubmit()>Submit</button>
+          <button class="btn btn-success m-2" @click="onTest()">Test</button>
         </div>
         <div class="mb-3">
           <label for="testInput" class="form-label">Test Input</label>
-          <textarea class="form-control" id="testInput" rows="3" style="resize: none;"></textarea>
+          <textarea v-model="test_case.input" class="form-control" id="testInput" rows="3" style="resize: none;"></textarea>
         </div>
         <div class="mb-3">
           <label for="testOutput" class="form-label">Test Output</label>
-          <textarea class="form-control" id="testOutput" rows="3" style="resize: none;" disabled readonly></textarea>
+          <textarea v-model="test_case.output" class="form-control" id="testOutput" rows="3" style="resize: none;" disabled readonly></textarea>
         </div>
       </div>
       <div class="col-lg-4 text-start" v-show="showDesc()">
@@ -93,6 +93,8 @@ import 'ace-builds/src-noconflict/theme-monokai.js'
 // import 'ace-builds/src-noconflict/theme-chrome.js'
 import axios from 'axios'
 import Error from '../error.vue'
+import Loading from '../loading.vue'
+import Info from '../info.vue'
 
 export default {
   name: 'Problem',
@@ -105,6 +107,7 @@ export default {
       languages: ["c", "c++", "python"],
       panel: "description",
       source_id: null,
+      test_case: { input: "", output: ""},
       submissions: [],
 
       code: "",
@@ -121,7 +124,9 @@ export default {
         sample_ouput: "",
       },
 
-      error: null
+      error: null,
+      loading: false,
+      return_status: null
     }
   },
   computed: {
@@ -165,7 +170,7 @@ export default {
         return
       }
 
-      if (this.info.language === "language") {
+      if (this.selectedLanguage === "language") {
         this.error = "Please select a language."
         return
       }
@@ -174,7 +179,7 @@ export default {
       const payload = {
         user_id: this.$store.getters.userInfo.user_id,
         problem_id: this.info.id,
-        language: this.info.language,
+        language: this.selectedLanguage,
         code_content: this.code,
         test_case: this.test_case.input
       }
@@ -218,7 +223,7 @@ export default {
         this.router.push('/login')
         return
       }
-      if (this.info.language === "language") {
+      if (this.selectedLanguage === "language") {
         this.error = "Please select a language"
         return
       }
@@ -226,12 +231,12 @@ export default {
       this.error = null
       this.loading = true
       this.return_status = null
-      this.panel = "submission"
+      this.onClickSubBtn()
 
       const payload = {
         user_id: this.$store.getters.userInfo.user_id,
         problem_id: this.info.id,
-        language: this.info.language,
+        language: this.selectedLanguage,
         code_content: this.code
       }
 
@@ -306,7 +311,9 @@ export default {
   },
   components: {
     VAceEditor,
-    Error
+    Error,
+    Loading,
+    Info
   },
   created() {
     this.info.id = this.$route.params.problemId
