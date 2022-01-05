@@ -226,6 +226,7 @@ export default {
         .catch( error => {
           clearInterval(get_test_interval)
           this.error = error
+          this.loading = false
         })
       }, 1000)
     },
@@ -283,8 +284,9 @@ export default {
             }
           })
           .catch( error => {
-            this.error = error
             clearInterval(get_submission_interval)
+            this.error = error
+            this.loading = false
           })
         }, 1000)
       })
