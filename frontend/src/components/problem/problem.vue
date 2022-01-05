@@ -48,7 +48,27 @@
       <div class="col-lg-4 text-start" v-show="showDesc()">
         {{ info.content }}
       </div>
-      <div class="col-lg-4 text-start" v-show="showSub()">{{  }}</div>
+      <div class="col-lg-4 text-start" v-show="showSub()">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">SubmissionID</th>
+            <th scope="col">Status</th>
+            <th scope="col">Language</th>
+            <th scope="col">Submit Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="sub in submissions" :key="sub.time">
+            <th scope="row">{{ sub.submission_id }}</th>
+            <td>{{ sub.status }}</td>
+            <td>{{ sub.language }}</td>
+            <td>{{ sub.time }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      </div>
       <div class="col-lg">
         <v-ace-editor
           v-model:value="code"
@@ -129,6 +149,7 @@ export default {
     },
     onClickSubBtn() {
       this.panel = "submission"
+      this.load_all_submissions()
     },
     uploadFile(evt) {
       const reader = new FileReader()
@@ -208,6 +229,7 @@ export default {
       this.error = null
       this.loading = true
       this.return_status = null
+      this.panel = "submission"
 
       const payload = {
         user_id: this.$store.getters.userInfo.user_id,
@@ -255,13 +277,35 @@ export default {
     get_new_submission(submission_id) {
       axios.get('/submission/' + submission_id)
       .then( res => {
-        this.submissions.push({
+        this.submissions.unshift({
           submission_id: res.data.submission_id,
+          language: res.data.language,
           status: res.data.status,
           time: res.data.upload_date
         })
       })
       .catch( error => this.error = error)
+    },
+    load_all_submissions() {
+      const user_id = this.$store.getters.userInfo.user_id
+      axios.get('/status', {
+        params: {
+          page: 1,
+          user_id: user_id,
+          problem_id: this.info.id
+        }
+      })
+      .then( res => {
+        this.submissions = res.data.returnset.map( x => { 
+          return {
+            submission_id: x.submission_id,
+            language: x.language,
+            status: x.status,
+            time: x.upload_date
+          }
+        })
+      })
+      .catch( error => this.error = error )
     }
 
   },
@@ -290,20 +334,6 @@ export default {
       }
     })
     .catch( e => { this.error = e})
-
-    if (this.$store.getters.userInfo !== null) {
-      const user_id = this.$store.getters.userInfo.user_id
-      axios.get('/status', {
-        params: {
-          page: 1,
-          user_id: user_id,
-          problem_id: this.info.id
-        }
-      })
-      .then( res => {
-        console.log(res.data)
-      })
-    }
   }
 }
 </script>
