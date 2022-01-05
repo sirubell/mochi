@@ -37,6 +37,8 @@
         <v-ace-editor
           v-model:value="info.code"
           @init="editorInit"
+          :lang="aceLanguage"
+          theme="monokai"
           style="height: 600px;"
           id="editor"
         />
@@ -67,15 +69,20 @@
     <div class="my-2">
       <button type="button" class="btn btn-primary m-2" @click="onNewTestcase">New Testcase</button>
       <button type="button" class="btn btn-warning m-2" @click="onTest">Test All Testcases</button>
-      <button type="button" class="btn btn-success m-2" @click="onSumit">Sumit</button>
+      <button type="button" class="btn btn-success m-2" @click="onSubmit">Submit</button>
     </div>
   </div>
 </template>
 
 <script>
 import { VAceEditor } from 'vue3-ace-editor'
-import 'ace-builds/src-noconflict/theme-chrome'
+import 'ace-builds/src-noconflict/mode-text'
+import 'ace-builds/src-noconflict/mode-c_cpp'
+import 'ace-builds/src-noconflict/mode-python'
+import 'ace-builds/src-noconflict/theme-monokai.js'
+
 import axios from 'axios'
+
 import Error from '../error.vue'
 import Loading from '../loading.vue'
 import Info from '../info.vue'
@@ -102,6 +109,13 @@ export default {
       error: null,
       loading: null,
       return_status: null
+    }
+  },
+  computed: {
+    aceLanguage() {
+      if (this.info.language === "language") return "text"
+      if (this.info.language === "c" || this.info.language === "c++") return "c_cpp"
+      return this.info.language
     }
   },
   methods: {
@@ -187,7 +201,7 @@ export default {
       })
 
     },
-    onSumit() {
+    onSubmit() {
       if (this.loading !== false || this.source_id === null) {
         this.error = "You need to run testcases and wait until it is finished."
         return
@@ -223,6 +237,7 @@ export default {
         
         if (code === 200) {
           this.return_status = res.data.message
+          this.$router.push('/problem')
         } else {
           this.error = res.data.message
         }
