@@ -217,7 +217,7 @@ export default {
           this.loading = false
 
           this.return_status = res.data.status
-          this.expectOutput = res.data.output
+          this.expectOutput = res.data.correct_ans_output
           this.test_case.output = res.data.output
           if (message !== "OK") this.error = message
 
