@@ -1,17 +1,17 @@
 <template>
-  <div class="container">
-    <header class="d-flex flex-wrap align-items-center justify-content-md-between py-2 mb-4 border-bottom">
+  <div class="container-fluid">
+    <header class=" d-flex flex-wrap align-items-center justify-content-md-between py-2 mb-4 border-bottom ">
       <router-link to="/home" class="fs-2 nav-link link-dark col-md-2 text-start">
       Mochi
       </router-link>
 
-
-      <ul class="fs-5 nav col-md-auto mb-2 justify-content-center mb-md-0">
-        <li><router-link to="/problem" class="nav-link px-2 link-dark">Problem</router-link></li>
-        <li><router-link to="/status" class="nav-link px-2 link-dark">Status</router-link></li>
-        <li><router-link to="/class/homework/all" class="nav-link px-2 link-dark">Homework</router-link></li>
-        <li><router-link to="/class/exam" class="nav-link px-2 link-dark">Exam</router-link></li>
-        <li><router-link to="/test-new-problem" class="nav-link px-2 link-dark">Test New Problem</router-link></li>
+      
+      <ul class="fs-4 nav col-md-auto mb-2 justify-content-center mb-md-0">
+        <li><router-link to="/problem" class="nav-link px-3 link-dark">Problem</router-link></li>
+        <li><router-link to="/status" class="nav-link px-3 link-dark">Status</router-link></li>
+        <li><router-link to="/class/homework/all" class="nav-link px-3 link-dark">Homework</router-link></li>
+        <li><router-link to="/class/exam" class="nav-link px-3 link-dark">Exam</router-link></li>
+        <li><router-link to="/test-new-problem" class="nav-link px-3 link-dark">Test New Problem</router-link></li>
       </ul>
 
       <div class="fs-5 col-md-2">
@@ -62,3 +62,9 @@ export default {
 
 }
 </script>
+
+<style scoped>
+  .container-fluid{
+    background-color:aquamarine
+  }
+</style>
