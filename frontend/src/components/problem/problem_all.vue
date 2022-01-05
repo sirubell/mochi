@@ -29,6 +29,7 @@
 <script>
 // import Error from '../error.vue'
 
+
 import axios from 'axios'
 export default {
   data() {
