@@ -67,7 +67,7 @@
     <div class="my-2">
       <button type="button" class="btn btn-primary m-2" @click="onNewTestcase">New Testcase</button>
       <button type="button" class="btn btn-warning m-2" @click="onTest">Test All Testcases</button>
-      <button type="button" class="btn btn-success m-2" @click="onSumit">Sumit</button>
+      <button type="button" class="btn btn-success m-2" @click="onSubmit">Submit</button>
     </div>
   </div>
 </template>
@@ -187,7 +187,7 @@ export default {
       })
 
     },
-    onSumit() {
+    onSubmit() {
       if (this.loading !== false || this.source_id === null) {
         this.error = "You need to run testcases and wait until it is finished."
         return
@@ -223,6 +223,7 @@ export default {
         
         if (code === 200) {
           this.return_status = res.data.message
+          this.$router.push('/problem')
         } else {
           this.error = res.data.message
         }
