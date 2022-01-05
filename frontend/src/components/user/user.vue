@@ -70,6 +70,16 @@
           </div>
         </div>
       <!-- </div> -->
+      <div class="mb-3 text-start">
+        <label for="invitationCode" class="form-label">Invitation Code</label>
+        <input v-model="invitationCode" type="text" class="form-control" id="invitationCode">
+      </div>
+      <div class="mb-3 text-start">
+        <label for="studentID" class="form-label">Student ID</label>
+        <input v-model="studentId" type="number" class="form-control" id="studentID">
+      </div>
+      <button class="btn btn-success" @click="joinClass">Join the Class</button>
+      <error v-if="error" :error="error" />
     </main>
   </div>
 </div>
@@ -77,13 +87,31 @@
 
 <script>
 import axios from 'axios'
+import Error from '../error.vue'
 
 export default {
   name: 'User',
   data() {
     return {
       userInfo: {},
-      error: null
+      error: null,
+
+      invitationCode: "",
+      studentId: ""
+    }
+  },
+  methods: {
+    joinClass() {
+      const postData = {
+        user_id: this.userInfo.user_id,
+        student_id: this.studentId,
+        invite_code: this.invitationCode
+      }
+      axios.post('/class/1/member', postData)
+      .then( res => {
+        this.error = res.data.message
+      })
+      .catch( error => this.error = error)
     }
   },
   created() {
@@ -92,7 +120,10 @@ export default {
       this.userInfo = res.data
       this.$store.dispatch('login', this.userInfo)
     })
-    .catch( error => { this.error = error})
+    .catch( error => { this.error = error })
+  },
+  components: {
+    Error
   }
 }
 </script>
