@@ -67,7 +67,7 @@
     <div class="my-2">
       <button type="button" class="btn btn-primary m-2" @click="onNewTestcase">New Testcase</button>
       <button type="button" class="btn btn-warning m-2" @click="onTest">Test All Testcases</button>
-      <button type="button" class="btn btn-success m-2" @click="onSumit">Sumit</button>
+      <button type="button" class="btn btn-success m-2" @click="onSumit">Submit</button>
     </div>
   </div>
 </template>
