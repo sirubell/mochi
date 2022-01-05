@@ -6,8 +6,8 @@
     <th>language</th>
     <th>status</th>
     <th>upload_date</th>
-    <tr v-for="item,index in statusTable" :key="item.id" >
-      <td><!--<router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link>-->{{ index+1 }}</td>
+    <tr v-for="item,index in statusTable" :key="item.submission_id" >
+      <td><router-link :to="'/submission/' + item.submission_id"> {{ index+1 }}</router-link></td>
       <td>{{ item.name }}</td>
       <td>{{ item.language }}</td>
       <td>{{ item.status }}</td>

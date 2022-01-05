@@ -1,6 +1,6 @@
 <template>
-<div>
-  <table class="table" >
+<div style="background:#ffff">
+  <table class="table">
     <th>#</th>
     <th>Problem name</th>
     <th>Difficulty</th>

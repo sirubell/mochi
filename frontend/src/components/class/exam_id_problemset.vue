@@ -1,5 +1,5 @@
 <template>
-<div>
+<div style="background:#ffff">
   <h1>{{ Exam_name }}</h1>
   <li>Start Time : {{ Examstarttime }}</li>
   <table class="table" >

@@ -1,5 +1,5 @@
 <template>
-<div>
+<div style="background:#ffff">
   <h1>dashboard page</h1>
   <table class="table" >
     <th>名字</th>

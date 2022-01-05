@@ -1,5 +1,5 @@
 <template>
-<div>
+<div style="background:#ffff">
   <error v-if="error" :error="error" />
   <h1>{{ info.name }}</h1>
   <div class="container-fluid">

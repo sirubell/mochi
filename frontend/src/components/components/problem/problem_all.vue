@@ -1,5 +1,5 @@
 <template>
-<div>
+<div style="background:#ffff">
   <table class="table" >
     <th>#</th>
     <th>Problem name</th>

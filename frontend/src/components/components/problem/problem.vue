@@ -2,7 +2,7 @@
 <div>
   <error v-if="error" :error="error" />
   <h1>{{ info.name }}</h1>
-  <div class="container-fluid">
+  <div class="container-fluid" style="background:#ffff">
     <div class="row">
       <div class="col-lg-2">
         <div class="row mb-3">
