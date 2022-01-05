@@ -37,6 +37,8 @@
         <v-ace-editor
           v-model:value="info.code"
           @init="editorInit"
+          :lang="aceLanguage"
+          theme="monokai"
           style="height: 600px;"
           id="editor"
         />
@@ -74,8 +76,13 @@
 
 <script>
 import { VAceEditor } from 'vue3-ace-editor'
-import 'ace-builds/src-noconflict/theme-chrome'
+import 'ace-builds/src-noconflict/mode-text'
+import 'ace-builds/src-noconflict/mode-c_cpp'
+import 'ace-builds/src-noconflict/mode-python'
+import 'ace-builds/src-noconflict/theme-monokai.js'
+
 import axios from 'axios'
+
 import Error from '../error.vue'
 import Loading from '../loading.vue'
 import Info from '../info.vue'
@@ -102,6 +109,13 @@ export default {
       error: null,
       loading: null,
       return_status: null
+    }
+  },
+  computed: {
+    aceLanguage() {
+      if (this.info.language === "language") return "text"
+      if (this.info.language === "c" || this.info.language === "c++") return "c_cpp"
+      return this.info.language
     }
   },
   methods: {
