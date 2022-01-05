@@ -2,7 +2,7 @@
 <div>
   <table class="table" >
     <th>#</th>
-    <th>Problem name</th>
+    <th>User Name</th>
     <th>language</th>
     <th>status</th>
     <th>upload_date</th>

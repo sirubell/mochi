@@ -45,7 +45,6 @@ export default {
             error: ''
         }
     },
-    
     methods: {
         async handleSubmit(){
             try{

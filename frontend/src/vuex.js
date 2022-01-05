@@ -2,7 +2,7 @@ import { createStore } from 'vuex'
 
 const store = createStore({
   state: {
-    userInfo: null 
+    userInfo: null
   },
   getters: {
     userInfo(state) {
@@ -18,7 +18,7 @@ const store = createStore({
     login(state, userInfo) {
       state.userInfo = userInfo
     }
-  }
+  },
 })
 
 export default store

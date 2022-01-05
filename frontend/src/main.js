@@ -7,3 +7,4 @@ import './assets/custom.scss'
 import './axios'
 
 createApp(App).use(router).use(store).mount('#app')
+

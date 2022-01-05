@@ -37,6 +37,8 @@
         <v-ace-editor
           v-model:value="info.code"
           @init="editorInit"
+          :lang="aceLanguage"
+          theme="monokai"
           style="height: 600px;"
           id="editor"
         />
@@ -67,15 +69,24 @@
     <div class="my-2">
       <button type="button" class="btn btn-primary m-2" @click="onNewTestcase">New Testcase</button>
       <button type="button" class="btn btn-warning m-2" @click="onTest">Test All Testcases</button>
+<<<<<<< HEAD
       <button type="button" class="btn btn-success m-2" @click="onSumit">Submit</button>
+=======
+      <button type="button" class="btn btn-success m-2" @click="onSubmit">Submit</button>
+>>>>>>> c63e5e5a13a85901549c33dc2ac67a297f43c912
     </div>
   </div>
 </template>
 
 <script>
 import { VAceEditor } from 'vue3-ace-editor'
-import 'ace-builds/src-noconflict/theme-chrome'
+import 'ace-builds/src-noconflict/mode-text'
+import 'ace-builds/src-noconflict/mode-c_cpp'
+import 'ace-builds/src-noconflict/mode-python'
+import 'ace-builds/src-noconflict/theme-monokai.js'
+
 import axios from 'axios'
+
 import Error from '../error.vue'
 import Loading from '../loading.vue'
 import Info from '../info.vue'
@@ -104,12 +115,19 @@ export default {
       return_status: null
     }
   },
+  computed: {
+    aceLanguage() {
+      if (this.info.language === "language") return "text"
+      if (this.info.language === "c" || this.info.language === "c++") return "c_cpp"
+      return this.info.language
+    }
+  },
   methods: {
     editorInit() {
       // do nothing
     },
     onTest() {
-      const user_id = this.$store.getters.userId
+      const user_id = this.$store.getters.userInfo.user_id
       if (user_id === null) {
         this.error = "You need to login to create a new problem."
         return
@@ -187,14 +205,27 @@ export default {
       })
 
     },
-    onSumit() {
+    onSubmit() {
       if (this.loading !== false || this.source_id === null) {
         this.error = "You need to run testcases and wait until it is finished."
         return
       }
 
+      if (this.info.difficulty === "difficulty") {
+        this.error = "Difficulty is not selected."
+        return
+      }
+      if (this.info.name === "") {
+        this.error = "Please enter the problem name."
+        return
+      }
+      if (this.info.problemDesc === "") {
+        this.error = "Please enter the problem description."
+        return
+      }
+
       const postData = {
-        questioner_id: this.$store.getters.userId,
+        questioner_id: this.$store.getters.userInfo.user_id,
         source_id: this.source_id,
         name: this.info.name,
         difficulty: this.info.difficulty,
@@ -210,6 +241,7 @@ export default {
         
         if (code === 200) {
           this.return_status = res.data.message
+          this.$router.push('/problem')
         } else {
           this.error = res.data.message
         }

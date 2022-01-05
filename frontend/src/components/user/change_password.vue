@@ -1,8 +1,8 @@
 <template>
 <div class="container-fluid">
   <div class="row">
-    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-      <div class="position-sticky pt-3">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light collapse">
+      <div class="list-unstyled ps-0">
         <ul class="nav flex-column">
           <li class="mb-1">
               <router-link to="/user" class="btn btn-toggle align-items-center rounded collapsed" data-bs-target="#home-collapse" aria-expanded="true">
@@ -60,6 +60,8 @@
 
 <script>
 import axios from 'axios'
+// import Error from '../error.vue'
+
 export default {
     name: 'Change_Password',
     data() {
@@ -69,20 +71,34 @@ export default {
         error: ''
       }
     },
+    components: {
+        // Error
+    },
     methods: {
         async ChangePassword(){ //利用 try catch 作錯誤偵測
             try{
-                await axios.put('user/change_profile_password', {
+                const response = await axios.put('user/change_profile_password', {
                     password: this.password,
                     confirm_password: this.confirm_password
                 }); // 資料由後方物件帶入 
+                console.log(response);
                 this.$router.push('/user');
             }
             catch(e){
                 this.error = e;
             }
         }
-    }
+    },
+    created(){
+        axios.get('http://192.168.122.134:5000/user/change_profile_password')
+      .then( response => {
+        this.data = response.data
+        console.log(this.data)
+      })
+      .catch( () => {
+        this.error = 'Invalid password!'
+      });
+    },
 }
 </script>
 
