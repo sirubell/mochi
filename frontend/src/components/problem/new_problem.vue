@@ -207,8 +207,8 @@ export default {
         return
       }
 
-      if (this.info.difficulty === "language") {
-        this.error = "Language is not selected."
+      if (this.info.difficulty === "difficulty") {
+        this.error = "Difficulty is not selected."
         return
       }
       if (this.info.name === "") {

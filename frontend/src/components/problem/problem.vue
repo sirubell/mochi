@@ -331,6 +331,9 @@ export default {
         this.info.memory_limit = res.data.memory_limit
         this.info.sample_input = res.data.sample_input
         this.info.sample_output = res.data.sample_output
+
+        this.test_case.input = this.info.sample_input
+        this.test_case.output = this.info.sample_output
       }
     })
     .catch( e => { this.error = e})
