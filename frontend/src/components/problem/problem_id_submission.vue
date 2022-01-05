@@ -1,5 +1,5 @@
 <template>
-<div>
+<div style="background:#ffff">
     <h1>this is id dashboard page</h1>
     <!-- <p>Problem id = {{ problemID }}</p> -->
     <table class="table" >
@@ -9,10 +9,8 @@
     <th>status</th>
     <th>upload_date</th>
     <tr v-for="item,index in problemTable" :key="item.id" >
-      <td>
-        <!-- <router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link> -->
-          {{ index+1 }}
-        </td>
+      <!-- <router-link :to="'/submission/' + item.id"> </router-link> -->
+      <td>{{ index+1 }}</td>
       <td>{{ item.name }}</td>
       <td>{{ item.language }}</td>
       <td>{{ item.status }}</td>

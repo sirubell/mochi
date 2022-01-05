@@ -1,5 +1,5 @@
 <template>
-<div>
+<div style="background:#ffff">
   <table class="table" >
     <th>#</th>
     <th>題目名稱</th>

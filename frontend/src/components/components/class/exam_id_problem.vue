@@ -1,5 +1,5 @@
 <template>
-<div>
+<div style="background:#ffff">
     <h1>this is exam id page</h1>
     <p>Problem id = {{ ExamID }}</p>
       
