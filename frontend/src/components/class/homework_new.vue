@@ -106,7 +106,7 @@ export default {
       // do nothing
     },
     onSumit() {
-      if (!checkTime()) {
+      if (!this.checkTime()) {
         this.error = "Time is invalid."
         return
       }
