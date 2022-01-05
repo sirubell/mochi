@@ -1,30 +1,31 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col-6 test-start">
+      <div class="col-6 text-start">
         <div class="mb-3">
           <label for="problemName" class="form-label">Exam Name</label>
-          <input v-model="info.exam_name" type="text" class="form-control" id="problemName">
+          <input v-model="exam_name" type="text" class="form-control" id="problemName">
         </div>
         <div class="mb-3">
           <label for="problemDescription" class="form-label">Exam information</label>
-          <textarea v-model="info.exam_info" class="form-control" id="problemDescription" placeholder="" rows="5" style="resize: none;"></textarea>
+          <textarea v-model="exam_info" class="form-control" id="problemDescription" placeholder="" rows="5" style="resize: none;"></textarea>
         </div>
         <div class="row mb-3">
           <div class="col">
             <div class="mb-3">
               <label for="timeLimit" class="form-label">Start Time</label>
             </div>
-            <input type="date" id="start" name="trip-start"  min="2022-01-01" max="2022-12-31" v-model="info.exam_start_time_date">
-            <input type="time" id="appt" name="appt" min="00:00" max="23:59" v-model="info.exam_start_time_time" required>
+            <input type="date" id="start" name="trip-start"  min="2022-01-01" max="2022-12-31" v-model="exam_start_time_date">
+            <input type="time" id="appt" name="appt" min="00:00" max="23:59" v-model="exam_start_time_time" required>
           </div>
           <div class="col">
             <div class="mb-3">
               <label for="timeLimit" class="form-label">End Time</label>
             </div>
-            <input type="date" id="start" name="trip-start"  min="2022-01-01" max="2022-12-31" v-model="info.exam_end_time_date">
-            <input type="time" id="appt" name="appt" min="00:00" max="23:59" v-model="info.exam_end_time_time" required>
+            <input type="date" id="start" name="trip-start"  :min="exam_start_time_date" max="2022-12-31" v-model="exam_end_time_date">
+            <input type="time" id="appt" name="appt" :min="exam_start_time_time" max="23:59" v-model="exam_end_time_time" required>
           </div>
+          <button type="button" class="btn btn-success" @click="test">Testing</button>
         </div>
       </div>
       <div class="col-6">
@@ -37,7 +38,7 @@
                 <td><router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link></td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.difficulty }}</td>
-                <td><input type="checkbox" :id=item.id :value=item.id v-model="info.problem_set" /><label :for=item.id >{{item.id}}</label></td>
+                <td><input type="checkbox" :id=item.id :value=item.id v-model="problem_set" /><label :for=item.id >{{item.id}}</label></td>
             </tr>
           </table>
           <p>
@@ -70,15 +71,14 @@ export default {
   name: "NewExam",
   data() {
     return {
-      info: {
-        exam_name: "",
-        exam_info: "",
-        exam_start_time_date: "",
-        exam_start_time_time: "",
-        exam_end_time_date: "",
-        exam_end_time_time: "",
-        problem_set: [],
-      },
+      exam_name: "",
+      exam_info: "",
+      exam_start_time_date: "",
+      exam_start_time_time: "",
+      exam_end_time_date: "",
+      exam_end_time_time: "",
+      problem_set: [],
+
       //current: this.$route.params.id,
       currentPage:1,
       problemTable: {},
@@ -88,7 +88,21 @@ export default {
       return_status: null
     }
   },
+  watch: {
+    exam_start_time_date() {
+      this.exam_end_time_date = this.exam_start_time_date
+    },
+    exam_start_time_time() {
+      this.exam_end_time_time = this.exam_start_time_time
+    }
+  },
   methods: {
+    test() {
+      console.log(this.exam_start_time_date)
+      console.log(this.exam_start_time_time)
+      console.log(this.exam_end_time_date)
+      console.log(this.exam_end_time_time)
+    },
     editorInit() {
       // do nothing
     },
@@ -101,11 +115,11 @@ export default {
       const postData = {
         class_id: 1,//this.current,
         user_id: 1,//this.$store.getters.userInfo.user_id,
-        exam_name: this.info.exam_name,
-        exam_info: this.info.exam_info,
-        exam_start_time: this.info.exam_start_time_date+" "+this.info.exam_start_time_time+":00",
-        exam_end_time: this.info.exam_end_time_date+" "+this.info.exam_end_time_time+":59",
-        problem_set: this.info.problem_set,
+        exam_name: this.exam_name,
+        exam_info: this.exam_info,
+        exam_start_time: this.exam_start_time_date+" "+this.exam_start_time_time+":00",
+        exam_end_time: this.exam_end_time_date+" "+this.exam_end_time_time+":59",
+        problem_set: this.problem_set,
       }
 
       axios.post('/exam', postData)
