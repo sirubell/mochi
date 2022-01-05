@@ -20,6 +20,7 @@ import ClassAll from './components/class/class_all.vue'
 
 import Homework from './components/class/homework_all.vue'
 import Homework_id from './components/class/homework_id.vue'
+import Homework_status from './components/class/homework_status.vue'
 import NewHomework from './components/class/homework_new.vue'
 
 import Exam from './components/class/exam.vue'
@@ -98,6 +99,10 @@ const routes = [
       {
         path: 'homework/:id',
         component: Homework_id
+      },
+      {
+        path: 'homework_status/:id',
+        component: Homework_status
       },
       {
         path: 'homework/problem/:problemId',

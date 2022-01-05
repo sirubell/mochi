@@ -26,7 +26,7 @@ export default {
   },
 
   created() {
-    axios.get('homework/'+this.current)
+    axios.get('/homework/'+this.current)
     .then( response => {
       this.HomeworkTable = response.data.problem_set
       console.log(this.current)
