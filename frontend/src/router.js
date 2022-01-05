@@ -23,12 +23,14 @@ import ClassAll from './components/class/class_all.vue'
 
 import Homework from './components/class/homework_all.vue'
 import Exam from './components/class/exam.vue'
-import Exam_id_problem from './components/class/exam_id_problem.vue'
+import Exam_id_problem from './components/problem/problem.vue'
 import Exam_id_problemset from './components/class/exam_id_problemset.vue'
 import Exam_id_dashboard from './components/class/exam_id_dashboard.vue'
+import NewExam from './components/class/exam_new.vue'
 
 const routes = [
   { path: '/test-new-problem', component: NewProblem },
+  { path: '/test-new-exam', component: NewExam },
   {
     path: '/',
     redirect: 'home'
@@ -113,7 +115,7 @@ const routes = [
         component: Exam_id_problem
       },
       {
-        path: 'exam/:id/dashboard',
+        path: 'exam/:Exam_id/dashboard',
         component: Exam_id_dashboard
       }
     ]

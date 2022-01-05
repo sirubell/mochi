@@ -1,18 +1,33 @@
 <template>
+<<<<<<< HEAD
   <div class="contain-fluid-navbar">
     <header class="d-flex flex-wrap align-items-center justify-content-md-between py-2 mb-4 border-bottom">
       <router-link to="/home" class="fs-2 nav-link link-dark col-md-2 text-start" style="color: #ffff">
+=======
+  <div class="container-fluid">
+    <header class=" d-flex flex-wrap align-items-center justify-content-md-between py-2 mb-4 border-bottom ">
+      <router-link to="/home" class="fs-2 nav-link link-dark col-md-2 text-start">
+>>>>>>> e9f22b3e17e1957d9bd3e85dbcdccbf2dc544035
       <img alt="Vue logo" src="../assets/display.svg">
       Mochi
       </router-link>
 
 
       <ul class="fs-5 nav col-md-auto mb-2 justify-content-center mb-md-0">
+<<<<<<< HEAD
         <li><router-link to="/problem" class="nav-link px-2 link-dark" style="color: #ffff">Problem</router-link></li>
         <li><router-link to="/status" class="nav-link px-2 link-dark" style="color: #ffff">Status</router-link></li>
         <li><router-link to="/class/homework/all" class="nav-link px-2 link-dark" style="color: #ffff">Homework</router-link></li>
         <li><router-link to="/class/exam" class="nav-link px-2 link-dark" style="color: #ffff">Exam</router-link></li>
         <li><router-link to="/test-new-problem" class="nav-link px-2 link-dark" style="color: #ffff">Test New Problem</router-link></li>
+=======
+        <li><router-link to="/problem" class="nav-link px-2 link-dark">Problem</router-link></li>
+        <li><router-link to="/status" class="nav-link px-2 link-dark">Status</router-link></li>
+        <li><router-link to="/class/homework/all" class="nav-link px-2 link-dark">Homework</router-link></li>
+        <li><router-link to="/class/exam" class="nav-link px-2 link-dark">Exam</router-link></li>
+        <li><router-link to="/test-new-problem" class="nav-link px-2 link-dark">Test New Problem</router-link></li>
+        <li><router-link to="/test-new-exam" class="nav-link px-2 link-dark">Test New Exam</router-link></li>
+>>>>>>> e9f22b3e17e1957d9bd3e85dbcdccbf2dc544035
       </ul>
 
       <div class="fs-5 col-md-2">
@@ -64,8 +79,14 @@ export default {
 }
 </script>
 
+<<<<<<< HEAD
 <style>
   .contain-fluid-navbar{
     background-color:rgb(30, 124, 68)
+=======
+<style scoped>
+  .container-fluid{
+    background-color:aquamarine
+>>>>>>> e9f22b3e17e1957d9bd3e85dbcdccbf2dc544035
   }
 </style>

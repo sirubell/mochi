@@ -23,7 +23,7 @@ export default {
   name: 'Exam',
   data() {
     return {
-      current: this.$route.params.id,
+      current: this.$route.params.Exam_id,
       DashboardTable: {}
     }
   },
