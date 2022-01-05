@@ -32,8 +32,9 @@ export default {
   name: 'Status',
   data() {
     return {
-    //   currentPage:1,
+      //currentPage:1,
       statusTable: {},
+      status_detail:{},
       error: "",
       user_id :this.$store.getters.userId,
       current: this.$route.params.id,
