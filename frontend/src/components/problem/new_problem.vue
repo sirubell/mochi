@@ -220,6 +220,9 @@ export default {
         return
       }
 
+      this.error = null
+      this.return_status = null
+
       const postData = {
         questioner_id: this.$store.getters.userInfo.user_id,
         source_id: this.source_id,

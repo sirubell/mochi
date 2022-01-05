@@ -10,6 +10,9 @@ import Reset from './components/user/reset.vue'
 import Reset_token from './components/user/reset_token.vue'
 import Change_Password from './components/user/change_password.vue'
 import Change_Email from './components/user/change_email.vue'
+import Footer from './components/footer.vue'
+
+import Submission from './components/submission.vue'
 
 import Problem from './components/problem/problem.vue'
 import ProblemAll from './components/problem/problem_all.vue'
@@ -47,6 +50,10 @@ const routes = [
     path: '/status',
     name: 'status',
     component: Status
+  },
+  {
+    path: '/submission/:submission_id',
+    component: Submission
   },
   {
     path: '/user',
@@ -145,6 +152,10 @@ const routes = [
   {
     path: "/change_email",
     component: Change_Email,
+  },
+  {
+    path: "/footer",
+    component: Footer,
   }
 ]
 
