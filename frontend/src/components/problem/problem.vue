@@ -1,9 +1,5 @@
 <template>
 <div>
-  <error v-if="error" :error="error" />
-  <loading v-if="loading" loading="Running" />
-  <info v-if="return_status" :info="'Testcase status: ' + return_status" />
-  <info v-if="expectOutput" :info="'Expect Output: ' + expectOutput" />
   <h1>{{ info.name }}</h1>
   <div class="container-fluid">
     <div class="row">
@@ -45,11 +41,15 @@
           <label for="testOutput" class="form-label">Test Output</label>
           <textarea v-model="test_case.output" class="form-control" id="testOutput" rows="3" style="resize: none;" disabled readonly></textarea>
         </div>
+        <error v-if="error" :error="error" />
+        <loading v-if="loading" loading="Running" />
+        <info v-if="return_status" :info="'Testcase status: ' + return_status" />
+        <info v-if="expectOutput" :info="'Expect Output: ' + expectOutput" />
       </div>
-      <div class="col-lg-4 text-start" v-show="showDesc()">
+      <div class="col-lg-4 text-start border border-3" v-show="showDesc()">
         {{ info.content }}
       </div>
-      <div class="col-lg-4 text-start" v-show="showSub()">
+      <div class="col-lg-4 text-start border border-3" v-show="showSub()">
       <table class="table">
         <thead>
           <tr>
@@ -68,7 +68,6 @@
           </tr>
         </tbody>
       </table>
-
       </div>
       <div class="col-lg">
         <v-ace-editor
