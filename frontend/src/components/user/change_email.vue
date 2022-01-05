@@ -1,8 +1,8 @@
 <template>
 <div class="container-fluid">
   <div class="row">
-    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-      <div class="position-sticky pt-3">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light collapse">
+      <div class="list-unstyled ps-0">
         <ul class="nav flex-column">
           <li class="mb-1">
               <router-link to="/user" class="btn btn-toggle align-items-center rounded collapsed" data-bs-target="#home-collapse" aria-expanded="true">
@@ -37,6 +37,7 @@
         </ul>
       </div>
     </nav>
+
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <!-- <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"> -->
       <form @submit.prevent="ChangeEmail"> 
@@ -47,7 +48,7 @@
             <input type="text" class="form-control create-input d-flex" v-model="name" placeholder="Edit name"/>
           </div>
           <div class="edit-item">
-            <span class="label d-flex" style="margin-top:10px">Confirm email :</span>
+            <span class="label d-flex" style="margin-top:10px">Change email :</span>
             <input type="email" class="form-control create-input d-flex" v-model="email" placeholder="Edit email"/>
           </div>
           <button class="send d-flex btn btn-primary btn-block" style="margin-top:10px" @click="save">save</button>
@@ -91,8 +92,8 @@ export default {
         this.data = response.data
         console.log(this.data)
       })
-      .catch( error => {
-        this.error = error
+      .catch( () => {
+        this.error = 'Invalid username/email!'
       });
     },
 }

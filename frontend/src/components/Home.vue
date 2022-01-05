@@ -1,12 +1,28 @@
 <template>
   <div class="home">
-    <h3 v-if="userInfo">Hi, user = {{userInfo.name}}</h3>
-    <h3 v-if="!userInfo">You are not logged in!</h3>
-
-    <h3>Hello, this is mochi online judge!</h3>
     
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <!-- <img alt="Vue logo" src="../assets/logo.png"> -->
+    <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
+
+    <!-- <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-light"> -->
+      <h3 v-if="userInfo">Hi, user = {{userInfo.name}}</h3>
+      <h3 v-if="!userInfo">You are not logged in!</h3>
+
+      <div class="col-md-8 p-lg-5 mx-auto my-5">
+        <h1>Hello, this is mochi online judge!</h1>
+        <p class="lead fw-normal">This is a nice cool place for you to learn~</p>
+        <a class="btn btn-outline-secondary" href="#">Have fun</a>
+      </div>
+      <div class="product-device shadow-sm d-none d-md-block"></div>
+      <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+    <!-- </div> -->
+
+
+    <div class="col-8 mx-auto col-md-4 order-md-2 col-lg-5">
+      <h2>最新消息</h2>
+      <img alt="Vue logo" src="../assets/mochi.png">
+    </div>
+
 
     <div class="footer">
       <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
@@ -32,12 +48,12 @@
 <script>
 // @ is an alias to /src
 import {mapGetters} from 'vuex'
-import HelloWorld from '@/components/HelloWorld.vue'
+// import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
   name: 'Home',
   components: {
-     HelloWorld
+    //  HelloWorld
   },
   computed: {
     ...mapGetters(['userInfo'])
@@ -63,9 +79,9 @@ export default {
     text-align:center;
     line-height:280px;
     font-size:15px;
-    color:#ffffff;
+    color:#b0dac0;
     font-weight:bold;
-    background-color:#cecece;
+    /* background-color:#cecece; */
   }
   .body{
     width:700px;
@@ -78,4 +94,13 @@ export default {
     background-color:#fffaf3;
     float:left;
   }
+  .home {
+    /* background: #f6fff6; */
+    background-position: center;
+    /* height: 100%; */
+    /* width: 100%; */
+    background-size: cover;
+    /* position: fixed; */
+  }
+
 </style>
