@@ -80,13 +80,13 @@ class problem(Resource):
         if 'name' in request.args:
             name = request.args['name']
         if difficulty and name:
-            problems = Problem.query.filter(db.and_(Problem.difficulty==difficulty,Problem.name.like(name))).paginate(per_page=20, page=page).order_by(Problem.problem_id)
+            problems = Problem.query.filter(db.and_(Problem.difficulty==difficulty,Problem.name.like(name))).order_by(Problem.problem_id).paginate(per_page=20, page=page)
         elif difficulty:
-            problems = Problem.query.filtery_by(difficulty=difficulty).paginate(per_page=20, page=page).order_by(Problem.problem_id)
+            problems = Problem.query.filtery_by(difficulty=difficulty).order_by(Problem.problem_id).paginate(per_page=20, page=page)
         elif name:
-            problems = Problem.query.filter(Problem.name.like(name)).paginate(per_page=20, page=page).order_by(Problem.problem_id)
+            problems = Problem.query.filter(Problem.name.like(name)).order_by(Problem.problem_id).paginate(per_page=20, page=page)
         else:
-            problems = Problem.query.paginate(per_page=20, page=page).order_by(Problem.problem_id)
+            problems = Problem.query.order_by(Problem.problem_id).paginate(per_page=20, page=page)
 
         if problems:
             ret = {}
