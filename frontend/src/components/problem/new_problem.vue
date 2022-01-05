@@ -69,11 +69,7 @@
     <div class="my-2">
       <button type="button" class="btn btn-primary m-2" @click="onNewTestcase">New Testcase</button>
       <button type="button" class="btn btn-warning m-2" @click="onTest">Test All Testcases</button>
-<<<<<<< HEAD
-      <button type="button" class="btn btn-success m-2" @click="onSumit">Submit</button>
-=======
       <button type="button" class="btn btn-success m-2" @click="onSubmit">Submit</button>
->>>>>>> c63e5e5a13a85901549c33dc2ac67a297f43c912
     </div>
   </div>
 </template>

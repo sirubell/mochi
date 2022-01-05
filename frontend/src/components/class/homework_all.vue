@@ -25,7 +25,7 @@ export default {
   },
 
   created() {
-    axios.get(+'1/homework')
+    axios.get('1/homework')
     .then( response => {
       this.HomeworkTable = response.data
       console.log(this.HomeworkTable)
