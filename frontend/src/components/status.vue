@@ -5,12 +5,16 @@
     <th>User Name</th>
     <th>language</th>
     <th>status</th>
+    <th>time</th>
+    <th>memory</th>
     <th>upload_date</th>
     <tr v-for="item,index in statusTable" :key="item.id" >
       <td><!--<router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link>-->{{ index+1 }}</td>
       <td>{{ item.name }}</td>
       <td>{{ item.language }}</td>
       <td>{{ item.status }}</td>
+      <td>{{ item.time }} ms</td>
+      <td>{{ getMemory(item.memory) }} MB</td>
       <td>{{ item.upload_date }}</td>
     </tr>
   </table>
@@ -33,6 +37,7 @@ export default {
   data() {
     return {
       currentPage:1,
+      maxPage: null,
       statusTable: {},
       error: "",
       user_id :this.$store.getters.userId
@@ -57,9 +62,16 @@ export default {
         this.error = error
       });
     },
+    getMemory(memory_kb) {
+      return parseInt(memory_kb / 1024)
+    }
   },
   created() {
-    axios.get('status?page='+this.currentPage)
+    axios.get('status', {
+      params: {
+        page: this.currentPage
+      }
+    })
     .then( response => {
       this.statusTable = response.data.returnset
       this.maxpage=response.data.maxpage
