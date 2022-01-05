@@ -242,6 +242,9 @@ export default {
           this.error = res.data.message
         }
       })
+      .catch( () => {
+        this.error = "Problem Name is already be taken."
+      })
 
     },
     onDelete(index) {

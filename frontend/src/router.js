@@ -12,22 +12,27 @@ import Change_Password from './components/user/change_password.vue'
 import Change_Email from './components/user/change_email.vue'
 
 import Problem from './components/problem/problem.vue'
-import NewProblem from './components/problem/new_problem.vue'
 import ProblemAll from './components/problem/problem_all.vue'
 import Problem_id_submission from './components/problem/problem_id_submission.vue'
+import NewProblem from './components/problem/new_problem.vue'
 
 import ClassAll from './components/class/class_all.vue'
 
 import Homework from './components/class/homework_all.vue'
+import Homework_id from './components/class/homework_id.vue'
+import NewHomework from './components/class/homework_new.vue'
+
 import Exam from './components/class/exam.vue'
 import Exam_id_problem from './components/problem/problem.vue'
 import Exam_id_problemset from './components/class/exam_id_problemset.vue'
 import Exam_id_dashboard from './components/class/exam_id_dashboard.vue'
 import NewExam from './components/class/exam_new.vue'
 
+
 const routes = [
   { path: '/test-new-problem', component: NewProblem },
   { path: '/test-new-exam', component: NewExam },
+  { path: '/test-new-homework', component: NewHomework },
   {
     path: '/',
     redirect: 'home'
@@ -92,8 +97,11 @@ const routes = [
       },
       {
         path: 'homework/:id',
-        // redirect: '/problem/:id',
-        component: Homework
+        component: Homework_id
+      },
+      {
+        path: 'homework/problem/:problemId',
+        component: Problem
       },
       {
         path: 'exam',

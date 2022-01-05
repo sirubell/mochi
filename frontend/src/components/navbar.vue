@@ -13,7 +13,8 @@
         <li><router-link to="/class/homework/all" class="nav-link px-2 link-dark">Homework</router-link></li>
         <li><router-link to="/class/exam" class="nav-link px-2 link-dark">Exam</router-link></li>
         <li><router-link to="/test-new-problem" class="nav-link px-2 link-dark">Test New Problem</router-link></li>
-        <li><router-link to="/test-new-exam" class="nav-link px-2 link-dark">Test New Exam</router-link></li>
+        <li><router-link to="/test-new-exam" class="nav-link px-2 link-dark">New Exam</router-link></li>
+        <li><router-link to="/test-new-homework" class="nav-link px-2 link-dark">New Homework</router-link></li>
       </ul>
 
       <div class="fs-5 col-md-2">
