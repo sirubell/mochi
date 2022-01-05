@@ -33,7 +33,10 @@ const routes = [
   {
     path: '/home',
     name: 'home',
-    component: Home
+    component: Home,
+    meta: {
+      isLogin: true
+    }
   },
   {
     path: '/status',
@@ -46,11 +49,17 @@ const routes = [
   },
   {
     path: '/login',
-    component: Login
+    component: Login,
+    meta: {
+      isLogin: false
+    }
   },
   {
     path: '/signup',
-    component: SignUp
+    component: SignUp,
+    meta: {
+      isLogin: true
+    }
   },
   {
     path: '/problem',

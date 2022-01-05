@@ -8,6 +8,13 @@
     <img alt="Vue logo" src="../assets/logo.png">
     <HelloWorld msg="Welcome to Your Vue.js App"/>
 
+    <!-- <div class="sidebar">
+      <h1>News Update</h1>
+    </div>
+    <div class="body">
+      <h1>cool</h1>
+    </div> -->
+
     
     <div class="footer">
       <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
@@ -37,6 +44,9 @@ import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
   name: 'Home',
+  meta: {
+    isLogin: true
+  },
   components: {
      HelloWorld
   },
@@ -47,10 +57,36 @@ export default {
 </script>
 
 <style>
+  /* .home {
+    width:200px;
+    text-align: center;
+  } */
   .footer{
     clear: both;
     position: relative;
     height: 100px;
     margin-bottom: -200px;
+  }
+  .sidebar{
+    width:200px;
+    float:left;
+    height:280px;
+    text-align:center;
+    line-height:280px;
+    font-size:15px;
+    color:#ffffff;
+    font-weight:bold;
+    background-color:#cecece;
+  }
+  .body{
+    width:700px;
+    height:280px;
+    text-align:center;
+    line-height:280px;
+    font-size:15px;
+    color:#f9c81e;
+    font-weight:bold;
+    background-color:#fffaf3;
+    float:left;
   }
 </style>

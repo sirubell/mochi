@@ -2,6 +2,7 @@
   <div class="container">
     <header class="d-flex flex-wrap align-items-center justify-content-md-between py-2 mb-4 border-bottom">
       <router-link to="/home" class="fs-2 nav-link link-dark col-md-2 text-start">
+      <img alt="Vue logo" src="../assets/display.svg">
       Mochi
       </router-link>
 
