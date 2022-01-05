@@ -1,6 +1,8 @@
 <template>
 <div>
   <error v-if="error" :error="error" />
+  <loading v-if="loading" loading="Running" />
+  <info v-if="return_status" :info="'Testcase status: ' + return_status" />
   <h1>{{ info.name }}</h1>
   <div class="container-fluid">
     <div class="row">
@@ -83,6 +85,8 @@ export default {
       // language config(aceLanguage()) for ace editor
       languages: ["c", "c++", "python"],
       panel: "description",
+      source_id: null,
+      submissions: [],
 
       code: "",
 
@@ -131,7 +135,131 @@ export default {
       }
       reader.readAsText(evt.target.files[0])
     },
-    test() {
+    onTest() {
+      this.error = null
+      this.loading = false
+      this.return_status = null
+
+      if (this.$store.getters.userInfo === null) {
+        this.$router.push("/login")
+        return
+      }
+
+      if (this.info.language === "language") {
+        this.error = "Please select a language."
+        return
+      }
+      
+
+      const payload = {
+        user_id: this.$store.getters.userInfo.user_id,
+        problem_id: this.info.id,
+        language: this.info.language,
+        code_content: this.code,
+        test_case: this.test_case.input
+      }
+
+      axios.post('/problem/test_run', payload)
+      .then( res => {
+        this.source_id = res.data.source_id
+      })
+      .catch( error => this.error = error)
+
+      this.loading = true
+
+      const get_test_interval = setInterval( () => {
+        axios.get('/problem/test_run', {
+          params: {
+            source_id: this.source_id,
+            user_id: this.$store.getters.userInfo.user_id
+          }
+        })
+        .then( res => {
+          const message = res.data.message
+          if (message === "pending") {
+            return
+          }
+
+          clearInterval(get_test_interval)
+          this.loading = false
+
+          this.return_status = res.data.status
+          this.test_case.output = res.data.output
+          if (message !== "OK") this.error = message
+        })
+        .catch( error => {
+          clearInterval(get_test_interval)
+          this.error = error
+        })
+      }, 1000)
+    },
+    onSubmit() {
+      if (this.$store.getters.userInfo === null) {
+        this.router.push('/login')
+        return
+      }
+      if (this.info.language === "language") {
+        this.error = "Please select a language"
+        return
+      }
+
+      this.error = null
+      this.loading = true
+      this.return_status = null
+
+      const payload = {
+        user_id: this.$store.getters.userInfo.user_id,
+        problem_id: this.info.id,
+        language: this.info.language,
+        code_content: this.code
+      }
+      console.log(payload)
+
+      axios.post('/submission/new', payload)
+      .then( res => {
+        this.source_id = res.data.source_id
+
+        this.loading = true
+        
+        const get_submission_interval = setInterval( () => {
+          axios.get('/submission/new', {
+            params: {
+              source_id: this.source_id
+            }
+          })
+          .then( res => {
+            const message = res.data.message
+            if (message === "not ok") {
+              return
+            }
+
+            this.loading = false
+
+            clearInterval(get_submission_interval)
+            if (message !== "ok") {
+              this.error = message
+            } else {
+              this.get_new_submission(res.data.submission_id)
+            }
+          })
+          .catch( error => {
+            this.error = error
+            clearInterval(get_submission_interval)
+          })
+        }, 1000)
+      })
+      .catch( error => this.error = error)
+    },
+    get_new_submission(submission_id) {
+      axios.get('/submission/' + submission_id)
+      .then( res => {
+        this.submissions.push({
+          submission_id: res.data.submission_id,
+          status: res.data.status,
+          time: res.data.upload_date
+        })
+      })
+      .catch( error => this.error = error)
     }
   },
   components: {
@@ -157,6 +285,20 @@ export default {
       }
     })
     .catch( e => { this.error = e})
+
+    if (this.$store.getters.userInfo !== null) {
+      const user_id = this.$store.getters.userInfo.user_id
+      axios.get('/status', {
+        params: {
+          page: 1,
+          user_id: user_id,
+          problem_id: this.info.id
+        }
+      })
+      .then( res => {
+        console.log(res.data)
+      })
+    }
   }
 }
 </script>
