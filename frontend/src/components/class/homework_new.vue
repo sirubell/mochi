@@ -4,26 +4,26 @@
       <div class="col-6 test-start">
         <div class="mb-3">
           <label for="problemName" class="form-label">Homework Name</label>
-          <input v-model="info.homework_name" type="text" class="form-control" id="problemName">
+          <input v-model="homework_name" type="text" class="form-control" id="problemName">
         </div>
         <div class="mb-3">
           <label for="problemDescription" class="form-label">Homework information</label>
-          <textarea v-model="info.homework_info" class="form-control" id="problemDescription" placeholder="" rows="5" style="resize: none;"></textarea>
+          <textarea v-model="homework_info" class="form-control" id="problemDescription" placeholder="" rows="5" style="resize: none;"></textarea>
         </div>
         <div class="row mb-3">
           <div class="col">
             <div class="mb-3">
               <label for="timeLimit" class="form-label">Upload Time</label>
             </div>
-            <input type="date" id="start" name="trip-start"  min="2022-01-01" max="2022-12-31" v-model="info.homework_start_time_date">
-            <input type="time" id="appt" name="appt" min="00:00" max="23:59" v-model="info.homework_start_time_time" required>
+            <input type="date" id="start" name="trip-start"  min="2022-01-01" max="2022-12-31" v-model="homework_start_time_date">
+            <input type="time" id="appt" name="appt" min="00:00" max="23:59" v-model="homework_start_time_time" required>
           </div>
           <div class="col">
             <div class="mb-3">
               <label for="timeLimit" class="form-label">Deadline</label>
             </div>
-            <input type="date" id="start" name="trip-start"  min="2022-01-01" max="2022-12-31" v-model="info.homework_end_time_date">
-            <input type="time" id="appt" name="appt" min="00:00" max="23:59" v-model="info.homework_end_time_time" required>
+            <input type="date" id="start" name="trip-start"  :min="homework_start_time_date" max="2022-12-31" v-model="homework_end_time_date">
+            <input type="time" id="appt" name="appt" :min="homework_start_time_time" max="23:59" v-model="homework_end_time_time" required>
           </div>
         </div>
       </div>
@@ -37,7 +37,7 @@
                 <td><router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link></td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.difficulty }}</td>
-                <td><input type="checkbox" :id=item.id :value=item.id v-model="info.problem_set" /><label :for=item.id >{{item.id}}</label></td>
+                <td><input type="checkbox" :id=item.id :value=item.id v-model="problem_set" /><label :for=item.id >{{item.id}}</label></td>
             </tr>
           </table>
           <p>
@@ -70,15 +70,14 @@ export default {
   name: "NewHomework",
   data() {
     return {
-      info: {
-        homework_name: "",
-        homework_info: "",
-        homework_start_time_date: "",
-        homework_start_time_time: "",
-        homework_end_time_date: "",
-        homework_end_time_time: "",
-        problem_set: [],
-      },
+      homework_name: "",
+      homework_info: "",
+      homework_start_time_date: "",
+      homework_start_time_time: "",
+      homework_end_time_date: "",
+      homework_end_time_time: "",
+      problem_set: [],
+
       //current: this.$route.params.id,
       currentPage:1,
       problemTable: {},
@@ -88,24 +87,34 @@ export default {
       return_status: null
     }
   },
+  watch: {
+    homework_start_time_date() {
+      this.homework_end_time_date = this.homework_start_time_date
+    },
+    homework_start_time_time() {
+      this.homework_end_time_time = this.homework_start_time_time
+    }
+  },
   methods: {
+    checkTime() {
+      const start = new Date(this.homework_start_time_date + ' ' + this.homework_start_time_time)
+      const end = new Date(this.homework_end_time_date + ' ' + this.homework_end_time_time)
+
+      return start < end
+    },
     editorInit() {
       // do nothing
     },
     onSumit() {
-      if (this.info.homework_start_time_date > this.info.homework_end_time_date) {
+      if (!checkTime()) {
         this.error = "Time is invalid."
         return
       }
-      if (this.info.homework_start_time_time > this.info.homework_end_time_time) {
-        this.error = "Time is invalid."
-        return
-      }
-      if (this.info.homework_name ==null) {
+      if (this.homework_name ==null) {
         this.error = "You have to give the homework a name!"
         return
       }
-      if (this.info.homework_info ==null) {
+      if (this.homework_info ==null) {
         this.error = "You have to give the homework an info!"
         return
       }
@@ -113,11 +122,11 @@ export default {
       const postData = {
         class_id: 1,//this.current,
         user_id: 1,//this.$store.getters.userInfo.user_id,
-        homework_name: this.info.homework_name,
-        homework_info: this.info.homework_info,
-        upload_time: this.info.homework_start_time_date+" "+this.info.homework_start_time_time+":00",
-        deadline: this.info.homework_end_time_date+" "+this.info.homework_end_time_time+":59",
-        problem_set: this.info.problem_set,
+        homework_name: this.homework_name,
+        homework_info: this.homework_info,
+        upload_time: this.homework_start_time_date+" "+this.homework_start_time_time+":00",
+        deadline: this.homework_end_time_date+" "+this.homework_end_time_time+":59",
+        problem_set: this.problem_set,
       }
 
       axios.post('/homework', postData)
@@ -129,6 +138,9 @@ export default {
         } else {
           this.error = res.data.message
         }
+      })
+      .catch( () => {
+        this.error = "Homework Name is already be taken."
       })
     },
     page_plus (){
