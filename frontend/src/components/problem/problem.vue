@@ -3,6 +3,7 @@
   <error v-if="error" :error="error" />
   <loading v-if="loading" loading="Running" />
   <info v-if="return_status" :info="'Testcase status: ' + return_status" />
+  <info v-if="expectOutput" :info="'Expect Output: ' + expectOutput" />
   <h1>{{ info.name }}</h1>
   <div class="container-fluid">
     <div class="row">
@@ -126,7 +127,8 @@ export default {
 
       error: null,
       loading: false,
-      return_status: null
+      return_status: null,
+      expectOutput: null
     }
   },
   computed: {
@@ -162,8 +164,8 @@ export default {
     },
     onTest() {
       this.error = null
-      this.loading = false
       this.return_status = null
+      this.expectOutput = null
 
       if (this.$store.getters.userInfo === null) {
         this.$router.push("/login")
@@ -174,6 +176,12 @@ export default {
         this.error = "Please select a language."
         return
       }
+
+      if (this.loading === true) {
+        this.error = "Testcase is still running."
+        return
+      }
+      this.loading = true
       
 
       const payload = {
@@ -209,8 +217,11 @@ export default {
           this.loading = false
 
           this.return_status = res.data.status
+          this.expectOutput = res.data.output
           this.test_case.output = res.data.output
           if (message !== "OK") this.error = message
+
+          console.log(res.data)
         })
         .catch( error => {
           clearInterval(get_test_interval)
@@ -228,9 +239,15 @@ export default {
         return
       }
 
+      if (this.loading === true) {
+        this.error = "Task is still running."
+        return
+      }
+
       this.error = null
       this.loading = true
       this.return_status = null
+      this.expectOutput = null
       this.onClickSubBtn()
 
       const payload = {
@@ -243,8 +260,6 @@ export default {
       axios.post('/submission/new', payload)
       .then( res => {
         this.source_id = res.data.source_id
-
-        this.loading = true
         
         const get_submission_interval = setInterval( () => {
           axios.get('/submission/new', {
