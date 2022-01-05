@@ -6,11 +6,12 @@
       Mochi
       </router-link>
       <ul class="fs-5 nav col-md-auto mb-2 justify-content-center mb-md-0">
-        <li><router-link to="/problem" class="nav-link px-2 link-dark" style="color: #ffff">Problem</router-link></li>
-        <li><router-link to="/status" class="nav-link px-2 link-dark" style="color: #ffff">Status</router-link></li>
-        <li><router-link to="/class/homework/all" class="nav-link px-2 link-dark" style="color: #ffff">Homework</router-link></li>
-        <li><router-link to="/class/exam" class="nav-link px-2 link-dark" style="color: #ffff">Exam</router-link></li>
-        <li><router-link to="/test-new-problem" class="nav-link px-2 link-dark" style="color: #ffff">Test New Problem</router-link></li>
+        <li><router-link to="/problem" class="nav-link px-2 link-light">Problem</router-link></li>
+        <li><router-link to="/status" class="nav-link px-2 link-light">Status</router-link></li>
+        <li><router-link to="/class/homework/all" class="nav-link px-2 link-light">Homework</router-link></li>
+        <li><router-link to="/class/exam" class="nav-link px-2 link-light">Exam</router-link></li>
+        <li><router-link to="/test-new-problem" class="nav-link px-2 link-light">New-Problem</router-link></li>
+        <li><router-link to="/test-new-exam" class="nav-link px-2 link-light" >New-Exam</router-link></li>
       </ul>
 
       <div class="fs-5 col-md-2">
