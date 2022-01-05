@@ -2,14 +2,12 @@
   <div>
     <table class="table" >
       <th>#</th>
-      <th>作業名稱</th>
-      <th>繳交期限</th>
-      <th>查看同學繳交情形</th>
+      <th>題目名稱</th>
+      <th>Sequence</th>
       <tr v-for="item,counter in HomeworkTable" :key="item.id" >
-        <td><a v-bind:href="item.homework_id">{{counter+1}}</a></td>
-        <td>{{ item.name }}</td>
-        <td>{{ item.deadline }}</td>
-        <td><a v-bind:href="'/class/homework_status/'+item.homework_id">查看</a></td>
+        <td><a v-bind:href="'problem/'+item.problem_id">{{counter+1}}</a></td>
+        <td>{{ item.problem_name }}</td>
+        <td>{{ item.sequence }}</td>
       </tr>
     </table>
   </div>
@@ -22,15 +20,16 @@ export default {
   name: 'Homework',
   data() {
     return {
+      current: this.$route.params.id,
       HomeworkTable: {},
     }
   },
 
   created() {
-    axios.get('class/1/homework')
+    axios.get('/homework/'+this.current)
     .then( response => {
-      this.HomeworkTable = response.data
-      console.log(this.HomeworkTable)
+      this.HomeworkTable = response.data.problem_set
+      console.log(this.current)
     })
     .catch( error => {
       this.error = error

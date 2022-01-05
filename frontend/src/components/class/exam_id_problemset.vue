@@ -1,5 +1,5 @@
 <template>
-<div style="background:#ffff">
+<div>
   <h1>{{ Exam_name }}</h1>
   <li>Start Time : {{ Examstarttime }}</li>
   <button type="button" ><a v-bind:href="ExamID+'/dashboard'" >考試計分表</a></button>
