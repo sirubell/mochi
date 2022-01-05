@@ -1,7 +1,7 @@
 <template>
 <div>
   <error v-if="error" :error="error" />
-  <loading v-if="loading" loading="Testcase is running" />
+  <loading v-if="loading" loading="Running" />
   <info v-if="return_status" :info="'Testcase status: ' + return_status" />
   <h1>{{ info.name }}</h1>
   <div class="container-fluid">
@@ -86,7 +86,7 @@ export default {
       languages: ["c", "c++", "python"],
       panel: "description",
       source_id: null,
-      submissions: {},
+      submissions: [],
 
       code: "",
       test_case: {input: "", output: ""},
@@ -225,13 +225,17 @@ export default {
         
         const get_submission_interval = setInterval( () => {
           axios.get('/submission/new', {
-            source_id: this.source_id
+            params: {
+              source_id: this.source_id
+            }
           })
           .then( res => {
             const message = res.data.message
             if (message === "not ok") {
               return
             }
+
+            this.loading = false
 
             clearInterval(get_submission_interval)
             if (message !== "ok") {
@@ -249,12 +253,14 @@ export default {
       .catch( error => this.error = error)
     },
     get_new_submission(submission_id) {
-      axios.get('/submission', {
-        params: {
-          submission_id: submission_id
-        }
+      axios.get('/submission/' + submission_id)
+      .then( res => {
+        this.submissions.push({
+          submission_id: res.data.submission_id,
+          status: res.data.status,
+          time: res.data.upload_date
+        })
       })
-      .then( res => console.log(res.data))
       .catch( error => this.error = error)
     }
 
@@ -284,6 +290,20 @@ export default {
       }
     })
     .catch( e => { this.error = e})
+
+    if (this.$store.getters.userInfo !== null) {
+      const user_id = this.$store.getters.userInfo.user_id
+      axios.get('/status', {
+        params: {
+          page: 1,
+          user_id: user_id,
+          problem_id: this.info.id
+        }
+      })
+      .then( res => {
+        console.log(res.data)
+      })
+    }
   }
 }
 </script>

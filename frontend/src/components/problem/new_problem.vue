@@ -109,7 +109,7 @@ export default {
       // do nothing
     },
     onTest() {
-      const user_id = this.$store.getters.userId
+      const user_id = this.$store.getters.userInfo.user_id
       if (user_id === null) {
         this.error = "You need to login to create a new problem."
         return
@@ -193,8 +193,21 @@ export default {
         return
       }
 
+      if (this.info.difficulty === "language") {
+        this.error = "Language is not selected."
+        return
+      }
+      if (this.info.name === "") {
+        this.error = "Please enter the problem name."
+        return
+      }
+      if (this.info.problemDesc === "") {
+        this.error = "Please enter the problem description."
+        return
+      }
+
       const postData = {
-        questioner_id: this.$store.getters.userId,
+        questioner_id: this.$store.getters.userInfo.user_id,
         source_id: this.source_id,
         name: this.info.name,
         difficulty: this.info.difficulty,
