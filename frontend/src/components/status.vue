@@ -13,8 +13,8 @@
       <td>{{ item.name }}</td>
       <td>{{ item.language }}</td>
       <td>{{ item.status }}</td>
-      <td>{{ item.time }} ms</td>
-      <td>{{ getMemory(item.memory) }} MB</td>
+      <td>{{ getTime(item.status, item.time) }}</td>
+      <td>{{ getMemory(item.status, item.memory) }}</td>
       <td>{{ item.upload_date }}</td>
     </tr>
   </table>
@@ -62,8 +62,17 @@ export default {
         this.error = error
       });
     },
-    getMemory(memory_kb) {
-      return parseInt(memory_kb / 1024)
+    getTime(status, time_ms) {
+      if (status === "AC" || status === "WA") {
+        return time_ms + ' ms'
+      }
+      return ""
+    },
+    getMemory(status, memory_kb) {
+      if (status === "AC" || status === "WA") {
+        return parseInt(memory_kb / 1024) + ' MB'
+      }
+      return ""
     }
   },
   created() {
