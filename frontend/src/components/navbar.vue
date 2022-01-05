@@ -63,9 +63,3 @@ export default {
 
 }
 </script>
-
-<style>
-  header {
-    color: black;
-  }
-</style>

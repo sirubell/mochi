@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div>
     <h3 v-if="userInfo">Hi, user = {{userInfo.name}}</h3>
     <h3 v-if="!userInfo">You are not logged in!</h3>
 
@@ -7,6 +7,7 @@
     
     <img alt="Vue logo" src="../assets/logo.png">
     <HelloWorld msg="Welcome to Your Vue.js App"/>
+<<<<<<< HEAD
 
     <!-- <div class="sidebar">
       <h1>News Update</h1>
@@ -32,9 +33,9 @@
         </ul>
       </footer>
     </div>
+=======
+>>>>>>> f17a02ec6179e58700ac058746cd0d0b49ac6ac5
   </div>
-
-
 </template>
 
 <script>
@@ -48,13 +49,14 @@ export default {
     isLogin: true
   },
   components: {
-     HelloWorld
+    HelloWorld
   },
   computed: {
     ...mapGetters(['userInfo'])
   }
 }
 </script>
+<<<<<<< HEAD
 
 <style>
   /* .home {
@@ -90,3 +92,5 @@ export default {
     float:left;
   }
 </style>
+=======
+>>>>>>> f17a02ec6179e58700ac058746cd0d0b49ac6ac5

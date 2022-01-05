@@ -18,7 +18,7 @@
                 <input type="password" class="form-control" v-model="password_confirm" placeholder="Password Confirm"/>
             </div>
 
-            <button class="btn btn-outline-primary" style="margin-top:10px">Submit</button>
+            <button class="btn btn-primary btn-block" style="margin-top:10px">Submit</button>
         </form>
     </div>
 </template>

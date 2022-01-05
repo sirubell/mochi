@@ -1,13 +1,16 @@
 <template>
 <div>
+  <h1>{{ Exam_name }}</h1>
+  <li>Start Time : {{ Examstarttime }}</li>
   <table class="table" >
     <th>#</th>
     <th>題目名稱</th>
-    <th>作答狀況</th>
-    <tr v-for="item in ExamTable" :key="item.id" >
-      <td><a v-bind:href="'exam/'+ExamID+'/'+item.id">{{ item.id }}</a></td>
-      <td>{{ item.title }}</td>
-      <td>{{ item.userId }}</td>
+    <th>sequence</th>
+    <tr v-for="item,index in ExamTable" :key="item.id" >
+      <td><a v-bind:href=" item.exam_id  + '/' + item.problem_id">{{ index+1 }}</a></td>
+      <td>{{ item.problem_name }}</td>
+      <td>{{ item.sequence }}</td>
+      <!-- <td>{{ ExamID }}</td> -->
     </tr>
   </table>
   <div v-if="error">
@@ -19,21 +22,23 @@
 </template>
 
 <script>
-var current = window.location.pathname;
 import axios from 'axios'
 
 export default {
   name: 'Exam',
   data() {
     return {
+      current: this.$route.params.id,
       ExamTable: {}
     }
   },
   created() {
-    axios.get('http://192.168.122.231:5000/'+current)
+    axios.get("/exam/"+this.current)
     .then( response => {
-      this.ExamTable = response.data
-      this.ExamID=current.substr(9,1)
+      this.ExamTable = response.data.problem_set
+      this.ExamID=this.current
+      this.Examstarttime = response.data.start_time
+      this.Exam_name = response.data.name
       console.log(response.data)
     })
     .catch( error => {
