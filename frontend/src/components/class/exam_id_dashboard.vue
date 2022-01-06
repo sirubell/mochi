@@ -17,7 +17,7 @@
         <td>{{ item.solved }}</td>
         <td>{{ item.total_time }}</td>
         <td v-for="p in item.problem" :key="p.sequence">
-          <div class="alert" :class="p.status === 0 ? 'alert-success' : alert-danger" role="alert">
+          <div class="alert" :class="p.status === 1 ? 'alert-success' : alert-danger" role="alert">
             <h2>{{ p.solved_time }}</h2>
            {{p.try_count}} Try
           </div>
