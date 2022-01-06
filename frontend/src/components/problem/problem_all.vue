@@ -5,7 +5,7 @@
     <th>Problem name</th>
     <th>Difficulty</th>
     <th>Questioner_id</th>
-    <th>Delete</th>
+    <!-- <th>Delete</th> -->
     <tr v-for="item,index in problemTable" :key="item.id" >
       <td><router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link></td>
       <td>{{ item.name }}</td>
