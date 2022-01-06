@@ -1,6 +1,7 @@
 <template>
 <div>
   <h1>dashboard page</h1>
+  <!--
   <li v-for="item in DashboardTable" :key="item.problem" >
   <table class="table" >
     <th>名字</th>
@@ -20,6 +21,31 @@
     </tr>
   </table>
   </li>
+  -->
+  <table class="table">
+    <th>#</th>
+    <th v-for="(item, index) in problem_count" :key="index">Problem: {{item}}</th>
+
+    <tbody>
+      <tr v-for="item in DashboardTable" :key="item.name">
+        <th>
+          {{ item.name }}
+          <br/>
+          total_solved: {{ item.solved }}
+          <br/>
+          total_time: {{ item.total_time }}
+        </th>
+        <td v-for="p in item.problem" :key="p.sequence">
+          solved_time: {{ p.solved_time }}
+          <br/>
+          status: {{p.status}}
+          <br/>
+          try_count: {{p.try_count}}
+        </td>
+      </tr>
+    </tbody>
+
+  </table>
 </div>
 </template>
 
@@ -31,13 +57,16 @@ export default {
   data() {
     return {
       current: this.$route.params.Exam_id,
-      DashboardTable: {}
+      DashboardTable: {},
+      problem_count: 0
+
     }
   },
   created() {
     axios.get("/exam/"+this.current+"/dashboard")
     .then( response => {
       this.DashboardTable = response.data.return_set
+      this.problem_count = response.data.problem_count
       console.log(this.DashboardTable)
     })
     .catch( error => {
