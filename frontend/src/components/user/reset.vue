@@ -1,41 +1,68 @@
 <template>
     <div class="auth-inner">
         <form @submit.prevent="handleSubmit">
+            <error v-if="error" :error="error"/>
+
             <h3>Reset Password</h3>
             
             <div class="form-group">
                 <label>token</label>
                 <input v-model="token" type="text" class="form-control" placeholder="Token"/>
             </div>
-            <button class="btn btn-primary btn-block" style="margin-top:10px"><router-link :to="'/reset/'+token">Submit</router-link></button>
+            <!-- <button class="btn btn-primary btn-block" style="margin-top:10px">Submit</button> -->
+            <!-- <router-link :to="'/reset/'+token">Submit</router-link> -->
+            <button @click="handleSubmit" class="btn btn-primary btn-block" style="margin-top:10px">Submit</button>
         </form>
     </div>
 </template>
 
 <script>
 import axios from 'axios'
+import Error from '../error.vue'
 export default {
     name: 'Reset',
+    components: {
+        Error
+    },
     data() {
         return {
             token: '',
+            error: null
         }
     },
     methods: {
-        async handleSubmit() {
-            try{
-                const response = await axios.post('/forgot_password/confirm_token',{
-                    token: this.token,
-                    // token: this.$route.params.token
-                });
-
-                console.log(response);
-                this.$router.push('/reset_token');
-            }
-            catch(e){
-                this.error = e;
-            }
-        }
+        // async handleSubmit() {
+        //     try{
+        //         await axios.post('/forgot_password/confirm_token',{
+        //             token: this.token,
+        //             // token: this.$route.params.token
+        //         });
+        //         axios.get('/forgot_password/confirm_token')
+        //         .then( res => {
+        //             this.$store.dispatch('reset', res.data);
+        //         })
+        //         .catch(e => {
+        //             this.error = e
+        //         })
+        //         // console.log(response);
+        //         console.log(this.token);
+        //         this.$router.push('/reset_token');
+        //     }
+        //     catch(e){
+        //         this.error = 'Invalid token';
+        //     }
+        // }
+        handleSubmit() {
+        axios.post('/forgot_password/confirm_token',{
+          token: this.token,
+          // token: this.$route.params.token
+        })
+        // axios.get('/forgot_password/new_password/<token>')
+        .then( () => {
+          this.$router.push('/reset/' + this.token);
+        })
+        .catch( error => { this.error = error})
+      }
     }
 }
 </script>

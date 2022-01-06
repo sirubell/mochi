@@ -56,7 +56,6 @@ export default {
                 .catch (e => {
                   this.error = e
                 })
-                localStorage.setItem("Flag", "isLogin");
                 this.$router.push('/home');
             }catch (e) {
                 this.error = 'Invalid username/password!'
