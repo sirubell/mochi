@@ -32,17 +32,27 @@
         </div>
       </div>
 
-      <div class="col-md-9 col-md-pull-3" style="margin-top:30px">
-        <h2>- Programming Information -</h2>
-        <div class="Information" style="margin-top:30px">
-          <h5><a href="https://ncpc.nsysu.edu.tw/" style="text-decoration:none;">NCPC 全國大專電腦軟體設計競賽</a></h5>
-          <h5><a href="https://contest.cc.ntu.edu.tw/npsc2021/" style="text-decoration:none;">NPSC 網際網路程式設計全國大賽</a></h5>
-          <h5><a href="https://ioinformatics.org/" style="text-decoration:none;">IOI 資訊奧林匹亞</a></h5>
-          <h5><a href="https://icpc.global/" style="text-decoration:none;">ICPC</a></h5>
-          <!-- <img alt="Vue logo" src="../assets/mochi.png"> -->
+      <div class="col-md-9 col-md-pull-3">
+        <div class="row g-0 bg-light position-relative">
+          <div class="col-md-6 mb-md-0 p-md-4">
+            <img src="../assets/programming.png">
+          </div>
+          <div class="col-md-6 p-4 ps-md-0">
+            <h2 class="mt-0">- Programming Information -</h2>
+            <p class="card-text">Keep on going and never give up</p>
+            <div class="Information" style="margin-top:30px">
+              <h5><a href="https://ncpc.nsysu.edu.tw/" style="text-decoration:none;">NCPC 全國大專電腦軟體設計競賽</a></h5>
+              <h5><a href="https://contest.cc.ntu.edu.tw/npsc2021/" style="text-decoration:none;">NPSC 網際網路程式設計全國大賽</a></h5>
+              <h5><a href="https://ioinformatics.org/" style="text-decoration:none;">IOI 資訊奧林匹亞</a></h5>
+              <h5><a href="https://icpc.global/" style="text-decoration:none;">ICPC</a></h5>
+            </div>
+          </div>
+          <img src="../assets/cute.png">
         </div>
       </div>
     </div>
+
+    
 
     <Footer/>
 
@@ -70,7 +80,7 @@ export default {
   },
   computed: {
     ...mapGetters(['userInfo'])
-  }
+  },
 }
 </script>
 

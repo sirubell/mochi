@@ -2,7 +2,7 @@
   <div class="contain-fluid-navbar">
     <header class="d-flex flex-wrap align-items-center justify-content-md-between py-2 mb-4 border-bottom">
       <router-link to="/home" class="fs-2 nav-link link-dark col-md-2 text-start" style="color: #ffff">
-      <img alt="Vue logo" src="../assets/display.svg">
+      <img alt="Vue logo" src="../assets/icon/display.svg">
       Mochi
       </router-link>
       <ul class="fs-5 nav col-md-auto mb-2 justify-content-center mb-md-0">
@@ -33,8 +33,8 @@
         </div>
         <div v-else>
           <ul class="nav mb-2 justify-content-end mb-md-0">
-            <li><router-link to="/login" class="nav-link px-2 link-dark">Login</router-link></li>
-            <li><router-link to="/signup" class="nav-link px-2 link-dark">Sign up</router-link></li>
+            <li><router-link to="/login" class="nav-link px-2 link-dark" style="color: #ffff">Login</router-link></li>
+            <li><router-link to="/signup" class="nav-link px-2 link-dark" style="color: #ffff">Sign up</router-link></li>
           </ul>
         </div>
       </div>

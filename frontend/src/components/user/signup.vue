@@ -56,7 +56,7 @@ export default {
                 });
                 this.$router.push('/login');
             }catch(e){
-            this.error = 'Error occurred!';
+                this.error = 'Error: Your account has occurred';
             }
         }
     }
