@@ -78,7 +78,6 @@ export default {
                     name: this.name,
                     email: this.email
                 }); // 資料由後方物件帶入 
-                console.log(response);
                 this.$router.push('/user');
             }
             catch(e){
@@ -87,15 +86,13 @@ export default {
         }
     },
     created(){
-        axios.get('http://192.168.122.134:5000/user/change_profile_name_email')
-      .then( response => {
-        this.data = response.data
-        console.log(this.data)
-      })
-      .catch( () => {
-        this.error = 'Invalid username/email!'
-      });
-    },
+      const user = this.$store.getters.userInfo
+      if (user === null) {
+        this.router.push('/login')
+      }
+      this.name = user.name
+      this.email = user.email
+    }
 }
 </script>
 
