@@ -11,7 +11,7 @@
       <td>{{ item.name }}</td>
       <td>{{ item.difficulty }}</td>
       <td>{{ item.questioner_id }}</td>
-      <td v-if="user_id===item.questioner_id"><button v-on:click="delete_question(item.id,user_id)">Delete</button></td>
+      <!-- <td v-if="user_id===item.questioner_id"><button v-on:click="delete_question(item.id,user_id)">Delete</button></td> -->
     </tr>
   </table>
 
