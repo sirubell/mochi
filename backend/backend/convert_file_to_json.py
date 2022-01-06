@@ -1,11 +1,13 @@
 from flask import jsonify
 import os
 
-from backend.config import parentdir
+from backend.routes import buffer_dir
+
+path = "/home/piggy/Final/Dispatch_LKV/"
 
 def convert_file_to_json(file_place):
 	# return os.path.abspath(os.path.dirname(__file__)),file_place
-	with open(os.path.join(parentdir, file_place), mode="r",encoding="utf-8") as f:
+	with open(os.path.join(path, file_place), mode="r",encoding="utf-8") as f:
 		res = []
 		Lines = f.readlines()
 		for line in Lines:

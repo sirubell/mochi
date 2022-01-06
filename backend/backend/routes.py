@@ -13,9 +13,10 @@ import shutil
 # 8同理9
 from flask_login import login_user, current_user, logout_user, login_required
 import os
+import math
 
-buffer_dir = os.path.join(parentdir, 'buffer')
-problem_dir = os.path.join(parentdir, 'Problem')
+buffer_dir = "/home/piggy/Final/Dispatch_LKV/buffer"
+problem_dir = "/home/piggy/Final/Dispatch_LKV/Problem"
 
 
 class lazy(Resource):
@@ -46,8 +47,6 @@ class delete_dir(Resource):
     def delete(self):
         shutil.rmtree(buffer_dir)
         os.mkdir(buffer_dir)
-
-        problem_dir = os.path.join(parentdir, 'Problem')
         if os.path.isdir(problem_dir):
             shutil.rmtree(problem_dir)
             os.mkdir(problem_dir)
@@ -73,6 +72,7 @@ class problem(Resource):
         # topic = None
         difficulty = None
         name = None
+        per_page = 20
         # if 'topic' in request.args:
         #     topic = request.args['topic']
         if 'difficulty' in request.args:
@@ -80,20 +80,22 @@ class problem(Resource):
         if 'name' in request.args:
             name = request.args['name']
         if difficulty and name:
-            problems = Problem.query.filter(db.and_(Problem.difficulty==difficulty,Problem.name.like(name))).paginate(per_page=20, page=page).order_by(Problem.problem_id)
+            problems = Problem.query.filter(db.and_(Problem.difficulty==difficulty,Problem.name.like(name))).order_by(Problem.problem_id).paginate(per_page=per_page, page=page)
         elif difficulty:
-            problems = Problem.query.filtery_by(difficulty=difficulty).paginate(per_page=20, page=page).order_by(Problem.problem_id)
+            problems = Problem.query.filtery_by(difficulty=difficulty).order_by(Problem.problem_id).paginate(per_page=per_page, page=page)
         elif name:
-            problems = Problem.query.filter(Problem.name.like(name)).paginate(per_page=20, page=page).order_by(Problem.problem_id)
+            problems = Problem.query.filter(Problem.name.like(name)).order_by(Problem.problem_id).paginate(per_page=per_page, page=page)
         else:
-            problems = Problem.query.paginate(per_page=20, page=page).order_by(Problem.problem_id)
-
+            problems = Problem.query.order_by(Problem.problem_id).paginate(per_page=per_page, page=page)
+        ret = {}
+        ret["status"]=200
+        ret["returnset"] = []
+        ret["maxpage"] = math.ceil(Problem.query.count() / per_page)
         if problems:
-            ret = {}
-            ret["status"]=200
-            ret["returnset"] = []
+            
             for problem in problems.items:
                 ret["returnset"].append({
+                    "questioner_id":problem.questioner_id,
                     "id": problem.problem_id,
                     "name": problem.name,
                     "difficulty": problem.difficulty
@@ -117,13 +119,13 @@ class problem(Resource):
             sample_input = file.read()
         with open(path+"/"+str(1)+'.ans', mode="r", encoding="utf-8") as file:
             sample_output = file.read()
-        new_problem = Problem(questioner_id=problem.questioner_id, name=problem.name, difficulty=problem.difficulty, content=problem.content, time_limit=problem.time_limit, memory_limit=problem.memory_limit,
+        new_problem = Problem(questioner_id=problem.questioner_id, name=problem.name, difficulty=problem.difficulty, content=problem.content, time_limit=now.time_limit, memory_limit=now.memory_limit,
                               testcase_count=now.test_case_count, sample_input=sample_input, sample_output=sample_output, is_hidden=problem.is_hidden, upload_date=datetime.datetime.now(), correct_source_code=now.code_content, correct_answer_language=now.language)
 
         if not os.path.isdir(problem_dir):
             os.mkdir(problem_dir)
-        # os.rename(buffer_dir+'/'+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
-        #           buffer_dir+'/'+str(now.user_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
+        os.rename(buffer_dir+'/'+str(now.user_id)+'/'+str(now.source_id)+'.ansexe',
+                  buffer_dir+'/'+str(now.user_id)+'/'+str(Problem.query.count()+1)+'.ansexe')
         shutil.move(path, os.path.join(
             problem_dir, str(Problem.query.count()+1)))
         from backend import db
@@ -146,12 +148,12 @@ class problem(Resource):
 class create_problem_test_run(Resource):
     def get(self):
         if 'source_id' in request.args:
-            source_id = request.args['source_id']
+            source_id = int(request.args['source_id'])
         else:
             return jsonify({'message': "Error, source_id is required", 'code': 500})
 
         if 'user_id' in request.args:
-            user_id = request.args['user_id']
+            user_id = int(request.args['user_id'])
         else:
             return jsonify({'message': "Error, user_id is required", 'code': 500})
         now = Queue.query.filter_by(source_id=source_id).first()
@@ -185,9 +187,9 @@ class create_problem_test_run(Resource):
 
     def post(self):
         args = create_problem_test_run_args.parse_args()
-        if args.time_limit > 5 or args.time_limit < 0:
+        if int(args.time_limit) > 5 or int(args.time_limit) < 0:
             return jsonify({"message": "invalid_time_limit", 'code': 500})
-        if args.memory_limit > 5120 or args.memory_limit < 6:
+        if int(args.memory_limit) > 5120 or int(args.memory_limit) < 6:
             return jsonify({"message": "invalid_memory_limit", 'code': 500})
         if not os.path.isdir(buffer_dir):
             os.mkdir(buffer_dir)
@@ -213,45 +215,53 @@ class create_problem_test_run(Resource):
         db.session.commit()
 
         # omgomg
-        with open(path+"/"+"correct_source_code"+'.'+str(args.language), mode="w", encoding="utf-8") as file:
+        if args.language == "c":
+            lan = "c"
+        elif args.language == "c++":
+            lan = "cpp"
+        elif args.language == "python":
+            lan = "py"
+        with open(path+"/"+"correct_source_code"+'.'+str(lan), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
         cnt = 1
         for testcase in input_set:
             with open(path+'/'+str(cnt)+".in", mode='w', encoding="utf-8") as file:
                 file.write(testcase)
             cnt += 1
-
         return jsonify({'code': 200, 'source_id': new_queue.source_id})
 
 
 class test_run(Resource):
     def get(self):
         if 'source_id' in request.args:
-            source_id = request.args['source_id']
+            source_id = int(request.args['source_id'])
         else:
             return jsonify({'message': "Error, source_id is required", 'code': 500})
         if 'user_id' in request.args:
-            user_id = request.args['user_id']
+            user_id = int(request.args['user_id'])
         else:
             return jsonify({'message': "Error, user_id is required", 'code': 500})
         now = Queue.query.filter_by(source_id=source_id).first()
+        if now == None:
+            print(source_id)
+            return jsonify({'message': "unexpected error", 'code': 500})
         if now.status == None:
             return jsonify({'message': "pending", 'code': 500})
-        
+        status = now.status
+        from backend import db
+        db.session.delete(now)
+        db.session.commit() 
         # from backend.convert_file_to_json import convert_file_to_json as yea
         # res = yea("buffer/"+str(source_id)+'.ans')
-        from backend import db
-        if now.status in ['AC','WA']:
+        if status in ['AC','WA']:
             if not os.path.isdir(buffer_dir):
                 os.mkdir(buffer_dir)
             with open(os.path.join(buffer_dir, str(source_id)+".ans"), mode="r", encoding="utf-8") as file:
                 res = file.read()
-            db.session.delete(now)
-            db.session.commit()
-            return jsonify({'message':'OK','output':res,'status':now.status})
-        db.session.delete(now)
-        db.session.commit()
-        return jsonify({'message':now.error_message,'output':"",'status':now.status})
+            with open(os.path.join(buffer_dir, str(source_id)+".cans"), mode="r", encoding="utf-8") as file:
+                res2 = file.read()  
+            return jsonify({'message':'OK','output':res,'status':status,'correct_ans_output':res2})
+        return jsonify({'message':now.error_message,'output':"",'status':status})
 
     def post(self):
         from backend import db
@@ -261,9 +271,15 @@ class test_run(Resource):
         new_queue = Queue(user_id=args.user_id, mode=2, problem_id=args.problem_id, language=args.language,
                           upload_date=datetime.datetime.now(), code_content=args.code_content, test_case_count=1)
         source_id = Queue.query.count()+1
+        if args.language == "c":
+            lan = "c"
+        elif args.language == "c++":
+            lan = "cpp"
+        elif args.language == "python":
+            lan = "py"
         with open(os.path.join(buffer_dir, str(source_id) + ".in"), mode="w", encoding="utf-8") as file:
             file.write(args.test_case)
-        with open(os.path.join(buffer_dir, str(source_id) + '.' + str(args.language)), mode="w", encoding="utf-8") as file:
+        with open(os.path.join(buffer_dir, str(source_id) + '.' + str(lan)), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
         db.session.add(new_queue)
         db.session.commit()
@@ -309,8 +325,21 @@ class problem_id(Resource):
 
     #!!
     def delete(self, problem_id):
-        problem = Problem.query.filter_by(problem_id=problem_id).delete()
+        problem = Problem.query.filter_by(problem_id=problem_id).first()
+        if problem == None:
+            return jsonify({'message':'problem is not found','code':404})
+        if 'user_id' in request.args:
+            user_id = int(request.args['user_id'])
+        else:
+            return jsonify({'message':'user_id is required','code':500})
+        if problem.questioner_id != user_id:
+            return jsonify({'message':'wrong user','code':403})
+        problem_testcases = Problem_Testcase.query.filter_by(problem_id=problem_id).all()
+        shutil.rmtree(problem_dir+'/'+str(problem_id))
         from backend import db
+        for problem_testcase in problem_testcases:
+            db.session.delete(problem_testcase)
+        db.session.delete(problem)
         db.session.commit()
         return jsonify({'message': "Success to delete problem", 'code': 200})
 
@@ -327,38 +356,40 @@ class problem_solution(Resource):
 class status(Resource):
     def get(self):
         if 'page' in request.args:
-            page = request.args['page']
+            page = int(request.args['page'])
         else:
             return jsonify({"message ": " Error, page is required",'code':500})
         user_id = None
         problem_id = None
         if 'user_id' in request.args:
-            user_id = request.args['user_id']
-            user = User.query.filter_by(user_id=user_id).first()
+            user_id = int(request.args['user_id'])
+            user = User.query.filter_by(id=user_id).first()
             if user == None:
                 return jsonify({'message':'user is not found','code':404})
         if 'problem_id' in request.args:
-            problem_id = request.args['problem_id']
+            problem_id = int(request.args['problem_id'])
             problem = Problem.query.filter_by(problem_id=problem_id).first()
             if problem == None:
                 return jsonify({'message':'problem is not found','code':404})
         
+        per_page = 20
         if user_id and problem_id:
             submissions = Submission.query.filter_by(user_id=user_id, problem_id=problem_id).order_by(Submission.submission_id.desc()).paginate(
-                per_page=20, page=page)
+                per_page=per_page, page=page)
         elif problem_id:
             submissions = Submission.query.filter_by(problem_id=problem_id).order_by(Submission.submission_id.desc()).paginate(
-                per_page=20, page=page)
+                per_page=per_page, page=page)
         elif user_id:
             submissions = Submission.query.filter_by(user_id=user_id).order_by(Submission.submission_id.desc()).paginate(
-                per_page=20, page=page)
+                per_page=per_page, page=page)
         else:
             submissions = Submission.query.order_by(Submission.submission_id.desc()).paginate(
-                per_page=20, page=page)
+                per_page=per_page, page=page)
 
         ret = {}
         ret['code'] = 200
         ret["returnset"] = []
+        ret["maxpage"] = math.ceil(Submission.query.count() / per_page)
         for submission in submissions.items:
             time = submission.upload_date
             user = User.query.filter_by(id=submission.user_id).first()
@@ -366,6 +397,8 @@ class status(Resource):
                 "submission_id": submission.submission_id,
                 "problem_id": submission.problem_id,
                 "name": user.name,
+                "time": submission.time_used,
+                "memory": submission.memory_used,
                 "status": submission.status,
                 "language": submission.language,
                 "upload_date": time.strftime("%Y/%m/%d %H:%M:%S")
@@ -521,6 +554,28 @@ class submission_data(Resource):
 
 
 class queue_new(Resource):
+    def get(self):
+        if 'source_id' in request.args:
+            source_id = int(request.args['source_id'])
+        else:
+            return jsonify({'message': "Error, source_id is required", 'code': 404})
+        now = Queue.query.filter_by(source_id=source_id).first()
+        from backend import db
+        if now == None:
+            return jsonify({'message':'unexpected error','code':500})
+        elif now.status==None:
+            return jsonify({'message':'not ok','code':500})
+        else:
+            db.session.delete(now)
+            db.session.commit()    
+        from backend import db
+        submission = Submission.query.filter_by(source_id=source_id).first()
+        if submission == None:
+            return jsonify({'message':'unexpected error','code':404})
+        submission.source_id = None
+        db.session.commit()
+        return jsonify({'message':'ok','submission_id':submission.submission_id,'code':200})
+
     def post(self):
         from backend import db
         args = queue_post_args.parse_args()
@@ -547,8 +602,15 @@ class queue_new(Resource):
         db.session.commit()
         if not os.path.isdir(buffer_dir):
             os.mkdir(buffer_dir)
-
-        with open(os.path.join(buffer_dir, str(Queue.query.count()) + '.' + str(args.language)), mode="w", encoding="utf-8") as file:
+        if new_queue.language == "c":
+            lan = "c"
+        elif new_queue.language == "c++":
+            lan = "cpp"
+        elif new_queue.language == "python":
+            lan = "py"
+        else:
+            jsonify({'message':'unsupported language','code':500})
+        with open(os.path.join(buffer_dir, str(Queue.query.count()) + '.' + str(lan)), mode="w", encoding="utf-8") as file:
             file.write(args.code_content)
 
         ret['message'] = 'add queue success'
@@ -568,14 +630,14 @@ class queue_new(Resource):
                 ret['warning'] = 'exam is end'
                 return jsonify(ret)
 
-        return jsonify({'message': 'success', 'code': 200})
+        return jsonify({'message': 'success', 'code': 200, 'source_id':new_queue.source_id})
 
 
 class dispatcher(Resource):
     def get(self):
         from backend import db
         from backend.convert_file_to_json import convert_file_to_json as yea
-        queues = Queue.query.limit(10).all()
+        queues = Queue.query.filter_by(status=None).limit(10).all()
         datas = {}
         datas["Submission_Set"] = []
         cnt = 0
@@ -608,11 +670,25 @@ class dispatcher(Resource):
             if queue.mode in [1, 2]:
                 data["Correct_source_code"] = problem.correct_source_code
             if queue.mode in [1, 2]:
-                data["Code"] = yea(
-                    "buffer/"+str(queue.source_id)+'.'+str(queue.language))
+                if queue.language == "c":
+                    data["Code"] = yea(
+                        "buffer/"+str(queue.source_id)+'.c')
+                elif queue.language == "c++":
+                    data["Code"] = yea(
+                        "buffer/"+str(queue.source_id)+'.cpp')
+                elif queue.language == "python":
+                    data["Code"] = yea(
+                        "buffer/"+str(queue.source_id)+'.py')
             else:
-                data["Code"] = yea(
-                    "buffer/"+str(queue.user_id)+"/correct_source_code"+'.'+str(queue.language))
+                if queue.language == "c":
+                    data["Code"] = yea(
+                    "buffer/"+str(queue.user_id)+"/correct_source_code"+'.c')
+                elif queue.language == "c++":
+                    data["Code"] = yea(
+                    "buffer/"+str(queue.user_id)+"/correct_source_code"+'.cpp')
+                elif queue.language == "python":
+                    data["Code"] = yea(
+                    "buffer/"+str(queue.user_id)+"/correct_source_code"+'.py')
             data["All_test_case_general_submission"] = []
             data["Self_test_case"] = []
             if queue.mode == 1:
@@ -659,7 +735,7 @@ class dispatcher(Resource):
                 continue
             if data.mode == 1:
                 status = submission["Status"]
-                if data.exam_id:
+                if data.exam_id > 0:
                     exam = Exam.query.filter_by(exam_id=data.exam_id).first()
                     dashboard = Dashboard.query.filter_by(
                         exam_id=data.exam_id, user_id=data.user_id).first()
@@ -677,31 +753,26 @@ class dispatcher(Resource):
                                 exam_id=data.exam_id, user_id=data.user_id, solved_count=0, total_time=0)
                             db.session.add(dashboard)
                             db.session.commit()
-                        if dash == None:
-                            problem = Exam_problem.query.filter_by(
-                                exam_id=data.exam_id, problem_id=problem_id).first()
-                            if status != "AC":
-                                dash = Dashboard_with_problem(
-                                    exam_id=data.exam_id, user_id=data.user_id, problem_id=data.problem_id, sequence=problem.sequence, try_count=1, current_status=0)
-                            else:
-                                dash = Dashboard_with_problem(exam_id=data.exam_id, user_id=data.user_id, problem_id=data.problem_id,
-                                                            sequence=problem.sequence, try_count=1, solved_time=solved_time, current_status=1)
+                            problem_set = Exam_problem.query.filter_by(exam_id=data.exam_id).all()
+                            for problem in problem_set:
+                                dash = Dashboard_with_problem(exam_id=data.exam_id, user_id=data.user_id, problem_id=problem.problem_id,
+                                              sequence=problem.sequence)
+                                db.session.add(dash)
+                                db.session.commit()
+                            dash = Dashboard_with_problem.query.filter_by(
+                                exam_id=data.exam_id, user_id=data.user_id, problem_id=data.problem_id).first()
+                        
+                        if dash.current_status != 1:
+                            dash.try_count += 1
+                        if status == 'AC':
+                            if dash.current_status == 0:
+                                dash.current_status = 1
+                                dash.solved_time = solved_time
                                 dashboard.solved_count += 1
-                                dashboard.total_time += dash.solved_time
-                            db.session.add(dash)
-                            db.session.commit()
-                        else:
-                            if dash.current_status != 1:
-                                dash.try_count += 1
-                            if status == 'AC':
-                                if dash.current_status == 0:
-                                    dash.current_status = 1
-                                    dash.solved_time = solved_time
-                                    dashboard.solved_count += 1
-                                    dashboard.total_time += dash.solved_time + (dash.try_count - 1) * 20
-                            db.session.commit()
+                                dashboard.total_time += dash.solved_time + (dash.try_count - 1) * 20
+                        db.session.commit()
 
-                elif data.homework_id:
+                elif data.homework_id > 0:
                     homework = Homework.query.filter_by(
                         homework_id=data.homework_id).first()
                     student = Class_user.query.filter_by(
@@ -738,10 +809,10 @@ class dispatcher(Resource):
                 new_submission = Submission(user_id=data.user_id, problem_id=data.problem_id, source_id=submission["Source_id"], status=submission["Status"], code_content=data.code_content, exam_id=data.exam_id, homework_id=data.homework_id, error_hint=submission[
                     "Compile_error_out"], error_line=0, language=data.language, time_used=submission["Time"], memory_used=submission["Memory"], upload_date=data.upload_date)
 
+                data.status = status
                 db.session.add(new_submission)
-                db.session.delete(data)
                 db.session.commit()
-
+                
                 XD = 1  # status 的定義
                 user_problem = User_problem.query.filter_by(
                     user_id=data.user_id, problem_id=data.problem_id).first()
@@ -753,7 +824,7 @@ class dispatcher(Resource):
             elif data.mode == 2:
                 XD = 1  # compile_error_out 的 status
                 data.status = submission["Status"]
-                if data.status == "AC":
+                if data.status in ["AC","WA"]:
                     if not os.path.isdir(buffer_dir):
                         os.mkdir(buffer_dir)
                     with open(os.path.join(buffer_dir, str(data.source_id) + ".ans"), mode="w", encoding="utf-8") as file:
@@ -761,11 +832,13 @@ class dispatcher(Resource):
                                    [str(data.source_id)])
                 else:
                     data.error_message = submission["Compile_error_out"]
+                with open(os.path.join(buffer_dir, str(data.source_id) + ".cans"), mode="w", encoding="utf-8") as file:
+                        file.write(submission["Correct_answer_out"])
 
             else:
                 XD = 1  # compile_error_out 的 status
                 data.status = submission["Status"]
-                if data.status == "AC":
+                if data.status in ["AC","WA"]:
                     if not os.path.isdir(os.path.join(buffer_dir, str(data.user_id))):
                         os.mkdir(os.path.join(buffer_dir, str(data.user_id)))
                     cnt = 1
@@ -782,7 +855,7 @@ class dispatcher(Resource):
 class class_all(Resource):
     def get(self):  # 給所有班級資訊
         if 'page' in request.args:
-            page = request.args['page']
+            page = int(request.args['page'])
         else:
             return jsonify({'message': "Error, page is required", 'code': 404})
 
@@ -834,11 +907,11 @@ class A_class(Resource):
             return jsonify({'message': "class is not found", 'code': 404})
         user = User.query.filter_by(id=a_class.teacher_id).first()
         ret = {
-            "id": a_class.id,
-            "name": a_class.name,
+            "id": a_class.class_id,
+            "name": a_class.class_name,
             "semester": a_class.semester,
             "teacher_name": user.name,
-            "is_public": a_class.public,
+            "is_public": a_class.is_public,
             "invite_code": a_class.invite_code
         }
         return jsonify(ret)
@@ -922,26 +995,31 @@ class exam(Resource):
         for a_problem in exam_problem:
             problem = Problem.query.filter_by(
                 problem_id=a_problem.problem_id).first()
-            ret["problem_set"].append({'sequence':a_problem.sequence,'problem_name':problem.name,'problem_id':problem.problem_id})
+            ret["problem_set"].append({'exam_id':exam_id,'sequence':a_problem.sequence,'problem_name':problem.name,'problem_id':problem.problem_id})
         return jsonify(ret)
 
 
 class add_exam(Resource):
     def post(self):  # 新增考試
         args = exam_post_args.parse_args()
-
+        print(args)
         a_class = Class.query.filter_by(class_id=args.class_id).first()
         if a_class == None:
             return jsonify({'message': "class is not found", 'code': 404})
-        if a_class.teacher_id != args.user_id:
-            return jsonify({'message': "only teacher can create exam", 'code': 403})
+        # if a_class.teacher_id != args.user_id:
+        #     return jsonify({'message': "only teacher can create exam", 'code': 403})
 
         for a_problem in args.problem_set:
             problem = Problem.query.filter_by(problem_id=a_problem).first()
             if problem == None:
                 return jsonify({'message': "problem id = " + str(a_problem) + " is not found", 'code': 404})
-        start_time = datetime.datetime.strptime(args.exam_start_time, "%Y/%m/%d %H:%M:%S")
-        end_time = datetime.datetime.strptime(args.exam_end_time, "%Y/%m/%d %H:%M:%S")
+        now_time = datetime.datetime.now()
+        start_time = datetime.datetime.strptime(args.exam_start_time, "%Y-%m-%d %H:%M:%S")
+        end_time = datetime.datetime.strptime(args.exam_end_time, "%Y-%m-%d %H:%M:%S")
+        if start_time < now_time:
+            return jsonify({'message':'exam must be after now','code':500})
+        if end_time < start_time:
+            return jsonify({'message':'end_time must be after start_time','code':500})
         exam = Exam(class_id=args.class_id, name=args.exam_name, start_time=start_time,
                     end_time=end_time, exam_info=args.exam_info)
         from backend import db
@@ -981,6 +1059,7 @@ class dashboard(Resource):
             problem_set.append(exam_problem.problem_id)
         ret = {}
         ret["return_set"] = []
+        ret["problem_count"] = Exam_problem.query.filter_by(exam_id=exam_id).count()
         for line in lines:
             user = User.query.filter_by(id=line.user_id).first()
             a_student = {}
@@ -1012,16 +1091,18 @@ class add_homework(Resource):
         if a_class == None:
             return jsonify({'message': "class is not found", 'code': 404})
 
-        if args.user_id != a_class.teacher_id:
-            return jsonify({'message': "only teacher can create homework", 'code': 500})
+        # if args.user_id != a_class.teacher_id:
+        #     return jsonify({'message': "only teacher can create homework", 'code': 500})
 
         for a_problem in problem_set:
             problem = Problem.query.filter_by(problem_id=a_problem).first()
             if problem == None:
                 return jsonify({'message': "problem id = " + str(a_problem) + " is not found", 'code': 404})
 
-        upload_time = datetime.datetime.strptime(args.upload_time, "%Y/%m/%d %H:%M:%S")
-        deadline = datetime.datetime.strptime(args.deadline, "%Y/%m/%d %H:%M:%S")
+        upload_time = datetime.datetime.strptime(args.upload_time, "%Y-%m-%d %H:%M:%S")
+        deadline = datetime.datetime.strptime(args.deadline, "%Y-%m-%d %H:%M:%S")
+        if deadline < upload_time:
+            return jsonify({'message':'deadline must be after uploadtime','code':500})
         homework = Homework(class_id=args.class_id, name=args.homework_name,
                             upload_time=upload_time, deadline=deadline, homework_info=args.homework_info)
         from backend import db
@@ -1053,8 +1134,8 @@ class homework(Resource):
         ret = {}
         ret["class_id"] = homework.class_id
         ret["name"] = homework.name
-        ret["upload_time"] = homework.upload_time
-        ret["deadline"] = homework.deadline
+        ret["upload_time"] = homework.upload_time.strftime("%Y/%m/%d %H:%M:%S")
+        ret["deadline"] = homework.deadline.strftime("%Y/%m/%d %H:%M:%S")
         ret["homework_info"] = homework.homework_info
         ret["problem_set"] = []
         for a_problem in homework_problem:
@@ -1072,6 +1153,7 @@ class homework_status(Resource):
         homework_problem = Homework_problem.query.filter_by(
             homework_id=homework_id).all()
         ret = {}
+        ret["problem_count"] = Homework_problem.query.filter_by(homework_id=homework_id).count()
         ret["class_id"] = homework.class_id
         ret["name"] = homework.name
         ret["status_table"] = []
@@ -1096,9 +1178,22 @@ class exam_table(Resource):
         ret = []
         for exam in exams:
             a_exam = {}
+            a_exam["exam_id"] = exam.exam_id
             a_exam["name"] = exam.name
-            a_exam["start_time"] = datetime.datetime.strptime(
-            exam.start_time, "%Y/%m/%d %H:%M:%S")
-            a_exam["end_time"] = datetime.datetime.strptime(
-            exam.end_time, "%Y/%m/%d %H:%M:%S")
+            a_exam["start_time"] = exam.start_time.strftime("%Y/%m/%d %H:%M:%S")
+            a_exam["end_time"] = exam.end_time.strftime("%Y/%m/%d %H:%M:%S")
+            ret.append(a_exam)
+        return jsonify(ret)
+
+class homework_table(Resource):
+    def get(self,class_id):
+        homeworks = Homework.query.filter_by(class_id=class_id).order_by(Homework.homework_id).all()
+        ret = []
+        for homework in homeworks:
+            a_homework = {}
+            a_homework["homework_id"] = homework.homework_id
+            a_homework["name"] = homework.name
+            a_homework["upload_time"] = homework.upload_time.strftime("%Y/%m/%d %H:%M:%S")
+            a_homework["deadline"] = homework.deadline.strftime("%Y/%m/%d %H:%M:%S")
+            ret.append(a_homework)
         return jsonify(ret)
