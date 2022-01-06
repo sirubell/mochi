@@ -37,7 +37,7 @@
                 <td><router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link></td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.difficulty }}</td>
-                <td><input type="checkbox" :id=item.id :value=item.id v-model="problem_set" /><label :for=item.id >{{item.id}}</label></td>
+                <td><input type="checkbox" :id=item.id :value=item.id v-model="problem_set" /><label :for=item.id ></label></td>
             </tr>
           </table>
           <p>
