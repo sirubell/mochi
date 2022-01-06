@@ -9,7 +9,7 @@
               My profile
             </button>
           </li>
-          <li class="mb-1">
+          <!-- <li class="mb-1">
             <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="false">
               Tried Problem
             </button>
@@ -21,14 +21,14 @@
                 <li><a href="#" class="link-dark rounded">Annually</a></li>
               </ul>
             </div>
-          </li>
+          </li> -->
           <li class="mb-1">
             <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#account-collapse" aria-expanded="false">
               Change Profile
             </button>
             <div class="collapse" id="account-collapse">
               <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><router-link to="/change_email" class="link-dark rounded">Change Email</router-link></li>
+                <li><router-link to="/change_email" class="link-dark rounded">Change Name / Email</router-link></li>
                 <li><router-link to="/change_password" class="link-dark rounded">Change Password</router-link></li>
               </ul>
             </div>
