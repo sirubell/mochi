@@ -1,6 +1,7 @@
 <template>
   <div class="auth-inner">
     <form @submit.prevent="handleSubmit">
+        <div class="alert alert-info" role="alert">如果是第一次註冊帳號請先去信箱認證帳號！</div>
         <error v-if="error" :error="error"/>
         <h3>Login</h3>
         <div class="form-group">
