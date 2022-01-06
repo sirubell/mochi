@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>作業敘述:{{detail.homework_info}}</h1>
+    <h1>作業敘述:{{Homeworkinfo}}</h1>
     <table class="table" >
       <th>#</th>
       <th>題目名稱</th>
@@ -30,7 +30,7 @@ export default {
     axios.get('/homework/'+this.current)
     .then( response => {
       this.HomeworkTable = response.data.problem_set
-      this.detail = response.data
+      this.Homeworkinfo = response.data.homework_info
       console.log(this.current)
     })
     .catch( error => {

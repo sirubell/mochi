@@ -1,7 +1,7 @@
 <template>
 <div>
   <h1>{{ Exam_name }}</h1>
-  <h1>考試敘述:{{detail.homework_info}}</h1>
+  <h1>考試敘述:{{Examinfo}}</h1>
   <li>Start Time : {{ Examstarttime }}</li>
   <button type="button" ><a v-bind:href="ExamID+'/dashboard'" >考試計分表</a></button>
   <table class="table" >
@@ -41,7 +41,7 @@ export default {
       this.ExamID=this.current
       this.Examstarttime = response.data.start_time
       this.Exam_name = response.data.name
-      this.detail = response.data
+      this.Examinfo = response.data.exam_info
       console.log(response.data)
     })
     .catch( error => {
