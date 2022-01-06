@@ -41,6 +41,7 @@
       <!-- <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"> -->
       <form @submit.prevent="ChangePassword"> 
         <h2 class="d-flex border-bottom">Change Password</h2>
+        <error v-if="error" :error="error"/>
         <div class="edit">    
           <div class="edit-item">
             <span class="label d-flex">Change password :</span>
@@ -60,7 +61,7 @@
 
 <script>
 import axios from 'axios'
-// import Error from '../error.vue'
+import Error from '../error.vue'
 
 export default {
     name: 'Change_Password',
@@ -72,21 +73,19 @@ export default {
       }
     },
     components: {
-        // Error
+        Error
     },
     methods: {
         async ChangePassword(){ //利用 try catch 作錯誤偵測
-            try{
-                const response = await axios.put('user/change_profile_password', {
+            await axios.put('user/change_profile_password', {
                     password: this.password,
                     confirm_password: this.confirm_password
-                }); // 資料由後方物件帶入 
-                console.log(response);
-                this.$router.push('/user');
-            }
-            catch(e){
-                this.error = e;
-            }
+            }) // 資料由後方物件帶入 
+            .then( () => {  
+              this.$router.push('/user');
+            })
+            .catch( () => { this.error = 'Error:Wrong token'})
+            
         }
     },
     created(){

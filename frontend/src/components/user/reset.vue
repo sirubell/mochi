@@ -31,27 +31,6 @@ export default {
         }
     },
     methods: {
-        // async handleSubmit() {
-        //     try{
-        //         await axios.post('/forgot_password/confirm_token',{
-        //             token: this.token,
-        //             // token: this.$route.params.token
-        //         });
-        //         axios.get('/forgot_password/confirm_token')
-        //         .then( res => {
-        //             this.$store.dispatch('reset', res.data);
-        //         })
-        //         .catch(e => {
-        //             this.error = e
-        //         })
-        //         // console.log(response);
-        //         console.log(this.token);
-        //         this.$router.push('/reset_token');
-        //     }
-        //     catch(e){
-        //         this.error = 'Invalid token';
-        //     }
-        // }
         handleSubmit() {
         axios.post('/forgot_password/confirm_token',{
           token: this.token,
