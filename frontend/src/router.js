@@ -124,7 +124,7 @@ const routes = [
         component: Exam_id_problemset
       },
       {
-        path: 'exam/:id/:problemId',
+        path: 'exam/:examId/:problemId',
         component: Exam_id_problem
       },
       {

@@ -254,6 +254,8 @@ export default {
 
       const payload = {
         user_id: this.$store.getters.userInfo.user_id,
+        exam_id:this.$route.params.examId,
+        homework_id:this.$route.params.homeworkId,
         problem_id: this.info.id,
         language: this.selectedLanguage,
         code_content: this.code
