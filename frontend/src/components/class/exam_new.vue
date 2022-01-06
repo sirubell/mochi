@@ -121,7 +121,7 @@ export default {
 
       const postData = {
         class_id: 1,//this.current,
-        user_id: 1,//this.$store.getters.userInfo.user_id,
+        user_id: this.$store.getters.userInfo.user_id,
         exam_name: this.exam_name,
         exam_info: this.exam_info,
         exam_start_time: this.exam_start_time_date+" "+this.exam_start_time_time+":00",

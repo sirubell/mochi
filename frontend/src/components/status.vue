@@ -8,8 +8,8 @@
     <th>time</th>
     <th>memory</th>
     <th>upload_date</th>
-    <tr v-for="item,index in statusTable" :key="item.submission_id" >
-      <td><router-link :to="'/submission/' + item.submission_id"> {{ index+1 }}</router-link></td>
+    <tr v-for="item in statusTable" :key="item.submission_id" >
+      <td><router-link :to="'/submission/' + item.submission_id"> {{ item.submission_id }}</router-link></td>
       <td>{{ item.name }}</td>
       <td>{{ item.language }}</td>
       <td>{{ item.status }}</td>

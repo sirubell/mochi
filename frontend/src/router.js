@@ -112,7 +112,7 @@ const routes = [
         component: Homework_status
       },
       {
-        path: 'homework/problem/:problemId',
+        path: 'homework/:homeworkId/problem/:problemId',
         component: Problem
       },
       {

@@ -5,7 +5,7 @@
       <th>題目名稱</th>
       <th>Sequence</th>
       <tr v-for="item,counter in HomeworkTable" :key="item.id" >
-        <td><a v-bind:href="'problem/'+item.problem_id">{{counter+1}}</a></td>
+        <td><a v-bind:href="current+'/problem/'+item.problem_id">{{counter+1}}</a></td>
         <td>{{ item.problem_name }}</td>
         <td>{{ item.sequence }}</td>
       </tr>
