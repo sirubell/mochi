@@ -102,7 +102,7 @@ export default {
     checkTime() {
       const start = new Date(this.exam_start_time_date + ' ' + this.exam_start_time_time)
       const end = new Date(this.exam_end_time_date + ' ' + this.exam_end_time_time)
-
+      
       return start < end
     },
     onSumit() {
@@ -123,7 +123,7 @@ export default {
         this.error = "You have to choose at least one problem!"
         return
       }
-      if (this.$store.getters.userInfo.user_id === null) {
+      if (this.$store.getters.userInfo === null) {
         this.error = "You have to log in , if you want to create Exam!"
         return
       }
