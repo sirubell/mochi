@@ -110,12 +110,17 @@ export default {
         this.error = "Time is invalid."
         return
       }
-      if (this.exam_name ==null) {
+      if (this.exam_name === null) {
         this.error = "You have to give the exam a name!"
         return
       }
-      if (this.exam_info ==null) {
+      if (this.exam_info === null) {
         this.error = "You have to give the exam an info!"
+        return
+      }
+
+      if (this.problem_set === []) {
+        this.error = "You have to choose at least one problem!"
         return
       }
 
