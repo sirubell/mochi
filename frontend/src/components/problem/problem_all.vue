@@ -11,14 +11,14 @@
       <td>{{ item.name }}</td>
       <td>{{ item.difficulty }}</td>
       <td>{{ item.questioner_id }}</td>
-      <td v-if="user_id==item.questioner_id"><button v-on:click="delete_question(item.id,user_id)">Delete</button></td>
+      <td v-if="user_id===item.questioner_id"><button v-on:click="delete_question(item.id,user_id)">Delete</button></td>
     </tr>
   </table>
-  <p>
+
     <button v-if ="currentPage > 1 "  v-on:click="page_minus">Previous</button> 
-    <l1>第{{currentPage}}頁</l1>
+    <li>第{{currentPage}}頁</li>
     <button v-if ="maxpage > currentPage "  v-on:click="page_plus">Next</button>
-  </p>
+
   
   <div v-if="error">
     {{ error }}
@@ -37,8 +37,9 @@ export default {
       currentPage:1,
       problemTable: {},
       error: "",
-      user_id :this.$store.getters.userId
+      user_id :0,//this.$store.getters.userInfo.user_id
     }
+    
   },
   methods:{
     page_plus (){
@@ -62,7 +63,7 @@ export default {
       axios.get('problem?page='+this.currentPage)
       .then( response => {
         this.problemTable = response.data.returnset
-        console.log(this.currentPage)
+        // console.log(this.user_id)
       })
       .catch( error => {
         this.error = error
@@ -74,7 +75,8 @@ export default {
     .then( response => {
       this.problemTable = response.data.returnset
       this.maxpage=response.data.maxpage
-      console.log(response.data.maxpage)
+      this.user_id=this.$store.getters.userInfo.user_id
+      console.log("user"+this.user_id)
     })
     .catch( error => {
       this.error = error
