@@ -90,12 +90,11 @@ export default {
   },
   methods: {
     checkTime() {
-      const start = new Date(this.homework_start_time_date + ' ' + this.homework_start_time_time)
       const end = new Date(this.homework_end_time_date + ' ' + this.homework_end_time_time)
 
       const current = new Date()
 
-      return start < current && current < end
+      return current < end
     },
     editorInit() {
       // do nothing
