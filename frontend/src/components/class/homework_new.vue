@@ -100,7 +100,9 @@ export default {
       const start = new Date(this.homework_start_time_date + ' ' + this.homework_start_time_time)
       const end = new Date(this.homework_end_time_date + ' ' + this.homework_end_time_time)
 
-      return start < end
+      const current = new Date()
+
+      return start < current && current < end
     },
     editorInit() {
       // do nothing
