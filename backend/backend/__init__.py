@@ -89,6 +89,9 @@ api.add_resource(logout, "/logout")
 from backend.routes import signup
 api.add_resource(signup, "/signup")
 
+from backend.routes import validated_email
+api.add_resource(validated_email, "/check_email/<token>")
+
 from backend.routes import reset_sent_email
 api.add_resource(reset_sent_email, "/forgot_password/email")
 

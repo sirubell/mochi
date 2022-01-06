@@ -36,6 +36,11 @@ class User(db.Model, UserMixin):
         #utc8 = utc + time_range
     authority = db.Column(db.Integer, default=0)
     user_to_problem = db.relationship("User_problem", backref="user")
+    state = db.Column(db.Integer, default=0)
+    
+    def Open_permissions_token(self):
+        s = Serializer(app.config['SECRET_KEY'])
+        return s.dumps({'user_id': self.id}).decode('utf-8')
     
     def get_reset_token(self, expires_sec = 1800):
         s = Serializer(app.config['SECRET_KEY'], expires_sec)
