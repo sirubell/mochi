@@ -1,5 +1,5 @@
 <template>
-<div>
+<div style="background:#ffff">
     <h1>this is problem id page</h1>
     <p>Problem id = {{ problemID }}</p>
       <p><em>題目敘述 : </em>{{ ProblemContent.content }}</p>

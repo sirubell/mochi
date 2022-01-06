@@ -3,27 +3,27 @@
     <div class="row">
       <div class="col-6 test-start">
         <div class="mb-3">
-          <label for="problemName" class="form-label">Exam Name</label>
-          <input v-model="exam_name" type="text" class="form-control" id="problemName">
+          <label for="problemName" class="form-label">Homework Name</label>
+          <input v-model="homework_name" type="text" class="form-control" id="problemName">
         </div>
         <div class="mb-3">
-          <label for="problemDescription" class="form-label">Exam information</label>
-          <textarea v-model="exam_info" class="form-control" id="problemDescription" placeholder="" rows="5" style="resize: none;"></textarea>
+          <label for="problemDescription" class="form-label">Homework information</label>
+          <textarea v-model="homework_info" class="form-control" id="problemDescription" placeholder="" rows="5" style="resize: none;"></textarea>
         </div>
         <div class="row mb-3">
           <div class="col">
             <div class="mb-3">
-              <label for="timeLimit" class="form-label">Start Time</label>
+              <label for="timeLimit" class="form-label">Upload Time</label>
             </div>
-            <input type="date" id="start" name="trip-start"  min="2022-01-01" max="2022-12-31" v-model="exam_start_time_date">
-            <input type="time" id="appt" name="appt" min="00:00" max="23:59" v-model="exam_start_time_time" required>
+            <input type="date" id="start" name="trip-start"  min="2022-01-01" max="2022-12-31" v-model="homework_start_time_date">
+            <input type="time" id="appt" name="appt" min="00:00" max="23:59" v-model="homework_start_time_time" required>
           </div>
           <div class="col">
             <div class="mb-3">
-              <label for="timeLimit" class="form-label">End Time</label>
+              <label for="timeLimit" class="form-label">Deadline</label>
             </div>
-            <input type="date" id="start" name="trip-start"  :min="exam_start_time_date" max="2022-12-31" v-model="exam_end_time_date">
-            <input type="time" id="appt" name="appt" :min="exam_start_time_time" max="23:59" v-model="exam_end_time_time" required>
+            <input type="date" id="start" name="trip-start"  :min="homework_start_time_date" max="2022-12-31" v-model="homework_end_time_date">
+            <input type="time" id="appt" name="appt" :min="homework_start_time_time" max="23:59" v-model="homework_end_time_time" required>
           </div>
         </div>
       </div>
@@ -67,15 +67,15 @@ import Info from '../info.vue'
 
 export default {
     
-  name: "NewExam",
+  name: "NewHomework",
   data() {
     return {
-      exam_name: "",
-      exam_info: "",
-      exam_start_time_date: "",
-      exam_start_time_time: "",
-      exam_end_time_date: "",
-      exam_end_time_time: "",
+      homework_name: "",
+      homework_info: "",
+      homework_start_time_date: "",
+      homework_start_time_time: "",
+      homework_end_time_date: "",
+      homework_end_time_time: "",
       problem_set: [],
 
       //current: this.$route.params.id,
@@ -88,48 +88,48 @@ export default {
     }
   },
   watch: {
-    exam_start_time_date() {
-      this.exam_end_time_date = this.exam_start_time_date
+    homework_start_time_date() {
+      this.homework_end_time_date = this.homework_start_time_date
     },
-    exam_start_time_time() {
-      this.exam_end_time_time = this.exam_start_time_time
+    homework_start_time_time() {
+      this.homework_end_time_time = this.homework_start_time_time
     }
   },
   methods: {
-    editorInit() {
-      // do nothing
-    },
     checkTime() {
-      const start = new Date(this.exam_start_time_date + ' ' + this.exam_start_time_time)
-      const end = new Date(this.exam_end_time_date + ' ' + this.exam_end_time_time)
+      const start = new Date(this.homework_start_time_date + ' ' + this.homework_start_time_time)
+      const end = new Date(this.homework_end_time_date + ' ' + this.homework_end_time_time)
 
       return start < end
+    },
+    editorInit() {
+      // do nothing
     },
     onSumit() {
       if (!this.checkTime()) {
         this.error = "Time is invalid."
         return
       }
-      if (this.exam_name ==null) {
-        this.error = "You have to give the exam a name!"
+      if (this.homework_name ==null) {
+        this.error = "You have to give the homework a name!"
         return
       }
-      if (this.exam_info ==null) {
-        this.error = "You have to give the exam an info!"
+      if (this.homework_info ==null) {
+        this.error = "You have to give the homework an info!"
         return
       }
 
       const postData = {
         class_id: 1,//this.current,
         user_id: 1,//this.$store.getters.userInfo.user_id,
-        exam_name: this.exam_name,
-        exam_info: this.exam_info,
-        exam_start_time: this.exam_start_time_date+" "+this.exam_start_time_time+":00",
-        exam_end_time: this.exam_end_time_date+" "+this.exam_end_time_time+":59",
+        homework_name: this.homework_name,
+        homework_info: this.homework_info,
+        upload_time: this.homework_start_time_date+" "+this.homework_start_time_time+":00",
+        deadline: this.homework_end_time_date+" "+this.homework_end_time_time+":59",
         problem_set: this.problem_set,
       }
 
-      axios.post('/exam', postData)
+      axios.post('/homework', postData)
       .then( res => {
         const code = res.data.code
         
@@ -140,7 +140,7 @@ export default {
         }
       })
       .catch( () => {
-        this.error = "Exam Name is already be taken."
+        this.error = "Homework Name is already be taken."
       })
     },
     page_plus (){
