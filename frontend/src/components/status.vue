@@ -1,7 +1,7 @@
 <template>
 <div>
   <table class="table" >
-    <th>#</th>
+    <th>Submission ID</th>
     <th>User Name</th>
     <th>language</th>
     <th>status</th>
