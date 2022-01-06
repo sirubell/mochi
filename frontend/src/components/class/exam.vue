@@ -7,7 +7,7 @@
     <th>End time</th>
     <tr v-for="item,index in ExamTable" :key="item.id">
       <td>
-        <router-link v-if="checkTimeInRange(item.start_time, end_time)" :to="'exam/'+item.exam_id"> {{ index+1 }}</router-link>
+        <router-link v-if="checkTimeInRange(item.start_time, item.end_time)" :to="'exam/'+item.exam_id"> {{ index+1 }}</router-link>
         <p v-else>{{ index + 1 }}</p>
       </td>
       <td>{{ item.name }}</td>
