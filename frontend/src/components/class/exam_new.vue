@@ -123,6 +123,10 @@ export default {
         this.error = "You have to choose at least one problem!"
         return
       }
+      if (this.$store.getters.userInfo.user_id === null) {
+        this.error = "You have to log in , if you want to create Exam!"
+        return
+      }
 
       const postData = {
         class_id: 1,//this.current,

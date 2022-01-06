@@ -65,9 +65,9 @@ export default {
         this.problemTable = response.data.returnset
         // console.log(this.user_id)
       })
-      .catch( error => {
-        this.error = error
-      });
+      // .catch( error => {
+      //   this.error = error
+      // });
     },
   },
   created() {
