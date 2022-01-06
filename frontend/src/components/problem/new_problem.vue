@@ -123,11 +123,11 @@ export default {
       // do nothing
     },
     onTest() {
-      const user_id = this.$store.getters.userInfo.user_id
-      if (user_id === null) {
+      if (this.$store.getters.userInfo === null) {
         this.error = "You need to login to create a new problem."
         return
       }
+      const user_id = this.$store.getters.userInfo.user_id
 
       const language = this.info.language
       if (language === "language") {

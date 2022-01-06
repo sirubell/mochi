@@ -6,7 +6,7 @@
 
       <div class="mb-3">
         <label for="codeContent" class="form-label">Source Code</label>
-        <textarea v-model="code_content" class="form-control" id="codeContent" rows="15" style="resize: none;"></textarea>
+        <textarea readonly v-model="code_content" class="form-control" id="codeContent" rows="15" style="resize: none;"></textarea>
       </div>
 
       <div v-if="status" class="text-center alert" :class="status === 'AC' ? 'alert-success' : 'alert-danger'" role="alert">
