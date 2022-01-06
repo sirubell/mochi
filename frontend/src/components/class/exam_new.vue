@@ -146,6 +146,7 @@ export default {
         
         if (code === 200) {
           this.return_status = res.data.message
+          this.router.push('/class/exam/all')
         } else {
           this.error = res.data.message
         }
