@@ -8,7 +8,7 @@
       <tr v-for="item,counter in HomeworkTable" :key="item.id" >
         <td>
           <a v-if="checkTime(item.deadline)" v-bind:href="item.homework_id">{{counter+1}}</a>
-          <p>{{ counter + 1 }}</p>
+          <p v-else>{{ counter + 1 }}</p>
         </td>
         <td>{{ item.name }}</td>
         <td>{{ item.deadline }}</td>
