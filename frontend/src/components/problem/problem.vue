@@ -46,7 +46,7 @@
         <info v-if="return_status" :info="'Testcase status: ' + return_status" />
         <info v-if="expectOutput" :info="'Expect Output: ' + expectOutput" />
       </div>
-      <div class="col-lg-4 text-start border border-3" v-show="showDesc()">
+      <div class="col-lg-4 text-start border border-3" style="white-space: pre-line;" v-show="showDesc()">
         {{ info.content }}
       </div>
       <div class="col-lg-4 text-start border border-3" v-show="showSub()">
@@ -61,7 +61,9 @@
         </thead>
         <tbody>
           <tr v-for="sub in submissions" :key="sub.time">
-            <th scope="row">{{ sub.submission_id }}</th>
+            <th scope="row">
+              <router-link :to="'/submission/' + sub.submission_id">{{ sub.submission_id }}</router-link>
+            </th>
             <td>{{ sub.status }}</td>
             <td>{{ sub.language }}</td>
             <td>{{ sub.time }}</td>
