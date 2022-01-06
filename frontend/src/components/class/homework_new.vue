@@ -137,6 +137,7 @@ export default {
         
         if (code === 200) {
           this.return_status = res.data.message
+          this.router.push('/class/homework/all')
         } else {
           this.error = res.data.message
         }
