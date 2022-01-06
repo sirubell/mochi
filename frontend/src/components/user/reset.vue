@@ -61,7 +61,7 @@ export default {
         .then( () => {
           this.$router.push('/reset/' + this.token);
         })
-        .catch( error => { this.error = error})
+        .catch( () => { this.error = 'Error:Wrong token'})
       }
     }
 }
