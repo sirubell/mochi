@@ -9,6 +9,7 @@ from backend import bcrypt, app, mail
 from backend.config import parentdir
 from backend.argument import *
 import shutil
+import templates
 #from backend.argument import signup_post_args, submission_post_args, login_post_args, user_profile_put_args, problem_post_args, problem_put_args, problem_get_args, queue_post_args, dispatcher_post_args
 # 8同理9
 from flask_login import login_user, current_user, logout_user, login_required
@@ -408,7 +409,28 @@ class signup(Resource):
                 user_id=new_user.id, problem_id=problem.problem_id, status=0)
             db.session.add(new_user_problem)
         db.session.commit()
+
+        user = User.query.filter_by(email=args.email).first()
+        token = user.Open_permissions_token()
+        recipient = args.email
+        title = "開通Mochi"
+        msg = Message(title, recipients=[recipient])
+        
+        msg.html = render_template('check_email.html', user=user, token=token)
+        mail.send(msg)
+        
+
         return jsonify({"message ": " success to sigup"})
+
+class validated_email(Resource):
+    def get(self, token):
+        user = User.verify_reset_token(token)
+        user.state = 1
+        db.session.commit()
+        if user is None:
+            return "Fail"
+        return "Success"
+        
 
 
 class login(Resource):
@@ -417,11 +439,14 @@ class login(Resource):
             return jsonify({"message ": " Had login", "userId": current_user.id})
         args = login_post_args.parse_args()
         user = User.query.filter_by(email=args.email).first()
-        if user and bcrypt.check_password_hash(user.password, args.password):
+        check = bcrypt.check_password_hash(user.password, args.password)
+        if user and check and user.state:
             login_user(user, remember=args.remember)
             return jsonify({"message ": " Success to login.", "userId": user.id})
-        elif user:
+        elif user and user.state:
             abort(400, message=" wrong password")
+        elif user and check:
+            abort(400, message="Haven't validated")
         else:
             abort(404, message="Couldn't find the user(no this email)")
 
@@ -435,9 +460,9 @@ class reset_sent_email(Resource):
         user = User.query.filter_by(email=args.email).first()
         token = user.get_reset_token()
         recipient = args.email
-        title = "Reset your password."
+        title = "忘記密碼----重新設置密碼"
         msg = Message(title, recipients=[recipient])
-        msg.body = "This is a email to change your password in mochi, please paste token to the validated page.\n Token is the following: "+token
+        msg.body = "這是一封讓您修改mochi網站密碼的信件，請複製下列括號內容並輸入至驗證介面的token欄內。\n 『 " + token + " 』"
         mail.send(msg)
         return jsonify({"message": "success to send a mail"})
 
