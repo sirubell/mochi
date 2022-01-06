@@ -1,7 +1,7 @@
 <template>
 <div>
   <h1>{{ Exam_name }}</h1>
-  <h1>考試敘述:{{detail.homework_info}}</h1>
+  <h1>考試敘述:{{detail.exam_info}}</h1>
   <li>Start Time : {{ Examstarttime }}</li>
   <button type="button" ><a v-bind:href="ExamID+'/dashboard'" >考試計分表</a></button>
   <table class="table" >
