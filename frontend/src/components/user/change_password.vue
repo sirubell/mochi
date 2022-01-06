@@ -28,7 +28,7 @@
             </button>
             <div class="collapse" id="account-collapse">
               <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><router-link to="/change_email" class="link-dark rounded">Change Email</router-link></li>
+                <li><router-link to="/change_email" class="link-dark rounded">Change Name / Email</router-link></li>
                 <li><router-link to="/change_password" class="link-dark rounded">Change Password</router-link></li>
               </ul>
             </div>

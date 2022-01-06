@@ -1,18 +1,26 @@
 <template>
 <div>
-    <h1>{{status_detail.class_id}}</h1>
-    <p >{{status_detail.name}}</p>
-  <table class="table" >
-    <th>#</th>
-    <th>status</th>
-    <th>student_id</th>
-    <tr v-for="item,index in statusTable" :key="item.id" >
-      <td>{{ index+1 }}</td>
-      <td>{{ item.status }}</td>
-      <td>{{ item.student_id }}</td>
-      <!-- <td>{{ item.status }}</td>
-      <td>{{ item.upload_date }}</td> -->
-    </tr>
+    <h1>課程名稱: {{class_id}}</h1>
+    <p >作業名稱: {{name}}</p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col" style="width: 10%">StudentID</th>
+        <th scope="col" v-for="(item, index) in problem_count" :key="index">Problem: {{ item }}</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr v-for="item in statusTable" :key="item.student_id">
+        <th scope="row">{{ item.student_id }}</th>
+        <td v-for="p in item.status" :key="p.sequence">
+          <div v-if="p.status === 0" class="alert alert-danger" role="alert">未解</div>
+          <div v-if="p.status === 1" class="alert alert-warning" role="alert">寫了但沒過</div>
+          <div v-if="p.status === 2" class="alert alert-success" role="alert">已通過</div>
+        </td>
+      </tr>
+    </tbody>
+
   </table>
   <!-- <p>
     <button v-if ="currentPage > 1 "  v-on:click="page_minus">Previous</button> 
@@ -34,7 +42,9 @@ export default {
     return {
       //currentPage:1,
       statusTable: {},
-      status_detail:{},
+      problem_count: 0,
+      class_id: "",
+      name: "",
       error: "",
       user_id :this.$store.getters.userId,
       current: this.$route.params.id,
@@ -44,7 +54,9 @@ export default {
     axios.get('/homework_status/'+this.current)
     .then( response => {
       this.statusTable = response.data.status_table
-      this.status_detail = response.data
+      this.problem_count = response.data.problem_count
+      this.name = response.data.name
+      this.class_id = response.data.class_id
     //   this.maxpage=response.data.maxpage
       console.log(this.status_detail)
     })

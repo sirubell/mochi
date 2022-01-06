@@ -6,7 +6,7 @@
 
       <div class="mb-3">
         <label for="codeContent" class="form-label">Source Code</label>
-        <textarea v-model="code_content" class="form-control" id="codeContent" rows="15" style="resize: none;"></textarea>
+        <textarea readonly v-model="code_content" class="form-control" id="codeContent" rows="15" style="resize: none;"></textarea>
       </div>
 
       <div v-if="status" class="text-center alert" :class="status === 'AC' ? 'alert-success' : 'alert-danger'" role="alert">
@@ -106,9 +106,21 @@ export default {
     }
   },
   created() {
-    axios.get('/submission/' + this.$route.params.submission_id)
+    const user = this.$store.getters.userInfo
+    if (user === null) {
+      this.$router.push('/login')
+      return
+    }
+    axios.get('/submission/' + this.$route.params.submission_id, {
+      params: {
+        user_id: user.user_id
+      }
+    })
     .then( res => {
-      console.log(res.data)
+      if (res.data.message === "you haven't solved this problem") {
+        this.error = res.data.message
+        return
+      }
       this.code_content = res.data.code_content
 
       if (res.data.error_hint !== "") {

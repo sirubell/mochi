@@ -37,7 +37,7 @@
                 <td><router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link></td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.difficulty }}</td>
-                <td><input type="checkbox" :id=item.id :value=item.id v-model="problem_set" /><label :for=item.id >{{item.id}}</label></td>
+                <td><input type="checkbox" :id=item.id :value=item.id v-model="problem_set" /><label :for=item.id ></label></td>
             </tr>
           </table>
           <p>
@@ -102,8 +102,10 @@ export default {
     checkTime() {
       const start = new Date(this.exam_start_time_date + ' ' + this.exam_start_time_time)
       const end = new Date(this.exam_end_time_date + ' ' + this.exam_end_time_time)
+      
+      const current = new Date()
 
-      return start < end
+      return start < current && current < end
     },
     onSumit() {
       if (!this.checkTime()) {
@@ -123,6 +125,10 @@ export default {
         this.error = "You have to choose at least one problem!"
         return
       }
+      if (this.$store.getters.userInfo === null) {
+        this.error = "You have to log in , if you want to create Exam!"
+        return
+      }
 
       const postData = {
         class_id: 1,//this.current,
@@ -140,6 +146,7 @@ export default {
         
         if (code === 200) {
           this.return_status = res.data.message
+          this.router.push('/class/exam/all')
         } else {
           this.error = res.data.message
         }

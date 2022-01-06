@@ -28,7 +28,7 @@
             </button>
             <div class="collapse" id="account-collapse">
               <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><router-link to="/change_email" class="link-dark rounded">Change Email</router-link></li>
+                <li><router-link to="/change_email" class="link-dark rounded">Change Name / Email</router-link></li>
                 <li><router-link to="/change_password" class="link-dark rounded">Change Password</router-link></li>
               </ul>
             </div>
@@ -74,11 +74,10 @@ export default {
         async ChangeEmail()
         { //利用 try catch 作錯誤偵測
             try{
-                const response = await axios.put('user/change_profile_name_email', {
+                await axios.put('user/change_profile_name_email', {
                     name: this.name,
                     email: this.email
                 }); // 資料由後方物件帶入 
-                console.log(response);
                 this.$router.push('/user');
             }
             catch(e){
@@ -87,15 +86,13 @@ export default {
         }
     },
     created(){
-        axios.get('http://192.168.122.134:5000/user/change_profile_name_email')
-      .then( response => {
-        this.data = response.data
-        console.log(this.data)
-      })
-      .catch( () => {
-        this.error = 'Invalid username/email!'
-      });
-    },
+      const user = this.$store.getters.userInfo
+      if (user === null) {
+        this.router.push('/login')
+      }
+      this.name = user.name
+      this.email = user.email
+    }
 }
 </script>
 

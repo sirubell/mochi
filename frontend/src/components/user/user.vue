@@ -28,7 +28,7 @@
             </button>
             <div class="collapse" id="account-collapse">
               <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><router-link to="/change_email" class="link-dark rounded">Change Email</router-link></li>
+                <li><router-link to="/change_email" class="link-dark rounded">Change Name / Email</router-link></li>
                 <li><router-link to="/change_password" class="link-dark rounded">Change Password</router-link></li>
               </ul>
             </div>
@@ -62,6 +62,12 @@
           <label for="staticRegisterDate" class="col-sm-2 col-form-label">Register Date</label>
           <div class="col-sm-10">
             <input type="text" readonly class="form-control-plaintext" id="staticRegisterDate" :value="userInfo.register_date">
+          </div>
+        </div>
+        <div class="d-flex mb-3 row">
+          <label for="solvedProblem" class="col-sm-2 col-form-label">Solved Problem</label>
+          <div class="col-sm-10">
+            <input type="text" readonly class="form-control-plaintext" id="solvedProblem" :value="userInfo.user_problem">
           </div>
         </div>
       <!-- </div> -->

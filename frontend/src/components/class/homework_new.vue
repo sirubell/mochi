@@ -13,13 +13,6 @@
         <div class="row mb-3">
           <div class="col">
             <div class="mb-3">
-              <label for="timeLimit" class="form-label">Upload Time</label>
-            </div>
-            <input type="date" id="start" name="trip-start"  min="2022-01-01" max="2022-12-31" v-model="homework_start_time_date">
-            <input type="time" id="appt" name="appt" min="00:00" max="23:59" v-model="homework_start_time_time" required>
-          </div>
-          <div class="col">
-            <div class="mb-3">
               <label for="timeLimit" class="form-label">Deadline</label>
             </div>
             <input type="date" id="start" name="trip-start"  :min="homework_start_time_date" max="2022-12-31" v-model="homework_end_time_date">
@@ -37,7 +30,7 @@
                 <td><router-link :to="'/problem/' + item.id"> {{ index+1 }} </router-link></td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.difficulty }}</td>
-                <td><input type="checkbox" :id=item.id :value=item.id v-model="problem_set" /><label :for=item.id >{{item.id}}</label></td>
+                <td><input type="checkbox" :id=item.id :value=item.id v-model="problem_set" /><label :for=item.id ></label></td>
             </tr>
           </table>
           <p>
@@ -97,10 +90,11 @@ export default {
   },
   methods: {
     checkTime() {
-      const start = new Date(this.homework_start_time_date + ' ' + this.homework_start_time_time)
       const end = new Date(this.homework_end_time_date + ' ' + this.homework_end_time_time)
 
-      return start < end
+      const current = new Date()
+
+      return current < end
     },
     editorInit() {
       // do nothing
@@ -124,7 +118,6 @@ export default {
         user_id: 1,//this.$store.getters.userInfo.user_id,
         homework_name: this.homework_name,
         homework_info: this.homework_info,
-        upload_time: this.homework_start_time_date+" "+this.homework_start_time_time+":00",
         deadline: this.homework_end_time_date+" "+this.homework_end_time_time+":59",
         problem_set: this.problem_set,
       }
@@ -135,6 +128,7 @@ export default {
         
         if (code === 200) {
           this.return_status = res.data.message
+          this.router.push('/class/homework/all')
         } else {
           this.error = res.data.message
         }
