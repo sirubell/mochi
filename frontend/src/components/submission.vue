@@ -106,9 +106,21 @@ export default {
     }
   },
   created() {
-    axios.get('/submission/' + this.$route.params.submission_id)
+    const user = this.$store.getters.userInfo
+    if (user === null) {
+      this.$router.push('/login')
+      return
+    }
+    axios.get('/submission/' + this.$route.params.submission_id, {
+      params: {
+        user_id: user.user_id
+      }
+    })
     .then( res => {
-      console.log(res.data)
+      if (res.data.message === "you haven't solved this problem") {
+        this.error = res.data.message
+        return
+      }
       this.code_content = res.data.code_content
 
       if (res.data.error_hint !== "") {
