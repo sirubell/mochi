@@ -74,7 +74,7 @@ export default {
         async ChangeEmail()
         { //利用 try catch 作錯誤偵測
             try{
-                const response = await axios.put('user/change_profile_name_email', {
+                await axios.put('user/change_profile_name_email', {
                     name: this.name,
                     email: this.email
                 }); // 資料由後方物件帶入 
