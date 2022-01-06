@@ -33,10 +33,10 @@
         </a>
 
         <ul class="nav col-md-4 justify-content-end">
-          <li class="nav-item"><router-link to="/home" class="nav-link px-2 text-muted">Home</router-link></li>
-          <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Features</a></li>
-          <li class="nav-item"><a href="https://sites.google.com/view/ntpuprog" class="nav-link px-2 text-muted">Website</a></li>
-          <li class="nav-item"><a href="https://www.facebook.com/NTPUProgClub" class="nav-link px-2 text-muted">FB</a></li>
+          <li class="nav-item"><router-link to="/home" class="nav-link px-3 text-muted">Home</router-link></li>
+          <li class="nav-item"><a href="#" class="nav-link px-3 text-muted">Features</a></li>
+          <li class="nav-item"><a href="https://sites.google.com/view/ntpuprog" class="nav-link px-3 text-muted">Website</a></li>
+          <li class="nav-item"><a href="https://www.facebook.com/NTPUProgClub" class="nav-link px-3 text-muted">FB</a></li>
         </ul>
       </footer>
     </div>
