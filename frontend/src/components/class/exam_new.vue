@@ -102,10 +102,14 @@ export default {
     checkTime() {
       const start = new Date(this.exam_start_time_date + ' ' + this.exam_start_time_time)
       const end = new Date(this.exam_end_time_date + ' ' + this.exam_end_time_time)
-      
+   
       const current = new Date()
-
-      return start < current && current < end
+      console.log(start)
+      console.log(current)
+      console.log(end)
+      console.log(start > current )
+      console.log(start < end)
+      return start > current && start < end
     },
     onSumit() {
       if (!this.checkTime()) {
